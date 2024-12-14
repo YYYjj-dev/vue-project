@@ -35,7 +35,7 @@ public class UserController extends BaseController{
 
         if(null==loginUser){
             result = Result.build(null,ResultCodeEnum.USERNAME_ERROR);
-        } else if(!MD5Util.encrypt(User.getPassword()).equals(loginUser.getPassword())) {
+        } else if(!(User.getPassword().equals(loginUser.getPassword()))) {
             result = Result.build(null,ResultCodeEnum.PASSWORD_ERROR);
         }else{
             loginUser.setPassword("");

@@ -10,7 +10,7 @@ public class UserDao extends BaseDao {
     }
 
     public User getUserByUsername(String username) {
-        String sql = "select";
+        String sql = "select * from user where username = ?";
         List<User> user = baseQuery(User.class,sql,username);
         return user.isEmpty() ? null : user.get(0);
     }

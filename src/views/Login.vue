@@ -4,14 +4,14 @@
             <div class="form-container">
                 <div class="input-item">
                     <span class="label">账号</span>
-                    <input type="text" v-model="username" placeholder="请输入账号">
+                    <input type="text" v-model="loginUser.username" placeholder="请输入账号">
                 </div>
                 <div class="input-item">
                     <span class="label">密码</span>
-                    <input type="password" v-model="password" placeholder="请输入密码">
+                    <input type="password" v-model="loginUser.password" placeholder="请输入密码">
                 </div>
                 <div class="button-container">
-                    <button class="login-btn" @click="handleLogin">登录</button>
+                    <button class="login-btn" @click="Login">登录</button>
                     <button class="register-btn" @click="goToRegister">去注册</button>
                 </div>
             </div>
@@ -19,38 +19,36 @@
     </div>
 </template>
 
-<script>
-import { ref } from 'vue'
+<script setup>
+import { ref ,reactive} from 'vue'
 import { useRouter } from 'vue-router'
 import request from '../utils/request'
 
+const router = useRouter()
+let loginUser=reactive({
+    username:'',
+    password:''
+})
 
-export default {
-    name: 'Login',
-    setup() {
-        const router = useRouter()
-        const username = ref('')
-        const password = ref('')
-
-        const handleLogin = async () => {
-            // 这里添加登录逻辑
-            let {data} = await request.post('/login')
-            console.log(data)
-            alert('从后端test返回的字符串'+data.data)
+    async function Login() {
+        // 这里添加登录逻辑
+        let {data} = await request.post('/user/login',loginUser)
+        if(data.code==200){
+            alert("登录成功")
+            router.push('/')
+        }else if(data.code==501){
+            alert("账号不存在")
+        }else if(data.code==503){
+            alert("密码错误")
+        }else{
+            alert("其他未知错误")
         }
-
-        const goToRegister = () => {
-            router.push('/register')
-        }
-
-        return {
-            username,
-            password,
-            handleLogin,
-            goToRegister
-        }
+        console.log(data)
     }
-}
+
+    const goToRegister = () => {
+        router.push('/register')
+    }
 </script>
 
 <style scoped>
