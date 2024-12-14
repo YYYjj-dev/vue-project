@@ -3,7 +3,8 @@
         <div class="register-box">
             <div class="form-container">
                 <div class="input-item">
-                    <input type="text" v-model="registUser.username" placeholder="账号">
+                    <input type="text" v-model="registUser.username" placeholder="账号" @blur="checkUsername">
+                    <span class="msg" v-text="usernameMsg"></span>
                 </div>
                 <div class="input-item">
                     <input type="password" v-model="registUser.password" placeholder="密码">
@@ -24,26 +25,45 @@ import { ref,reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '../utils/request'
 
-        const router = useRouter()
-        let registUser = reactive({
+
+    let confirmPassword = ref('')
+    let usernameMsg = ref('')
+    const router = useRouter()
+    let registUser = reactive({
         username:'',
         password:''
      })
-        let confirmPassword = ref('')
+        
 
+    async function checkUsername(){
+    //校验账号是否被占用
+    let {data} = await request.post(`/user/checkUsernameUsed?username=${registUser.username}`)
+    if(data.code!=200){
+        usernameMsg.value = '账号已存在'
+        return false
+    }
+    usernameMsg.value='可用'
+    return true
+    }
         async function Regist (){
+
             if (registUser.password!= confirmPassword.value) {
                 console.log( registUser.password+'  '+confirmPassword.value)
                 alert('两次输入的密码不一致')
-            }else{
+            }else if(checkUsername){
                 await request.post('/user/regist',registUser)
-                alert('注册成功')
+                alert('注册成功,前去登录')
+                router.push('/login')
                 console.log('注册:', registUser.username+registUser.password)
             }
         }
 </script>
 
 <style scoped>
+
+.msg{
+    color: red;
+}
 .register-container {
     display: flex;
     justify-content: center;
