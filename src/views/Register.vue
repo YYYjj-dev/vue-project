@@ -3,51 +3,44 @@
         <div class="register-box">
             <div class="form-container">
                 <div class="input-item">
-                    <input type="text" v-model="username" placeholder="账号">
+                    <input type="text" v-model="registUser.username" placeholder="账号">
                 </div>
                 <div class="input-item">
-                    <input type="password" v-model="password" placeholder="密码">
+                    <input type="password" v-model="registUser.password" placeholder="密码">
                 </div>
                 <div class="input-item">
                     <input type="password" v-model="confirmPassword" placeholder="确认密码">
                 </div>
                 <div class="button-container">
-                    <button class="register-btn" @click="handleRegister">注册</button>
+                    <button class="register-btn" @click="Regist">注册</button>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<script>
-import { ref } from 'vue'
+<script setup>
+import { ref,reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import request from '../utils/request'
 
-export default {
-    name: 'Register',
-    setup() {
         const router = useRouter()
-        const username = ref('')
-        const password = ref('')
-        const confirmPassword = ref('')
+        let registUser = reactive({
+        username:'',
+        password:''
+     })
+        let confirmPassword = ref('')
 
-        const handleRegister = () => {
-            if (password.value !== confirmPassword.value) {
+        async function Regist (){
+            if (registUser.password!= confirmPassword.value) {
+                console.log( registUser.password+'  '+confirmPassword.value)
                 alert('两次输入的密码不一致')
-                return
+            }else{
+                await request.post('/user/regist',registUser)
+                alert('注册成功')
+                console.log('注册:', registUser.username+registUser.password)
             }
-            // 这里添加注册逻辑
-            console.log('注册:', username.value, password.value)
         }
-
-        return {
-            username,
-            password,
-            confirmPassword,
-            handleRegister
-        }
-    }
-}
 </script>
 
 <style scoped>
