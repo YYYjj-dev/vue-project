@@ -22,6 +22,8 @@
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import request from '../utils/request'
+
 
 export default {
     name: 'Login',
@@ -30,9 +32,11 @@ export default {
         const username = ref('')
         const password = ref('')
 
-        const handleLogin = () => {
+        const handleLogin = async () => {
             // 这里添加登录逻辑
-            console.log('登录:', username.value, password.value)
+            let {data} = await request.post('/login')
+            console.log(data)
+            alert('从后端test返回的字符串'+data.data)
         }
 
         const goToRegister = () => {
