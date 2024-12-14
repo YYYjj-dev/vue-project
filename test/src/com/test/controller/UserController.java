@@ -5,7 +5,6 @@ import com.test.common.ResultCodeEnum;
 import com.test.pojo.User;
 import com.test.service.UserService;
 import com.test.service.impl.UserServiceImpl;
-import com.test.util.MD5Util;
 import com.test.util.WebUtil;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
