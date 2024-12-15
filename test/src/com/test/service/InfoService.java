@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface InfoService {
     List<News> findAllNews();
+
+    News findNewsById(Integer id);
 }

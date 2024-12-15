@@ -22,11 +22,17 @@ public class InfoController extends BaseController{
     private InfoService infoService = new InfoServiceImpl();
 
     protected void findAllNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ;
         List<News> itemList = infoService.findAllNews();
         Map data = new HashMap();
         data.put("itemList", itemList);
         Result result = Result.ok(data);
+        WebUtil.writeJson(resp,result);
+    }
+    protected void findNewsById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        News newsInfo = infoService.findNewsById(id);
+        Result result = Result.ok(newsInfo);
         WebUtil.writeJson(resp,result);
     }
 }

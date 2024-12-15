@@ -13,4 +13,9 @@ public class InfoServiceImpl implements InfoService {
     public List<News> findAllNews() {
         return newsDao.findAllNews();
     }
+
+    @Override
+    public News findNewsById(Integer id) {
+        return newsDao.findNewsById(id);
+    }
 }

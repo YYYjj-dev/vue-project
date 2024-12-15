@@ -9,4 +9,10 @@ public class NewsDao extends BaseDao{
         List<News> itemList = baseQuery(News.class, sql);
         return itemList;
     }
+
+    public News findNewsById(Integer id) {
+        String sql = "select title,content,date from news where id=?";
+        List<News> newsList = baseQuery(News.class, sql, id);
+        return newsList.isEmpty() ? null : newsList.get(0);
+    }
 }
