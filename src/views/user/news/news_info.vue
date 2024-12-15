@@ -5,9 +5,9 @@
         <div class="content-container">
             <!-- 标题 -->
             <div class="title-container" v-if="news">
-                <h1 class="news-title">{{ news.title }}</h1>
+                <h1 class="news-title">{{ news.data.title }}</h1>
                 <div class="news-meta">
-                    <span class="publish-date" >发布时间：2024-01-20</span>
+                    <span class="publish-date" >发布时间{{ news.data.date }}</span>
                     <span class="read-count">阅读量：1.2k</span>
                 </div>
             </div>
@@ -15,7 +15,7 @@
             <!-- 主要内容区域 -->
             <div class="main-content" v-if="news">
                 <div class="content-box">
-                    <p>{{ news.details }}</p>
+                    <p>{{ news.data.content }}</p>
                 </div>
             </div>
 
@@ -84,99 +84,43 @@
     </div>
 </template>
 
-<script>
+<script setup name='news_info' components="NavBar">
+import { ref,onMounted } from 'vue';
 import NavBar from '../../../components/NavBar.vue'
+import {useRoute} from 'vue-router'
+import request from '../../../utils/request'
 
-export default {
-    name: 'news_info',
-    components: {
-        NavBar
-    },
-    data() {
-        return {
-            news: null,
-            newComment: '',
-            comments: [
-                { content: '这篇文章写得很好，内容很有价值！' },
-                { content: '分析得很透彻，给了我很多启发。' },
-                { content: '希望能看到更多类似的深度文章。' },
-                { content: '观点很新颖，值得深入思考。' }
-            ],
-            relatedArticles: [
-                { title: '食品添加剂的发展趋势' },
-                { title: '天然添加剂的优势分析' },
-                { title: '添加剂安全使用指南' },
-                { title: '未来食品工业展望' }
-            ],
-            newsData: [
-                // 角度1的内容
-                { 
-                    id: 1, 
-                    title: '内容1-1', 
-                    description: '内容1-1的简要描述', 
-                    details: '详细内容1-1' 
-                },
-                { 
-                    id: 2, 
-                    title: '内容1-2', 
-                    description: '内容1-2的简要描述', 
-                    details: '详细内容1-2' 
-                },
-                { 
-                    id: 3, 
-                    title: '内容1-3', 
-                    description: '内容1-3的简要描述', 
-                    details: '详细内容1-3' 
-                },
-                // 角度2的内容
-                { 
-                    id: 4, 
-                    title: '内容2-1', 
-                    description: '内容2-1的简要描述', 
-                    details: '详细内容2-1' 
-                },
-                { 
-                    id: 5, 
-                    title: '内容2-2', 
-                    description: '内容2-2的简要描述', 
-                    details: '详细内容2-2' 
-                },
-                { 
-                    id: 6, 
-                    title: '内容2-3', 
-                    description: '内容2-3的简要描述', 
-                    details: '详细内容2-3' 
-                },
-                // 角度3的内容
-                { 
-                    id: 7, 
-                    title: '内容3-1', 
-                    description: '内容3-1的简要描述', 
-                    details: '详细内容3-1' 
-                },
-                { 
-                    id: 8, 
-                    title: '内容3-2', 
-                    description: '内容3-2的简要描述', 
-                    details: '详细内容3-2' 
-                },
-                { 
-                    id: 9, 
-                    title: '内容3-3', 
-                    description: '内容3-3的简要描述', 
-                    details: '详细内容3-3' 
-                }
-            ]
+    
+        let route = useRoute()
+        let nid=route.params.id
+        let news=ref({title:'',content:'',data:''})
+        let comments=[
+        { content: '这篇文章写得很好，内容很有价值！' },
+        { content: '分析得很透彻，给了我很多启发。' },
+        { content: '希望能看到更多类似的深度文章。' },
+        { content: '观点很新颖，值得深入思考。' }
+        ]
+        let relatedArticles =[
+        { title: '食品添加剂的发展趋势' },
+        { title: '天然添加剂的优势分析' },
+        { title: '添加剂安全使用指南' },
+        { title: '未来食品工业展望' }
+        ]
+
+        onMounted(()=>{
+            showNews(nid)
+        })
+    async function showNews(id){
+      let {data} = await request.get(`info/news/findNewsById?id=${id}`)
+      news.value = data
+      console.log(data)
+      console.log(news.value)
+      console.log(news.value.data.title)
         }
-    },
-    created() {
-        const newsId = parseInt(this.$route.params.id, 10)
-        this.news = this.newsData.find(news => news.id === newsId)
-        if (!this.news) {
-            console.error('News not found')
-        }
-    }
-}
+     
+    //newsData []
+
+
 </script>
 
 <style scoped>

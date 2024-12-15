@@ -77,7 +77,7 @@ const router = createRouter({
             component: () => import('../views/user/news/news.vue')
         },
         {
-            path: '/news_info:id',
+            path: '/news_info/:id',
             name: 'news_info',
             component: () => import('../views/user/news/news_info.vue'),
             props: true  // 使用路由参数作为 props 传递到组件

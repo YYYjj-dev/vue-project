@@ -13,7 +13,7 @@
 
       <!-- 资讯报道内容 -->
       <div class="news-content">
-        <div class="news-item" v-for="newsInfo,index in news" :key="index" @click="goToNewsInfo(news.id)">
+        <div class="news-item" v-for="newsInfo,index in news" :key="index" @click="goToNewsInfo(newsInfo.id)">
           <h2>{{ newsInfo.title }}</h2>
           <p> news </p>
           <!-- <p>{{ news.description }}</p> -->
@@ -58,11 +58,13 @@
 import NavBar from '../../../components/NavBar.vue'
 import {defineNews} from '../../../store/newsStore'
 import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue';
+import { useRouter } from 'vue-router';
 import request from '../../../utils/request'
 
   
       let currentPage = 1
       let itemsPerPage = 6 
+      const router = useRouter()
       let news= ref([])
       // [
       //   { id: 1, title: '资讯报道 1', description: '这是资讯报道 1 的简要描述。' },
@@ -116,8 +118,8 @@ import request from '../../../utils/request'
         currentPage = page;  // 切换页面
       }
     }
-    function oToNewsInfo(id) {
-      this.$router.push({ name: 'news_info', params: { id } });  // 跳转到 'news_info' 页面，并传递 'id'
+    function goToNewsInfo(id) {
+      router.push({ path:'/news_info/'+id });  // 跳转到 'news_info' 页面，并传递 'id'
     }
   
     onMounted(async ()=> {
