@@ -4,6 +4,10 @@ import {
     createWebHistory,
 } from 'vue-router'
 
+import pinia from '../pinia'
+import { defineUser } from '../store/userStore'
+
+let userStore = defineUser(pinia)
 const router = createRouter({
     history: createWebHistory(),
     routes: [

@@ -23,18 +23,22 @@
 import { ref ,reactive} from 'vue'
 import { useRouter } from 'vue-router'
 import request from '../utils/request'
+import { defineUser } from '../store/userStore' 
 
 const router = useRouter()
-let loginUser=reactive({
+let loginUser = reactive({
     username:'',
     password:''
 })
+let userStore = defineUser()
 
     async function Login() {
         // 这里添加登录逻辑
         let {data} = await request.post('/user/login',loginUser)
         if(data.code==200){
-            alert("登录成功")
+            alert("登录成功,前去首页")
+            userStore.id = data.data.id
+            userStore.username = data.data.username
             router.push('/')
         }else if(data.code==501){
             alert("账号不存在")

@@ -48,14 +48,19 @@
         <div class="cart-icon"></div>
         <span class="cart-count" v-if="cartItemCount > 0">{{ cartItemCount }}</span>
       </div>
-      <button class="login-btn" @click="goToLogin">登录/注册</button>
+      <button class="login-btn" @click="goToLogin" v-if="userStore.username==''">登录/注册</button>
+      <div class="login-btn" v-else>
+        <span class="username">欢迎{{ userStore.username }}</span>
+      </div>
     </div>
   </nav>
 </template>
 
-<script>
+<script >
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { defineUser } from '../store/userStore'
+
 
 export default {
     name: 'NavBar',
@@ -66,6 +71,7 @@ export default {
         }
     },
     setup() {
+        const userStore = defineUser()
         const router = useRouter()
         const showAdditiveDropdown = ref(false)
         const showShopDropdown = ref(false)
@@ -84,7 +90,8 @@ export default {
             goToCart,
             showAdditiveDropdown,
             showShopDropdown,
-            cartItemCount
+            cartItemCount,
+            userStore
         }
     }
 }
