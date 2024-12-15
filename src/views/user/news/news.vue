@@ -13,9 +13,10 @@
 
       <!-- 资讯报道内容 -->
       <div class="news-content">
-        <div class="news-item" v-for="(news, index) in pagedNews" :key="index" @click="goToNewsInfo(news.id)">
-          <h2>{{ news.title }}</h2>
-          <p>{{ news.description }}</p>
+        <div class="news-item" v-for="newsInfo,index in news" :key="index" @click="goToNewsInfo(news.id)">
+          <h2>{{ newsInfo.title }}</h2>
+          <p> news </p>
+          <!-- <p>{{ news.description }}</p> -->
         </div>
       </div>
     </div>
@@ -53,47 +54,51 @@
   </div>
 </template>
 
-<script>
+<script setup name="news" components="NavBar">
 import NavBar from '../../../components/NavBar.vue'
+import {defineNews} from '../../../store/newsStore'
+import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue';
+import request from '../../../utils/request'
 
-export default {
-  name: 'news',
-  components: {
-    NavBar
-  },
-  data() {
-    return {
-      currentPage: 1,
-      news: [
-        { id: 1, title: '资讯报道 1', description: '这是资讯报道 1 的简要描述。' },
-        { id: 2, title: '资讯报道 2', description: '这是资讯报道 2 的简要描述。' },
-        { id: 3, title: '资讯报道 3', description: '这是资讯报道 3 的简要描述。' },
-        { id: 4, title: '资讯报道 4', description: '这是资讯报道 4 的简要描述。' },
-        { id: 5, title: '资讯报道 5', description: '这是资讯报道 5 的简要描述。' },
-        { id: 6, title: '资讯报道 6', description: '这是资讯报道 6 的简要描述。' },
-        { id: 7, title: '资讯报道 7', description: '这是资讯报道 7 的简要描述。' },
-        { id: 8, title: '资讯报道 8', description: '这是资讯报道 8 的简要描述。' },
-        { id: 9, title: '资讯报道 9', description: '这是资讯报道 9 的简要描述。' },
-        { id: 10, title: '资讯报道 10', description: '这是资讯报道 10 的简要描述。' },
-        { id: 11, title: '资讯报道 11', description: '这是资讯报道 11 的简要描述。' },
-        { id: 12, title: '资讯报道 12', description: '这是资讯报道 12 的简要描述。' },
-      ],
-      itemsPerPage: 6,  // 每页最多显示6条资讯报道
-    };
-  },
-  computed: {
-    totalPages() {
-      return Math.ceil(this.news.length / this.itemsPerPage);  // 总页数
-    },
-     pagedNews() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.news.slice(start, end);  // 获取当前页需要展示的资讯报道
-    },
-    displayedPages() {
+  
+      let currentPage = 1
+      let itemsPerPage = 6 
+      let news= ref([])
+      // [
+      //   { id: 1, title: '资讯报道 1', description: '这是资讯报道 1 的简要描述。' },
+      //   { id: 2, title: '资讯报道 2', description: '这是资讯报道 2 的简要描述。' },
+      //   { id: 3, title: '资讯报道 3', description: '这是资讯报道 3 的简要描述。' },
+      //   { id: 4, title: '资讯报道 4', description: '这是资讯报道 4 的简要描述。' },
+      //   { id: 5, title: '资讯报道 5', description: '这是资讯报道 5 的简要描述。' },
+      //   { id: 6, title: '资讯报道 6', description: '这是资讯报道 6 的简要描述。' },
+      //   { id: 7, title: '资讯报道 7', description: '这是资讯报道 7 的简要描述。' },
+      //   { id: 8, title: '资讯报道 8', description: '这是资讯报道 8 的简要描述。' },
+      //   { id: 9, title: '资讯报道 9', description: '这是资讯报道 9 的简要描述。' },
+      //   { id: 10, title: '资讯报道 10', description: '这是资讯报道 10 的简要描述。' },
+      //   { id: 11, title: '资讯报道 11', description: '这是资讯报道 11 的简要描述。' },
+      //   { id: 12, title: '资讯报道 12', description: '这是资讯报道 12 的简要描述。' },
+      // ]
+    // 每页最多显示6条资讯报道
+  
+
+    const totalPages = computed( ()=>{
+      return Math.ceil(news.length / itemsPerPage)  // 总页数
+    })
+
+
+    let pagedNews = () =>{
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      console.log(start)
+      console.log(end)
+      console.log(news)
+     
+      return news;  // 获取当前页需要展示的资讯报道
+    }
+    const displayedPages= computed(()=> {
       const pages = [];
-      let start = Math.max(1, this.currentPage - 1);
-      let end = Math.min(start + 2, this.totalPages);
+      let start = Math.max(1, currentPage - 1);
+      let end = Math.min(start + 2, totalPages);
       
       // 调整起始页，确保始终显示3个页码
       if (end - start < 2) {
@@ -104,19 +109,26 @@ export default {
         pages.push(i);
       }
       return pages;
-    }
-  },
-  methods: {
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;  // 切换页面
+    })
+
+    function changePage(page) {
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;  // 切换页面
       }
-    },
-    goToNewsInfo(id) {
+    }
+    function oToNewsInfo(id) {
       this.$router.push({ name: 'news_info', params: { id } });  // 跳转到 'news_info' 页面，并传递 'id'
     }
-  }
+  
+    onMounted(async ()=> {
+      showNews()
+    })
+
+    async function showNews(){
+      let {data} = await request.get('info/news/findAllNews')
+      news.value = data.data.itemList
 }
+    
 </script>
 
 <style scoped>

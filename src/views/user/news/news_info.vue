@@ -7,7 +7,7 @@
             <div class="title-container" v-if="news">
                 <h1 class="news-title">{{ news.title }}</h1>
                 <div class="news-meta">
-                    <span class="publish-date">发布时间：2024-01-20</span>
+                    <span class="publish-date" >发布时间：2024-01-20</span>
                     <span class="read-count">阅读量：1.2k</span>
                 </div>
             </div>
