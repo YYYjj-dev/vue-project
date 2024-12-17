@@ -1,6 +1,7 @@
 package com.test.dao;
 
 
+import com.test.pojo.Cases;
 import com.test.util.JDBCUtil;
 
 import java.lang.reflect.Field;
@@ -151,4 +152,5 @@ public class BaseDao {
         // 返回的是影响数据库记录数
         return rows;
     }
+
 }
