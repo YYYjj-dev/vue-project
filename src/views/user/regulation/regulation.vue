@@ -53,69 +53,55 @@
   </div>
 </template>
 
-<script>
+<script setup name="regulation"  components="NavBar" >
 import NavBar from '../../../components/NavBar.vue'
+import request from '../../../utils/request'
+import { useRouter } from 'vue-router'
+import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue'
 
-export default {
-  name: 'regulation',
-  components: {
-    NavBar
-  },
-  data() {
-    return {
-      currentPage: 1,
-      laws: [
-        { id: 1, title: '法律条文 1', description: '这是法律条文 1 的简要描述。' },
-        { id: 2, title: '法律条文 2', description: '这是法律条文 2 的简要描述。' },
-        { id: 3, title: '法律条文 3', description: '这是法律条文 3 的简要描述。' },
-        { id: 4, title: '法律条文 4', description: '这是法律条文 4 的简要描述。' },
-        { id: 5, title: '法律条文 5', description: '这是法律条文 5 的简要描述。' },
-        { id: 6, title: '法律条文 6', description: '这是法律条文 6 的简要描述。' },
-        { id: 7, title: '法律条文 7', description: '这是法律条文 7 的简要描述。' },
-        { id: 8, title: '法律条文 8', description: '这是法律条文 8 的简要描述。' },
-        { id: 9, title: '法律条文 9', description: '这是法律条文 9 的简要描述。' },
-        { id: 10, title: '法律条文 10', description: '这是法律条文 10 的简要描述。' },
-        { id: 11, title: '法律条文 11', description: '这是法律条文 11 的简要描述。' },
-        { id: 12, title: '法律条文 12', description: '这是法律条文 12 的简要描述。' },
-      ],
-      itemsPerPage: 6,  // 每页最多显示6条法律条文
-    };
-  },
-  computed: {
-    totalPages() {
-      return Math.ceil(this.laws.length / this.itemsPerPage);  // 总页数
-    },
-     pagedLaws() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.laws.slice(start, end);  // 获取当前页需要展示的法律条文
-    },
-    displayedPages() {
-      const pages = [];
-      let start = Math.max(1, this.currentPage - 1);
-      let end = Math.min(start + 2, this.totalPages);
+      let pages = ref([])
+      let totalPages = ref(0)
+      let currentPage = ref(1)
+      let laws = ref([])
+      let itemsPerPage = 6// 每页最多显示6条法律条文
+      const router = useRouter()
       
+  
+    // compute
+    let pagedNews =  computed( ()=>{
+      const start = (currentPage.value - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      return news.value.slice(start, end);  // 获取当前页需要展示的资讯报道
+    })
+  // js
+  function changePage(page) {
+        currentPage.value = page; 
+        console.log(currentPage.value) // 切换页面
+    }
+
+    function goToLawInfo(id) {
+      router.push({ path:'/regulation_info/'+id });  // 跳转到 'regulation_info' 页面，并传递 'id'
+    }
+
+    onMounted(async ()=> {
+      showNews()
+    })
+    async function showNews(){
+      let {data} = await request.get('info/findAllRegular')
+      laws.value = data.data.itemList
+      totalPages.value= Math.ceil(laws.value.length / itemsPerPage)
+      let start = Math.max(1, currentPage.value - 1);
+      let end = Math.min(start + 2, totalPages.value);
+      // 调整起始页，确保始终显示3个页码
       if (end - start < 2) {
         start = Math.max(1, end - 2);
       }
-      
       for (let i = start; i <= end; i++) {
-        pages.push(i);
+        pages.value.push(i);
       }
-      return pages;
-    }
-  },
-  methods: {
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;  // 切换页面
-      }
-    },
-    goToLawInfo(id) {
-      this.$router.push({ name: 'regulation_info', params: { id } });  // 跳转到 'regulation_info' 页面，并传递 'id'
-    }
-  }
+      console.log(laws.value)
 }
+
 </script>
 
 <style scoped>

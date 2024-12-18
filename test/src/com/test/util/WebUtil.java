@@ -3,8 +3,8 @@ package com.test.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.common.Result;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
