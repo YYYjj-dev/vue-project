@@ -5,14 +5,14 @@ public class Shangpin {
 
   private long id;
   private long storeId;
-  private long gruopId;
-  private long typeId;
+  private String gruop;
+  private String type;
   private String name;
   private String description;
+  private String standard;
   private double price;
   private double score;
-  private String standard;
-  private String url;
+  private long num;
 
 
   public long getId() {
@@ -33,21 +33,21 @@ public class Shangpin {
   }
 
 
-  public long getGruopId() {
-    return gruopId;
+  public String getGruop() {
+    return gruop;
   }
 
-  public void setGruopId(long gruopId) {
-    this.gruopId = gruopId;
+  public void setGruop(String gruop) {
+    this.gruop = gruop;
   }
 
 
-  public long getTypeId() {
-    return typeId;
+  public String getType() {
+    return type;
   }
 
-  public void setTypeId(long typeId) {
-    this.typeId = typeId;
+  public void setType(String type) {
+    this.type = type;
   }
 
 
@@ -69,6 +69,15 @@ public class Shangpin {
   }
 
 
+  public String getStandard() {
+    return standard;
+  }
+
+  public void setStandard(String standard) {
+    this.standard = standard;
+  }
+
+
   public double getPrice() {
     return price;
   }
@@ -87,21 +96,12 @@ public class Shangpin {
   }
 
 
-  public String getStandard() {
-    return standard;
+  public long getNum() {
+    return num;
   }
 
-  public void setStandard(String standard) {
-    this.standard = standard;
-  }
-
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
+  public void setNum(long num) {
+    this.num = num;
   }
 
 }

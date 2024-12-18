@@ -9,10 +9,9 @@ public class Additive {
   private String description;
   private String usestandardInternal;
   private String usestandardInternational;
-  private String date;
   private String analysis;
   private long adminId;
-  private long imgId;
+  private long imgpath;
   private String url;
 
 
@@ -70,15 +69,6 @@ public class Additive {
   }
 
 
-  public String getDate() {
-    return date;
-  }
-
-  public void setDate(String date) {
-    this.date = date;
-  }
-
-
   public String getAnalysis() {
     return analysis;
   }
@@ -97,12 +87,12 @@ public class Additive {
   }
 
 
-  public long getImgId() {
-    return imgId;
+  public long getImgpath() {
+    return imgpath;
   }
 
-  public void setImgId(long imgId) {
-    this.imgId = imgId;
+  public void setImgpath(long imgpath) {
+    this.imgpath = imgpath;
   }
 
 

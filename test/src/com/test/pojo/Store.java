@@ -1,13 +1,13 @@
 package com.test.pojo;
 
+
 public class Store {
 
   private long id;
   private long shangjiaId;
   private String name;
   private String description;
-  private String url;
-  private long imageId;
+  private String imgpath;
 
 
   public long getId() {
@@ -46,21 +46,12 @@ public class Store {
   }
 
 
-  public String getUrl() {
-    return url;
+  public String getImgpath() {
+    return imgpath;
   }
 
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-
-  public long getImageId() {
-    return imageId;
-  }
-
-  public void setImageId(long imageId) {
-    this.imageId = imageId;
+  public void setImgpath(String imgpath) {
+    this.imgpath = imgpath;
   }
 
 }

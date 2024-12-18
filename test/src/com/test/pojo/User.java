@@ -4,6 +4,7 @@ package com.test.pojo;
 public class User {
 
   private long id;
+  private String type;
   private String username;
   private String password;
 
@@ -14,6 +15,15 @@ public class User {
 
   public void setId(long id) {
     this.id = id;
+  }
+
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 
 

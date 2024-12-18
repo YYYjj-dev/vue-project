@@ -4,8 +4,8 @@ package com.test.pojo;
 public class Image {
 
   private long id;
-  private String name;
   private String path;
+  private String page;
 
 
   public long getId() {
@@ -17,21 +17,21 @@ public class Image {
   }
 
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-
   public String getPath() {
     return path;
   }
 
   public void setPath(String path) {
     this.path = path;
+  }
+
+
+  public String getPage() {
+    return page;
+  }
+
+  public void setPage(String page) {
+    this.page = page;
   }
 
 }

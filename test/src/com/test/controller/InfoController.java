@@ -1,12 +1,13 @@
 package com.test.controller;
 
 import com.test.common.Result;
+import com.test.dao.RegulationDao;
 import com.test.pojo.Cases;
+import com.test.pojo.Comment;
 import com.test.pojo.News;
+import com.test.pojo.Regulation;
 import com.test.service.InfoService;
-import com.test.service.UserService;
 import com.test.service.impl.InfoServiceImpl;
-import com.test.service.impl.UserServiceImpl;
 import com.test.util.WebUtil;
 
 import jakarta.servlet.ServletException;
@@ -29,6 +30,7 @@ public class InfoController extends BaseController{
         Result result = Result.ok(data);
         WebUtil.writeJson(resp,result);
     }
+
     protected void findNewsById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         Integer id = Integer.parseInt(req.getParameter("id"));
@@ -37,6 +39,7 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
 
     }
+
     protected void findAllCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Cases> itemList = infoService.findAllCases();
         Map data = new HashMap();
@@ -51,4 +54,48 @@ public class InfoController extends BaseController{
         Result result = Result.ok(casesInfo);
         WebUtil.writeJson(resp,result);
     }
+
+    protected void findAllRegular(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<Regulation> itemList = infoService.findAllAllRegular();
+        Map data = new HashMap();
+        data.put("itemList", itemList);
+        Result result = Result.ok(data);
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void findRegularById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        Regulation regulation = infoService.findRegulationById(id);
+        Result result = Result.ok(regulation);
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     * 返回评论
+     */
+    protected void showComment(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        List<Comment> commentList=null;
+        Integer commentId = Integer.valueOf(req.getParameter("commentId"));
+        String commentType = req.getParameter("commentType");
+        if(commentType.equals("1")){
+            commentList = infoService.findNewsCommentById(commentId);
+        }else if(commentType.equals("2")){
+           // commentList = infoService.findShangpinCommentById(commentId);
+        }
+        Result result = Result.ok(commentList);
+        WebUtil.writeJson(resp,result);
+    }
+    /**
+      添加评论
+     */
+    protected void addComment(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer uid = Integer.parseInt(req.getParameter("uid"));
+        String content = req.getParameter("content");
+        String commentType = req.getParameter("commentType");
+        Integer cid = Integer.valueOf(req.getParameter("cid"));
+        String date = req.getParameter("date");
+        int rows = infoService.addComment(uid,cid,content,commentType,date);
+
+    }
+
 }

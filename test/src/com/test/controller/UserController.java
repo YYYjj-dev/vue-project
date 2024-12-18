@@ -10,15 +10,17 @@ import com.test.util.WebUtil;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
+
 
 @WebServlet("/user/*")
 public class UserController extends BaseController{
 
     private UserService userService = new UserServiceImpl();
 
-
+    /**
+     * 注册业务
+     */
     protected void regist(HttpServletRequest req, HttpServletResponse resp)throws Exception {
         User user = WebUtil.readJson(req,User.class);
 
@@ -30,6 +32,9 @@ public class UserController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     * 登录业务
+     */
     protected void login(HttpServletRequest req, HttpServletResponse resp){
 
         User User = WebUtil.readJson(req,User.class);
@@ -47,6 +52,9 @@ public class UserController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     * 检查是否有重复用户名
+     */
     protected void checkUsernameUsed(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         //接收用户名
         String username = req.getParameter("username");
@@ -61,9 +69,17 @@ public class UserController extends BaseController{
         ObjectMapper objectMapper = new ObjectMapper();
         String info = objectMapper.writeValueAsString(result);
 
-
         resp.setContentType("application/json;charset=utf-8");
         resp.getWriter().write(info);
     }
+
+
+    /**
+     * 添加收藏
+     */
+    protected void collect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+    }
+
 
 }

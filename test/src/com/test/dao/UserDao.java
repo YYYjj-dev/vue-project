@@ -1,12 +1,13 @@
 package com.test.dao;
 import com.test.pojo.User;
+
 import java.util.List;
+
 
 public class UserDao extends BaseDao {
     public int addUser(User user) {
-        String sql = "insert into user values(DEFAULT,?,?)";
-        int rows = baseUpdate(sql,user.getUsername(),user.getPassword());
-        return rows;
+        String sql = "insert into user values(DEFAULT,3,?,?)";
+        return baseUpdate(sql,user.getUsername(),user.getPassword());
     }
 
     public User getUserByUsername(String username) {

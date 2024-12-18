@@ -113,10 +113,7 @@ import request from '../../../utils/request'
     async function showNews(id){
       let {data} = await request.get(`info/news/findNewsById?id=${id}`)
       news.value = data
-      console.log(data)
-      console.log(news.value)
-      console.log(news.value.data.title)
-        }
+    }
      
     //newsData []
 

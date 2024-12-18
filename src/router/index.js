@@ -115,7 +115,7 @@ const router = createRouter({
             component: () => import('../views/user/feedback/feedback.vue')
         },
         {
-            path: '/regulation_info:id',
+            path: '/regulation_info/:id',
             name: 'regulation_info',
             component: () => import('../views/user/regulation/regulation_info.vue'),
             props: true  // 使用路由参数作为 props 传递到组件

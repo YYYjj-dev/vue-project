@@ -46,15 +46,18 @@ import request from '../utils/request'
     return true
     }
         async function Regist (){
-
             if (registUser.password!= confirmPassword.value) {
                 console.log( registUser.password+'  '+confirmPassword.value)
                 alert('两次输入的密码不一致')
             }else if(checkUsername){
-                await request.post('/user/regist',registUser)
-                alert('注册成功,前去登录')
-                router.push('/login')
-                console.log('注册:', registUser.username+registUser.password)
+                let{data}= await request.post('/user/regist',registUser)
+                if(data.code==200){
+                    alert('注册成功,前去登录')
+                    router.push('/login')
+                    console.log('注册:', registUser.username+registUser.password)
+                }else {
+                    alert('注册失败')
+                }
             }
         }
 </script>

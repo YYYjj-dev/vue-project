@@ -9,8 +9,6 @@ public class News {
   private long commentId;
   private long adminId;
   private String date;
-  private String publishDate;
-  private String url;
 
 
   public long getId() {
@@ -64,24 +62,6 @@ public class News {
 
   public void setDate(String date) {
     this.date = date;
-  }
-
-
-  public String getPublishDate() {
-    return publishDate;
-  }
-
-  public void setPublishDate(String publishDate) {
-    this.publishDate = publishDate;
-  }
-
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
   }
 
 }

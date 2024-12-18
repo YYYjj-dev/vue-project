@@ -1,7 +1,9 @@
 package com.test.service;
 
 import com.test.pojo.Cases;
+import com.test.pojo.Comment;
 import com.test.pojo.News;
+import com.test.pojo.Regulation;
 
 import java.util.List;
 
@@ -13,4 +15,14 @@ public interface InfoService {
     List<Cases> findAllCases();
 
     Cases findCasesById(Integer id);
+
+    List<Regulation> findAllAllRegular();
+
+    Regulation findRegulationById(Integer id);
+
+    List<Comment> findNewsCommentById(Integer commentId);
+
+//    List<Comment> findShangpinCommentById(Integer commentId);
+
+    int addComment(Integer id,Integer cid, String content, String commentType, String date);
 }

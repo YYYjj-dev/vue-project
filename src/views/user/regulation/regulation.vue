@@ -15,7 +15,7 @@
       <div class="laws-content">
         <div class="law-item" v-for="(law, index) in pagedLaws" :key="index" @click="goToLawInfo(law.id)">
           <h2>{{ law.title }}</h2>
-          <p>{{ law.description }}</p>
+          <p>法规描述</p>
         </div>
       </div>
     </div>
@@ -32,7 +32,7 @@
       
       <div class="page-numbers">
         <button 
-          v-for="pageNum in displayedPages" 
+          v-for="pageNum in pages" 
           :key="pageNum"
           class="page-num"
           :class="{ active: currentPage === pageNum }"
@@ -68,10 +68,10 @@ import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue'
       
   
     // compute
-    let pagedNews =  computed( ()=>{
+    let pagedLaws =  computed( ()=>{
       const start = (currentPage.value - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      return news.value.slice(start, end);  // 获取当前页需要展示的资讯报道
+      return laws.value.slice(start, end);  // 获取当前页需要展示的资讯报道
     })
   // js
   function changePage(page) {

@@ -2,8 +2,8 @@
     <NavBar />
     <div class="regulation-info">
         <!-- 标题区域 -->
-        <div class="title">
-            <h1>{{ law ? law.title : '未找到法律条文' }}</h1>
+        <div class="title" >
+            <h1>{{law.data.title}}</h1>
         </div>
 
         <!-- 主要内容区域 -->
@@ -11,7 +11,7 @@
             <div class="content-wrapper">
                 <div class="content-section">
                     <div class="content-text">
-                        {{ law.details }}
+                       {{ law.data.content }}
                     </div>
                 </div>
             </div>
@@ -22,99 +22,30 @@
     </div>
 </template>
 
-<script>
+<script setup name='regulation_info' comments="NavBar">
 import NavBar from '../../../components/NavBar.vue'
-import { useRouter } from 'vue-router'
+import { useRouter,useRoute } from 'vue-router'
+import request from '../../../utils/request'
+import {ref,reactive,onMounted } from 'vue';
+    
+    const router = useRouter()
+    const route = useRoute()
+    let law=ref({title:'',content:'',data:''})
+    let lid=route.params.id
 
-export default {
-    name: 'regulation_info',
-    components: {
-        NavBar
-    },
-    setup() {
-        const router = useRouter()
-        return { router }
-    },
-    data() {
-        return {
-            law: null,
-            laws: [
-                { 
-                    id: 1, 
-                    title: '法律条文 1', 
-                    details: '这是法律条文 1 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 2, 
-                    title: '法律条文 2', 
-                    details: '这是法律条文 2 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 3, 
-                    title: '法律条文 3', 
-                    details: '这是法律条文 3 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 4, 
-                    title: '法律条文 4', 
-                    details: '这是法律条文 4 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 5, 
-                    title: '法律条文 5', 
-                    details: '这是法律条文 5 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 6, 
-                    title: '法律条文 6', 
-                    details: '这是法律条文 6 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 7, 
-                    title: '法律条文 7', 
-                    details: '这是法律条文 7 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 8, 
-                    title: '法律条文 8', 
-                    details: '这是法律条文 8 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 9, 
-                    title: '法律条文 9', 
-                    details: '这是法律条文 9 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 10, 
-                    title: '法律条文 10', 
-                    details: '这是法律条文 10 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 11, 
-                    title: '法律条文 11', 
-                    details: '这是法律条文 11 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                },
-                { 
-                    id: 12, 
-                    title: '法律条文 12', 
-                    details: '这是法律条文 12 的详细内容。这里可以包含更多的细节信息，比如法律条文的具体应用场景、注意事项等。' 
-                }
-            ]
-        }
-    },
-    created() {
-        const lawId = parseInt(this.$route.params.id, 10);
-        this.law = this.laws.find(law => law.id === lawId);
-        if (!this.law) {
-            this.router.push('/regulation');
-        }
-    },
-    methods: {
-        goBack() {
-            this.router.push('/regulation');
-        }
+    onMounted(()=>{
+            showLaws(lid)
+        })
+    
+
+    async function showLaws(id){
+    let {data} = await request.get(`info/news/findRegularById?id=${id}`)
+    law.value=data
     }
-}
+    function goBack() {
+        this.router.push('/regulation');
+    }
+    
 </script>
 
 <style scoped>

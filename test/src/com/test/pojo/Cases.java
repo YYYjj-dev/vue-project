@@ -8,11 +8,9 @@ public class Cases {
   private String content;
   private long adminId;
   private long commentId;
-  private long imgId;
-  private long grouptype;
+  private String imgpath;
+  private String grouptype;
   private String date;
-  private String publishDate;
-  private String url;
 
 
   public long getId() {
@@ -60,20 +58,20 @@ public class Cases {
   }
 
 
-  public long getImgId() {
-    return imgId;
+  public String getImgpath() {
+    return imgpath;
   }
 
-  public void setImgId(long imgId) {
-    this.imgId = imgId;
+  public void setImgpath(String imgpath) {
+    this.imgpath = imgpath;
   }
 
 
-  public long getGrouptype() {
+  public String getGrouptype() {
     return grouptype;
   }
 
-  public void setGrouptype(long grouptype) {
+  public void setGrouptype(String grouptype) {
     this.grouptype = grouptype;
   }
 
@@ -84,24 +82,6 @@ public class Cases {
 
   public void setDate(String date) {
     this.date = date;
-  }
-
-
-  public String getPublishDate() {
-    return publishDate;
-  }
-
-  public void setPublishDate(String publishDate) {
-    this.publishDate = publishDate;
-  }
-
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
   }
 
 }
