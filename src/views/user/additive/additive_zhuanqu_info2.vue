@@ -164,26 +164,29 @@ export default {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background-color: #f8f7f2;
 }
 
 /* 内容包装器 */
 .content-wrapper {
     flex: 1;
-    margin-bottom: 4rem;
-    width: 70%;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 40px 20px;
+    width: 90%;
 }
 
 /* 筛选区域样式 */
 .filter-section {
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 20px;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .filter-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .filter-group:last-child {
@@ -193,118 +196,171 @@ export default {
 .filter-label {
     display: inline-block;
     min-width: 80px;
-    color: #666;
-    margin-right: 15px;
+    color: #2c3e50;
+    margin-right: 20px;
+    font-weight: 500;
 }
 
 .filter-buttons {
     display: inline-flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .filter-btn {
-    padding: 6px 16px;
-    border: 1px solid #ddd;
+    padding: 8px 20px;
+    border: 1px solid #e0e0e0;
     background: white;
-    border-radius: 4px;
+    border-radius: 20px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    color: #666;
+    font-size: 14px;
 }
 
 .filter-btn.active {
-    background: #4CAF50;
+    background: #42b983;
     color: white;
-    border-color: #4CAF50;
+    border-color: #42b983;
+    box-shadow: 0 4px 12px rgba(66, 185, 131, 0.2);
 }
 
 .filter-btn:hover:not(.active) {
-    border-color: #4CAF50;
-    color: #4CAF50;
+    border-color: #42b983;
+    color: #42b983;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* 内容列表样式 */
 .content-list {
-    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 10px;
 }
 
 .content-item {
-    display: flex;
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    transition: all 0.3s;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
 }
 
 .content-item:hover {
-    background-color: #f8f9fa;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #42b983;
 }
 
 .item-image {
-    width: 180px;
-    height: 180px;
+    width: 100%;
+    height: 200px;
     background: #f5f5f5;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #eee;
-    margin-right: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.item-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(66, 185, 131, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.content-item:hover .item-image::after {
+    opacity: 1;
 }
 
 .item-info {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 20px;
 }
 
 .item-text {
     font-size: 16px;
-    color: #333;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    line-height: 1.5;
 }
 
 .buy-btn {
-    padding: 8px 24px;
-    background: #4CAF50;
+    width: 100%;
+    padding: 12px 0;
+    background: #42b983;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 25px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(66, 185, 131, 0.2);
 }
 
 .buy-btn:hover {
-    background: #45a049;
+    background: #3aa876;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(66, 185, 131, 0.3);
 }
 
 /* 响应式调整 */
 @media (max-width: 768px) {
+    .content-wrapper {
+        width: 95%;
+        padding: 20px 10px;
+    }
+
+    .filter-section {
+        padding: 20px;
+    }
+
     .filter-group {
         display: flex;
         flex-direction: column;
         gap: 10px;
     }
 
+    .filter-label {
+        margin-bottom: 5px;
+    }
+
     .filter-buttons {
         width: 100%;
     }
 
-    .content-item {
-        flex-direction: column;
+    .filter-btn {
+        flex: 1;
+        text-align: center;
+        min-width: 80px;
+    }
+
+    .content-list {
+        gap: 20px;
+        padding: 5px;
     }
 
     .item-image {
-        width: 100%;
-        margin-right: 0;
-        margin-bottom: 15px;
+        height: 180px;
     }
 
     .item-info {
-        flex-direction: column;
-        gap: 15px;
+        padding: 15px;
     }
+}
 
-    .content-wrapper {
-        width: 95%;
+@media (min-width: 769px) and (max-width: 1024px) {
+    .content-list {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 </style>

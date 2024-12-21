@@ -4,18 +4,17 @@
         
         <div class="content-container">
             <!-- 标题 -->
-            <div class="title-container" v-if="news">
-                <h1 class="news-title">{{ news.title }}</h1>
+            <div class="title-container" v-if="newsData">
+                <h1 class="news-title">{{ newsData.title }}</h1>
                 <div class="news-meta">
-                    <span class="publish-date">发布时间：2024-01-20</span>
-                    <span class="read-count">阅读量：1.2k</span>
+                    <span class="publish-date">{{ newsData.date }}</span>
                 </div>
             </div>
 
             <!-- 主要内容区域 -->
-            <div class="main-content" v-if="news">
+            <div class="main-content" v-if="newsData">
                 <div class="content-box">
-                    <p>{{ news.details }}</p>
+                    <p>{{ newsData.content }}</p>
                 </div>
             </div>
 
@@ -24,58 +23,21 @@
                 <div class="comment-header">
                     <div class="section-title">
                         <h2>评论区</h2>
-                        <span class="comment-count">{{ comments.length }} 条评论</span>
-                    </div>
-                </div>
-
-                <!-- 写评论 -->
-                <div class="write-comment">
-                    <div class="comment-input">
-                        <textarea v-model="newComment" placeholder="写下你的评论..."></textarea>
-                        <button class="submit-btn">发布评论</button>
+                        <span class="comment-count">{{ comments.length }}条评论</span>
                     </div>
                 </div>
 
                 <!-- 评论列表 -->
                 <div class="comments-list">
-                    <div class="comment-item" v-for="(comment, index) in comments" :key="index">
+                    <div class="comment-item" v-for="comment in comments" :key="comment.id">
                         <div class="comment-user">
-                            <div class="user-avatar"></div>
                             <div class="user-info">
-                                <span class="username">用户{{ index + 1 }}</span>
-                                <span class="comment-time">2024-01-20</span>
+                                <span class="username">用户ID: {{ comment.userId }}</span>
+                                <span class="comment-time">{{ comment.date }}</span>
                             </div>
                         </div>
                         <div class="comment-content">
                             {{ comment.content }}
-                        </div>
-                        <div class="comment-actions">
-                            <button class="action-link">
-                                <i class="icon-thumbs-up"></i>
-                                <span>点赞</span>
-                            </button>
-                            <button class="action-link">
-                                <i class="icon-reply"></i>
-                                <span>回复</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 相关文章 -->
-            <div class="related-articles">
-                <h2 class="section-title">相关文章</h2>
-                <div class="articles-grid">
-                    <div class="article-card" v-for="(article, index) in relatedArticles" :key="index">
-                        <div class="article-image"></div>
-                        <div class="article-info">
-                            <h3 class="article-title">{{ article.title }}</h3>
-                            <p class="article-excerpt">这是一段相关文章的简短描述，帮助用户了解文章内容...</p>
-                            <div class="article-meta">
-                                <span class="read-time">5分钟阅读</span>
-                                <span class="publish-date">2024-01-20</span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -86,6 +48,7 @@
 
 <script>
 import NavBar from '../../../components/NavBar.vue'
+import request from '../../../utils/request'
 
 export default {
     name: 'news_info',
@@ -94,86 +57,57 @@ export default {
     },
     data() {
         return {
-            news: null,
-            newComment: '',
-            comments: [
-                { content: '这篇文章写得很好，内容很有价值！' },
-                { content: '分析得很透彻，给了我很多启发。' },
-                { content: '希望能看到更多类似的深度文章。' },
-                { content: '观点很新颖，值得深入思考。' }
-            ],
-            relatedArticles: [
-                { title: '食品添加剂的发展趋势' },
-                { title: '天然添加剂的优势分析' },
-                { title: '添加剂安全使用指南' },
-                { title: '未来食品工业展望' }
-            ],
-            newsData: [
-                // 角度1的内容
-                { 
-                    id: 1, 
-                    title: '内容1-1', 
-                    description: '内容1-1的简要描述', 
-                    details: '详细内容1-1' 
-                },
-                { 
-                    id: 2, 
-                    title: '内容1-2', 
-                    description: '内容1-2的简要描述', 
-                    details: '详细内容1-2' 
-                },
-                { 
-                    id: 3, 
-                    title: '内容1-3', 
-                    description: '内容1-3的简要描述', 
-                    details: '详细内容1-3' 
-                },
-                // 角度2的内容
-                { 
-                    id: 4, 
-                    title: '内容2-1', 
-                    description: '内容2-1的简要描述', 
-                    details: '详细内容2-1' 
-                },
-                { 
-                    id: 5, 
-                    title: '内容2-2', 
-                    description: '内容2-2的简要描述', 
-                    details: '详细内容2-2' 
-                },
-                { 
-                    id: 6, 
-                    title: '内容2-3', 
-                    description: '内容2-3的简要描述', 
-                    details: '详细内容2-3' 
-                },
-                // 角度3的内容
-                { 
-                    id: 7, 
-                    title: '内容3-1', 
-                    description: '内容3-1的简要描述', 
-                    details: '详细内容3-1' 
-                },
-                { 
-                    id: 8, 
-                    title: '内容3-2', 
-                    description: '内容3-2的简要描述', 
-                    details: '详细内容3-2' 
-                },
-                { 
-                    id: 9, 
-                    title: '内容3-3', 
-                    description: '内容3-3的简要描述', 
-                    details: '详细内容3-3' 
-                }
-            ]
+            newsData: null,
+            comments: []
         }
     },
     created() {
-        const newsId = parseInt(this.$route.params.id, 10)
-        this.news = this.newsData.find(news => news.id === newsId)
-        if (!this.news) {
-            console.error('News not found')
+        const newsId = this.$route.params.id;
+        console.log('新闻ID:', newsId);
+        this.loadNewsInfo(newsId);
+        this.loadComments(newsId);
+    },
+    methods: {
+        loadNewsInfo(id) {
+            console.log('开始请求新闻详情，ID:', id);
+            
+            // 修改请求路径，使用与新闻列表相同的接口
+            request.get("/new")
+                .then(res => {
+                    console.log('获取到的响应:', res);
+                    
+                    if(res.code === '0') {
+                        // 从返回的数据中找到对应 id 的新闻
+                        const newsItem = res.data.find(item => item.id === parseInt(id));
+                        if (newsItem) {
+                            this.newsData = newsItem;
+                            console.log('找到的新闻数据:', this.newsData);
+                        } else {
+                            console.error('未找到对应ID的新闻');
+                        }
+                    } else {
+                        console.error('获取新闻详情失败:', res.msg);
+                    }
+                })
+                .catch(error => {
+                    console.error('请求新闻详情出错:', error);
+                });
+        },
+        loadComments(newsId) {
+            request.get(`/comment/news/${newsId}`)
+                .then(res => {
+                    console.log('获取到的评论:', res);
+                    if (res.code === '0') {
+                        this.comments = res.data;
+                    } else {
+                        console.error('获取评论失败:', res.msg);
+                        this.comments = [];
+                    }
+                })
+                .catch(error => {
+                    console.error('请求评论出错:', error);
+                    this.comments = [];
+                });
         }
     }
 }
@@ -461,5 +395,57 @@ export default {
     .related-articles {
         padding: 20px;
     }
+}
+
+/* 添加评论列表样式 */
+.comments-list {
+    margin-top: 20px;
+}
+
+.comment-item {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-user {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    font-weight: 500;
+    color: #333;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+}
+
+.comment-content {
+    color: #666;
+    line-height: 1.6;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.comment-count {
+    color: #666;
+    font-size: 14px;
 }
 </style>

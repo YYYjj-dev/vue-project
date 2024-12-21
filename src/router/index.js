@@ -135,6 +135,27 @@ const router = createRouter({
             path: '/cart',
             name: 'Cart',
             component: () => import('../views/user/cart/cart.vue')
+        },
+        {
+            path: '/user_center',
+            name: 'user_center',
+            component: () => import('../views/user/user_center.vue')
+        },
+        {
+            path: '/merchant_apply',
+            name: 'merchant_apply',
+            component: () => import('../views/merchant_apply.vue')
+        },
+        {
+            path: '/order_detail/:id',
+            name: 'order_detail',
+            component: () => import('../views/user/order/order_detail.vue'),
+            props: true
+        },
+        {
+            path: '/merchant_center',
+            name: 'merchant_center',
+            component: () => import('../views/merchant_center.vue')
         }
         // ... 其他路由
     ]

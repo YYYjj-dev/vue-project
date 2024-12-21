@@ -23,27 +23,43 @@
 </template>
 
 <script>
+import request from '../utils/request'
+
 export default {
   name: 'Carousel',
   data() {
     return {
       currentIndex: 0,
-      images: [
-        '/src/img/img1.jpg',
-        '/src/img/img2.jpg',
-        '/src/img/img3.jpg',
-        // 添加更多图片路径
-      ],
+      images: [],
       autoPlayInterval: null
     }
   },
   mounted() {
+    this.loadCarouselImages()
     this.startAutoPlay()
   },
   beforeUnmount() {
     this.stopAutoPlay()
   },
   methods: {
+    loadCarouselImages() {
+      console.log('开始请求轮播图数据');
+      
+      request.get('/image/images/carousel')
+        .then(res => {
+          console.log('获取到的响应:', res);
+          
+          if(res.code === '0') {
+            this.images = res.data.map(item => item.path);
+            console.log('处理后的轮播图数据:', this.images);
+          } else {
+            console.error('请求失败:', res.msg);
+          }
+        })
+        .catch(error => {
+          console.error('请求出错:', error);
+        });
+    },
     next() {
       this.currentIndex = (this.currentIndex + 1) % this.images.length
     },

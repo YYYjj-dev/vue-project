@@ -14,47 +14,50 @@
       <!-- 资讯报道内容 -->
       <div class="news-content">
         <div class="news-item" v-for="(news, index) in pagedNews" :key="index" @click="goToNewsInfo(news.id)">
-          <h2>{{ news.title }}</h2>
-          <p>{{ news.description }}</p>
+          <div class="news-title-wrapper">
+            <h2>{{ news.title }}</h2>
+            <span class="news-date">{{ news.date }}</span>
+          </div>
         </div>
       </div>
-    </div>
-    
-    <!-- 分页器 -->
-    <div class="pagination">
-      <button 
-        class="page-btn" 
-        :disabled="currentPage === 1"
-        @click="changePage(currentPage - 1)"
-      >
-        上一页
-      </button>
-      
-      <div class="page-numbers">
+
+      <!-- 添加分页器 -->
+      <div class="pagination">
         <button 
-          v-for="pageNum in displayedPages" 
-          :key="pageNum"
-          class="page-num"
-          :class="{ active: currentPage === pageNum }"
-          @click="changePage(pageNum)"
+          class="page-btn" 
+          :disabled="currentPage === 1"
+          @click="changePage(currentPage - 1)"
         >
-          {{ pageNum }}
+          上一页
+        </button>
+        
+        <div class="page-numbers">
+          <button 
+            v-for="pageNum in displayedPages" 
+            :key="pageNum"
+            class="page-num"
+            :class="{ active: currentPage === pageNum }"
+            @click="changePage(pageNum)"
+          >
+            {{ pageNum }}
+          </button>
+        </div>
+
+        <button 
+          class="page-btn"
+          :disabled="currentPage === totalPages"
+          @click="changePage(currentPage + 1)"
+        >
+          下一页
         </button>
       </div>
-
-      <button 
-        class="page-btn"
-        :disabled="currentPage === totalPages"
-        @click="changePage(currentPage + 1)"
-      >
-        下一页
-      </button>
     </div>
   </div>
 </template>
 
 <script>
 import NavBar from '../../../components/NavBar.vue'
+import request from '../../../utils/request'
 
 export default {
   name: 'news',
@@ -63,39 +66,25 @@ export default {
   },
   data() {
     return {
+      news: [],
       currentPage: 1,
-      news: [
-        { id: 1, title: '资讯报道 1', description: '这是资讯报道 1 的简要描述。' },
-        { id: 2, title: '资讯报道 2', description: '这是资讯报道 2 的简要描述。' },
-        { id: 3, title: '资讯报道 3', description: '这是资讯报道 3 的简要描述。' },
-        { id: 4, title: '资讯报道 4', description: '这是资讯报道 4 的简要描述。' },
-        { id: 5, title: '资讯报道 5', description: '这是资讯报道 5 的简要描述。' },
-        { id: 6, title: '资讯报道 6', description: '这是资讯报道 6 的简要描述。' },
-        { id: 7, title: '资讯报道 7', description: '这是资讯报道 7 的简要描述。' },
-        { id: 8, title: '资讯报道 8', description: '这是资讯报道 8 的简要描述。' },
-        { id: 9, title: '资讯报道 9', description: '这是资讯报道 9 的简要描述。' },
-        { id: 10, title: '资讯报道 10', description: '这是资讯报道 10 的简要描述。' },
-        { id: 11, title: '资讯报道 11', description: '这是资讯报道 11 的简要描述。' },
-        { id: 12, title: '资讯报道 12', description: '这是资讯报道 12 的简要描述。' },
-      ],
-      itemsPerPage: 6,  // 每页最多显示6条资讯报道
+      itemsPerPage: 6
     };
   },
   computed: {
     totalPages() {
-      return Math.ceil(this.news.length / this.itemsPerPage);  // 总页数
+      return Math.ceil(this.news.length / this.itemsPerPage);
     },
-     pagedNews() {
+    pagedNews() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
-      return this.news.slice(start, end);  // 获取当前页需要展示的资讯报道
+      return this.news.slice(start, end);
     },
     displayedPages() {
       const pages = [];
       let start = Math.max(1, this.currentPage - 1);
       let end = Math.min(start + 2, this.totalPages);
       
-      // 调整起始页，确保始终显示3个页码
       if (end - start < 2) {
         start = Math.max(1, end - 2);
       }
@@ -109,12 +98,40 @@ export default {
   methods: {
     changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;  // 切换页面
+        this.currentPage = page;
       }
     },
+    loadNews() {
+      console.log('开始请求新闻数据');
+      
+      request.get("/new")
+        .then(res => {
+          console.log('获取到的响应:', res);
+          
+          if(res.code === '0') {
+            this.news = res.data.map(item => ({
+              ...item,
+              commentId: item.commentId || 0,
+              adminId: item.adminId || 0
+            }));
+            console.log('处理后的新闻数据:', this.news);
+          } else {
+            console.error('请求失败:', res.msg);
+          }
+        })
+        .catch(error => {
+          console.error('请求出错:', error);
+        });
+    },
     goToNewsInfo(id) {
-      this.$router.push({ name: 'news_info', params: { id } });  // 跳转到 'news_info' 页面，并传递 'id'
+      this.$router.push({
+        name: 'news_info',
+        params: { id: id.toString() }
+      });
     }
+  },
+  created() {
+    this.loadNews();
   }
 }
 </script>
@@ -180,32 +197,61 @@ export default {
 .news-item {
   background: white;
   border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
+  padding: 16px 24px;  /* 减小padding使标题更紧凑 */
+  margin-bottom: 15px;
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid #eee;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.news-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border-color: #4CAF50;
+.news-title-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .news-item h2 {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 500;
   color: #333;
-  margin-bottom: 12px;
+  margin: 0;  /* 移除标题的margin */
+  flex: 1;    /* 让标题占据剩余空间 */
+  padding-right: 20px;  /* 为日期留出空间 */
 }
 
-.news-item p {
-  color: #666;
-  line-height: 1.6;
+.news-date {
+  color: #999;
+  font-size: 14px;
+  white-space: nowrap;  /* 防止日期换行 */
 }
 
+.news-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #4CAF50;
+}
+
+@media (max-width: 768px) {
+  .news {
+    padding: 20px;
+  }
+  
+  .news_content {
+    width: 95%;
+    padding: 20px 0;
+  }
+  
+  .news-item {
+    padding: 20px;
+  }
+  
+  .news-item h2 {
+    font-size: 18px;
+  }
+}
+
+/* 添加分页器样式 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -255,24 +301,5 @@ export default {
   border-color: #4CAF50;
   color: white;
   cursor: default;
-}
-
-@media (max-width: 768px) {
-  .news {
-    padding: 20px;
-  }
-  
-  .news_content {
-    width: 95%;
-    padding: 20px 0;
-  }
-  
-  .news-item {
-    padding: 20px;
-  }
-  
-  .news-item h2 {
-    font-size: 18px;
-  }
 }
 </style>

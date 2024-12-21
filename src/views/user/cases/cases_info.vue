@@ -10,7 +10,6 @@
                 <div class="publish-meta">
                     <span class="publish-date">发布时间：2024-01-20</span>
                     <span class="view-count">浏览量：2.3k</span>
-                    <span class="category">分类：食品安全</span>
                 </div>
             </div>
 
@@ -50,10 +49,6 @@
                         <div class="comment-content">{{ comment.content }}</div>
                         <div class="comment-actions">
                             <button class="action-link">
-                                <i class="icon-thumbs-up"></i>
-                                <span>点赞</span>
-                            </button>
-                            <button class="action-link">
                                 <i class="icon-reply"></i>
                                 <span>回复</span>
                             </button>
@@ -73,7 +68,7 @@
                         <div class="product-image">
                             <img :src="product.image" :alt="product.title">
                             <div class="hover-overlay">
-                                <span>查看详情</span>
+                                <span>查看��情</span>
                             </div>
                         </div>
                         <div class="product-info">

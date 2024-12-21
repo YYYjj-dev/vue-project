@@ -10,7 +10,7 @@
             <!-- 第一个标题和按钮的容器 -->
             <div class="section-container">
                 <div class="section-header">
-                    <h1>如何避免添加剂的危害</h1>
+                    <h1>如何减少添加剂的危害</h1>
                     <button class="overall-more-button" @click="goToZhuanquInfo">更多</button>
                 </div>
             </div>
@@ -35,32 +35,6 @@
                         <div class="icon">{{ item.icon }}</div>
                         <div class="text">{{ item.content }}</div>
                     </div>
-                </div>
-            </div>
-
-            <!-- 商品推荐部分 -->
-            <div class="product-section">
-                <h2>商品推荐</h2>
-                <div class="product-carousel">
-                    <button class="carousel-btn prev" @click="prevSlide">
-                        &lt;
-                    </button>
-                    <div class="product-container">
-                        <div class="product-wrapper" :style="{ transform: `translateX(-${currentIndex * (100 / 4)}%)` }">
-                            <div v-for="(product, index) in products" :key="index" class="product-box">
-                                <div class="product-image">
-                                    <img :src="product.image" :alt="product.title">
-                                </div>
-                                <div class="product-info">
-                                    <h3 class="product-title">{{ product.title }}</h3>
-                                    <p class="product-price">¥{{ product.price }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="carousel-btn next" @click="nextSlide">
-                        &gt;
-                    </button>
                 </div>
             </div>
         </div>
@@ -92,20 +66,6 @@ export default {
         goToZhuanquInfo2() {
             this.$router.push('/additive_zhuanqu_info2')
         },
-        prevSlide() {
-            if (this.currentIndex > 0) {
-                this.currentIndex--;
-            } else {
-                this.currentIndex = this.maxIndex;
-            }
-        },
-        nextSlide() {
-            if (this.currentIndex < this.maxIndex) {
-                this.currentIndex++;
-            } else {
-                this.currentIndex = 0;
-            }
-        },
         goToProduct(id) {
             this.$router.push({
                 name: 'shop_rec_info',
@@ -120,25 +80,11 @@ export default {
                 { id: 2, title: '资讯报道 2', description: '这是资讯报道 2 的简要描述。' },
                 { id: 3, title: '资讯报道 3', description: '这是资讯报道 3 的简要描述。' },
             ],
-            currentIndex: 0,
-            products: [
-                { id: 1, image: '商品图片1', title: '商品1', price: '99.00' },
-                { id: 2, image: '商品图片2', title: '商品2', price: '199.00' },
-                { id: 3, image: '商品图片3', title: '商品3', price: '299.00' },
-                { id: 4, image: '商品图片4', title: '商品4', price: '399.00' },
-                { id: 5, image: '商品图片5', title: '商品5', price: '499.00' },
-                { id: 6, image: '商品图片6', title: '商品6', price: '599.00' }
-            ],
             nutritionItems: [
                 { id: 101, icon: '图标1', content: '营养品内容1', price: '199.00' },
                 { id: 102, icon: '图标2', content: '营养品内容2', price: '299.00' },
-                { id: 103, icon: '图标3', content: '营养 品内容3', price: '399.00' }
+                { id: 103, icon: '图标3', content: '营养品内容3', price: '399.00' }
             ]
-        }
-    },
-    computed: {
-        maxIndex() {
-            return Math.max(0, this.products.length - 4);
         }
     }
 }

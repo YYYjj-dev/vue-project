@@ -7,7 +7,7 @@
             <div class="product-container">
                 <!-- 左侧主图 -->
                 <div class="product-image">
-                    <div class="image-placeholder">图片</div>
+                    <img :src="imageUrl" alt="商品图片">
                 </div>
                 
                 <!-- 右侧信息 -->
@@ -28,9 +28,7 @@
                         <!-- 规格选择 -->
                         <div class="specs-row">
                             <div class="specs-group">
-                                <button class="spec-btn">规格1</button>
-                                <button class="spec-btn">规格2</button>
-                                <button class="spec-btn">规格3</button>
+                                <button class="spec-btn">规格</button>
                             </div>
                         </div>
                         
@@ -104,22 +102,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 相似商品 -->
-            <div class="similar-products">
-                <div class="header">
-                    <h2>相似商品</h2>
-                    <button class="refresh-btn" @click="refreshSimilarProducts">换一换</button>
-                </div>
-                <div class="products-grid">
-                    <div class="product-item" 
-                         v-for="item in currentSimilarProducts" 
-                         :key="item.id"
-                         @click="goToDetail(item.id)">
-                        <div class="image-placeholder">{{ item.title }}</div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -137,45 +119,12 @@ export default {
     setup() {
         const router = useRouter()
         const route = useRoute()
-        const similarProductsIndex = ref(0)
-
-        // 相似商品数据
-        const similarProductsPool = [
-            { id: 201, title: '相似商品1' },
-            { id: 202, title: '相似商品2' },
-            { id: 203, title: '相似商品3' },
-            { id: 204, title: '相似商品4' },
-            { id: 205, title: '相似商品5' },
-            { id: 206, title: '相似商品6' },
-            { id: 207, title: '相似商品7' },
-            { id: 208, title: '相似商品8' },
-            { id: 209, title: '相似商品9' }
-        ]
-
-        // 获取当前显示的相似商品
-        const currentSimilarProducts = computed(() => {
-            const startIndex = similarProductsIndex.value * 3
-            return similarProductsPool.slice(startIndex, startIndex + 3)
-        })
-
-        // 跳转到商品详情
-        const goToDetail = (id) => {
-            // 如果当前页面的商品ID与点击的商品ID相同，不进行跳转
-            if (route.params.id !== id.toString()) {
-                router.push(`/shop_rec_info/${id}`)
-            }
-        }
-
-        // 刷新相似商品列表
-        const refreshSimilarProducts = () => {
-            const maxIndex = Math.floor(similarProductsPool.length / 3)
-            similarProductsIndex.value = (similarProductsIndex.value + 1) % maxIndex
-        }
 
         return {
-            currentSimilarProducts,
-            goToDetail,
-            refreshSimilarProducts
+            // 删除相关返回值
+            // currentSimilarProducts,
+            // goToDetail,
+            // refreshSimilarProducts
         }
     }
 }
@@ -469,53 +418,5 @@ export default {
 .write-content textarea:focus {
     outline: none;
     border-color: #4CAF50;
-}
-
-/* 相似商品 */
-.similar-products {
-    margin-bottom: 30px;
-}
-
-.similar-products .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.refresh-btn {
-    padding: 6px 15px;
-    border: 1px solid #4CAF50;
-    border-radius: 15px;
-    background: white;
-    color: #4CAF50;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 14px;
-}
-
-.refresh-btn:hover {
-    background: #4CAF50;
-    color: white;
-}
-
-.products-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-}
-
-.product-item {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.product-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 </style>

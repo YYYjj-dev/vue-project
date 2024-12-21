@@ -25,7 +25,7 @@
               <div class="carousel-item" 
                    v-for="(item, index) in additivesList" 
                    :key="index"
-                   @click="goToAdditiveInfo(item.id, item.category)">
+                   @click="goToAdditiveInfo(item.id)">
                 <div class="item-card">
                   <div class="item-image">
                     <img :src="item.image" :alt="item.title">
@@ -35,7 +35,6 @@
                   </div>
                   <div class="item-content">
                     <h3 class="item-title">{{ item.title }}</h3>
-                    <p class="item-description">{{ item.description }}</p>
                   </div>
                 </div>
               </div>
@@ -91,7 +90,6 @@
               <h3>{{ case_item.title }}</h3>
               <p>{{ case_item.description }}</p>
               <div class="case-meta">
-                <span class="case-category">{{ case_item.category }}</span>
                 <span class="case-date">{{ case_item.date }}</span>
               </div>
             </div>
@@ -135,6 +133,7 @@
 import NavBar from '../components/NavBar.vue'
 import Carousel from '../components/Carousel.vue'
 import Footer from '../components/Footer.vue'
+import request from '../utils/request'
 
 export default {
   name: 'Home',
@@ -182,7 +181,7 @@ export default {
         },
         {
           id: 2,
-          title: '植物色素在饮料中的创新应用',
+          title: '植物色素��饮料中的创新应用',
           description: '研究天然色素在功能性饮料中的应用，实现健康与美味的完美结合...',
           image: '../img/carrot.jpg',
           category: '色素应用',
@@ -205,43 +204,36 @@ export default {
         }
       ],
       currentIndex: 0,
-      additivesList: [
-        { 
-          id: 1, 
-          image: '../img/additive1.jpg',
-          title: '天然添加剂1',
-          description: '安全、健康的天然防腐剂，广泛应用于食品保鲜领域。',
-          category: 'natural'
-        },
-        { 
-          id: 2, 
-          image: '../img/additive2.jpg',
-          title: '天然添加剂2',
-          description: '纯天然色素提取物，为食品增添自然色彩。',
-          category: 'natural'
-        },
-        { 
-          id: 3, 
-          image: '图片3', 
-          title: '天然添加剂3',
-          category: 'natural'
-        },
-        { 
-          id: 4, 
-          image: '图片4', 
-          title: '天然添加剂4',
-          category: 'natural'
-        },
-        { 
-          id: 5, 
-          image: '图片5', 
-          title: '天然添加剂5',
-          category: 'natural'
-        }
-      ]
+      additivesList: []
     }
   },
+  created() {
+    this.loadAdditives();
+  },
   methods: {
+    loadAdditives() {
+      console.log('开始请求添加剂数据');
+      
+      request.get('/additive/getAdditives')
+        .then(res => {
+          console.log('获取到的响应:', res);
+          
+          if(res.code === '0') {
+            this.additivesList = res.data.map(item => ({
+              id: item.id,
+              title: item.name,
+              image: item.imgpath,
+              category: item.category
+            }));
+            console.log('处理后的添加剂数据:', this.additivesList);
+          } else {
+            console.error('请求失败:', res.msg);
+          }
+        })
+        .catch(error => {
+          console.error('请求出错:', error);
+        });
+    },
     // 转到资讯详情页
     goToNewsInfo(newsId) {
       this.$router.push({
@@ -256,6 +248,13 @@ export default {
         params: { id: caseId }
       })
     },
+    // 跳转到添加剂详情页
+    goToAdditiveInfo(additiveId) {
+      this.$router.push({
+        name: 'additive_type_info',
+        params: { id: additiveId}
+      })  
+    },
     prevAdditives() {
       if (this.currentIndex > 0) {
         this.currentIndex--
@@ -266,15 +265,7 @@ export default {
         this.currentIndex++
       }
     },
-    goToAdditiveInfo(id, category) {
-      this.$router.push({
-        name: 'additive_type_info',
-        params: { 
-          category: category,
-          imageId: id
-        }
-      })
-    }
+    
   }
 }
 </script> 
@@ -423,16 +414,9 @@ export default {
 
 .case-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   font-size: 14px;
-}
-
-.case-category {
-  color: #42b983;
-  background: rgba(66, 185, 131, 0.1);
-  padding: 4px 12px;
-  border-radius: 20px;
 }
 
 .case-date {

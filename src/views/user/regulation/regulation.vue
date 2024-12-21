@@ -14,8 +14,10 @@
       <!-- 法律法规内容 -->
       <div class="laws-content">
         <div class="law-item" v-for="(law, index) in pagedLaws" :key="index" @click="goToLawInfo(law.id)">
-          <h2>{{ law.title }}</h2>
-          <p>{{ law.description }}</p>
+          <div class="law-title-wrapper">
+            <h2>{{ law.title }}</h2>
+            <span class="law-date">{{ law.date }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -55,6 +57,7 @@
 
 <script>
 import NavBar from '../../../components/NavBar.vue'
+import request from '../../../utils/request'
 
 export default {
   name: 'regulation',
@@ -64,31 +67,18 @@ export default {
   data() {
     return {
       currentPage: 1,
-      laws: [
-        { id: 1, title: '法律条文 1', description: '这是法律条文 1 的简要描述。' },
-        { id: 2, title: '法律条文 2', description: '这是法律条文 2 的简要描述。' },
-        { id: 3, title: '法律条文 3', description: '这是法律条文 3 的简要描述。' },
-        { id: 4, title: '法律条文 4', description: '这是法律条文 4 的简要描述。' },
-        { id: 5, title: '法律条文 5', description: '这是法律条文 5 的简要描述。' },
-        { id: 6, title: '法律条文 6', description: '这是法律条文 6 的简要描述。' },
-        { id: 7, title: '法律条文 7', description: '这是法律条文 7 的简要描述。' },
-        { id: 8, title: '法律条文 8', description: '这是法律条文 8 的简要描述。' },
-        { id: 9, title: '法律条文 9', description: '这是法律条文 9 的简要描述。' },
-        { id: 10, title: '法律条文 10', description: '这是法律条文 10 的简要描述。' },
-        { id: 11, title: '法律条文 11', description: '这是法律条文 11 的简要描述。' },
-        { id: 12, title: '法律条文 12', description: '这是法律条文 12 的简要描述。' },
-      ],
-      itemsPerPage: 6,  // 每页最多显示6条法律条文
+      laws: [],
+      itemsPerPage: 6
     };
   },
   computed: {
     totalPages() {
-      return Math.ceil(this.laws.length / this.itemsPerPage);  // 总页数
+      return Math.ceil(this.laws.length / this.itemsPerPage);
     },
-     pagedLaws() {
+    pagedLaws() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
-      return this.laws.slice(start, end);  // 获取当前页需要展示的法律条文
+      return this.laws.slice(start, end);
     },
     displayedPages() {
       const pages = [];
@@ -108,12 +98,39 @@ export default {
   methods: {
     changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;  // 切换页面
+        this.currentPage = page;
       }
     },
+    loadRegulations() {
+      console.log('开始请求法规数据');
+      
+      request.get("/regulation")
+        .then(res => {
+          console.log('获取到的响应:', res);
+          
+          if(res.code === '0') {
+            this.laws = res.data.map(item => ({
+              ...item,
+              adminId: item.adminId || 0
+            }));
+            console.log('处理后的法律法规数据:', this.laws);
+          } else {
+            console.error('请求失败:', res.msg);
+          }
+        })
+        .catch(error => {
+          console.error('请求出错:', error);
+        });
+    },
     goToLawInfo(id) {
-      this.$router.push({ name: 'regulation_info', params: { id } });  // 跳转到 'regulation_info' 页面，并传递 'id'
+      this.$router.push({
+        name: 'regulation_info',
+        params: { id: id.toString() }
+      });
     }
+  },
+  created() {
+    this.loadRegulations();
   }
 }
 </script>
@@ -193,16 +210,25 @@ export default {
   border-color: #4CAF50;
 }
 
-.law-item h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 12px;
+.law-title-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.law-item p {
-  color: #666;
-  line-height: 1.6;
+.law-item h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+  flex: 1;
+  padding-right: 20px;
+}
+
+.law-date {
+  color: #999;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .pagination {
