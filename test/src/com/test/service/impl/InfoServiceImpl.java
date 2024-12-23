@@ -1,9 +1,14 @@
 package com.test.service.impl;
 
+
 import com.test.dao.CasesDao;
 import com.test.dao.CommentDao;
 import com.test.dao.NewsDao;
 import com.test.dao.RegulationDao;
+import com.test.dao.impl.CasesDaoImpl;
+import com.test.dao.impl.CommentDaoImpl;
+import com.test.dao.impl.NewsDaoImpl;
+import com.test.dao.impl.RegulationDaoImpl;
 import com.test.pojo.Cases;
 import com.test.pojo.Comment;
 import com.test.pojo.News;
@@ -13,11 +18,11 @@ import com.test.service.InfoService;
 import java.util.List;
 
 public class InfoServiceImpl implements InfoService {
-    private NewsDao newsDao = new NewsDao();
-    private CasesDao casesDao = new CasesDao();
-    private CommentDao commentDao = new CommentDao();
+    private NewsDao newsDao = new NewsDaoImpl();
+    private CasesDao casesDao = new CasesDaoImpl();
+    private CommentDao commentDao = new CommentDaoImpl();
+    private RegulationDao regulationDao = new RegulationDaoImpl();
 
-    private RegulationDao regulationDao = new RegulationDao();
     @Override
     public List<News> findAllNews() {
         return newsDao.findAllNews();
@@ -52,10 +57,10 @@ public class InfoServiceImpl implements InfoService {
     public  List<Comment> findNewsCommentById(Integer commentId) {
         return commentDao.findNewsCommentById(commentId);
     }
-    //@Override
-//    public List<Comment> findShangpinCommentById(Integer commentId) {
-//
-//    }
+    @Override
+   public List<Comment> findShangpinCommentById(Integer commentId) {
+        return commentDao.findShangpinCommentById(commentId);
+   }
 
     @Override
     public int addComment(Integer uid, Integer cid, String content, String commentType, String date) {

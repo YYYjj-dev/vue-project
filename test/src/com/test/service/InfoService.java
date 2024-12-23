@@ -25,4 +25,6 @@ public interface InfoService {
 //    List<Comment> findShangpinCommentById(Integer commentId);
 
     int addComment(Integer id,Integer cid, String content, String commentType, String date);
+
+    List<Comment> findShangpinCommentById(Integer commentId);
 }

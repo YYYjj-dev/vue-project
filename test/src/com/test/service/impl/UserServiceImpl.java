@@ -1,13 +1,14 @@
 package com.test.service.impl;
 
-import com.test.dao.UserDao;
+import com.test.dao.impl.UserDaoImpl;
 import com.test.pojo.User;
 import com.test.service.UserService;
+import com.test.dao.UserDao;
 
 
 public class UserServiceImpl implements UserService {
 
-    private UserDao userDao = new UserDao();
+    private UserDao userDao = new UserDaoImpl();
 
     @Override
     public int regist(User user) {

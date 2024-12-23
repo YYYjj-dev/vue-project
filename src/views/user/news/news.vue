@@ -9,6 +9,7 @@
       <!-- 标题 -->
       <div class="page-title">
         <h1>热门资讯</h1>
+        <!-- <input class="file" name="file" type="file" accept="image/png,image/gif,image/jpeg" @change="update"/> -->
       </div>
 
       <!-- 资讯报道内容 -->

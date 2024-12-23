@@ -1,7 +1,6 @@
 package com.test.controller;
 
 import com.test.common.Result;
-import com.test.dao.RegulationDao;
 import com.test.pojo.Cases;
 import com.test.pojo.Comment;
 import com.test.pojo.News;
@@ -80,7 +79,7 @@ public class InfoController extends BaseController{
         if(commentType.equals("1")){
             commentList = infoService.findNewsCommentById(commentId);
         }else if(commentType.equals("2")){
-           // commentList = infoService.findShangpinCommentById(commentId);
+            commentList = infoService.findShangpinCommentById(commentId);
         }
         Result result = Result.ok(commentList);
         WebUtil.writeJson(resp,result);

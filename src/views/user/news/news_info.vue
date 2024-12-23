@@ -42,8 +42,8 @@
                         <div class="comment-user">
                             <div class="user-avatar"></div>
                             <div class="user-info">
-                                <span class="username">用户{{ index + 1 }}</span>
-                                <span class="comment-time">2024-01-20</span>
+                                <span class="username">用户{{ comment.userId }}</span>
+                                <span class="comment-time">{{comment.date}}</span>
                             </div>
                         </div>
                         <div class="comment-content">
@@ -94,12 +94,12 @@ import request from '../../../utils/request'
         let route = useRoute()
         let nid=route.params.id
         let news=ref({title:'',content:'',data:''})
-        let comments=[
+        let comments=ref([
         { content: '这篇文章写得很好，内容很有价值！' },
         { content: '分析得很透彻，给了我很多启发。' },
         { content: '希望能看到更多类似的深度文章。' },
         { content: '观点很新颖，值得深入思考。' }
-        ]
+        ])
         let relatedArticles =[
         { title: '食品添加剂的发展趋势' },
         { title: '天然添加剂的优势分析' },
@@ -113,6 +113,8 @@ import request from '../../../utils/request'
     async function showNews(id){
       let {data} = await request.get(`info/news/findNewsById?id=${id}`)
       news.value = data
+      let {data:commentsData} = await request.get(`info/showComment?commentId=${id}&commentType=1`)
+      comments.value = commentsData.data
     }
      
     //newsData []
