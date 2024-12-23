@@ -23,7 +23,6 @@ public class UserController extends BaseController{
      */
     protected void regist(HttpServletRequest req, HttpServletResponse resp)throws Exception {
         User user = WebUtil.readJson(req,User.class);
-
         int rows = userService.regist(user);
         Result result =Result.ok(null);
         if(rows < 1){

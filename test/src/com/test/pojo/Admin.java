@@ -3,7 +3,7 @@ package com.test.pojo;
 
 public class Admin {
 
-  private long id;
+  private Integer id;
   private String username;
   private String password;
 
@@ -12,7 +12,7 @@ public class Admin {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

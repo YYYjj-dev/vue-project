@@ -3,19 +3,19 @@ package com.test.pojo;
 
 public class News {
 
-  private long id;
+  private Integer id;
   private String title;
   private String content;
-  private long commentId;
-  private long adminId;
+  private Integer commentId;
+  private Integer adminId;
   private String date;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -38,20 +38,20 @@ public class News {
   }
 
 
-  public long getCommentId() {
+  public Integer getCommentId() {
     return commentId;
   }
 
-  public void setCommentId(long commentId) {
+  public void setCommentId(Integer commentId) {
     this.commentId = commentId;
   }
 
 
-  public long getAdminId() {
+  public Integer getAdminId() {
     return adminId;
   }
 
-  public void setAdminId(long adminId) {
+  public void setAdminId(Integer adminId) {
     this.adminId = adminId;
   }
 

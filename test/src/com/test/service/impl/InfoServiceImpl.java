@@ -58,7 +58,16 @@ public class InfoServiceImpl implements InfoService {
         return commentDao.findNewsCommentById(commentId);
     }
     @Override
-   public List<Comment> findShangpinCommentById(Integer commentId) {
+    public int DeleteNews(Integer id) {
+        return newsDao.DeleteNews(id);
+    }
+
+    @Override
+    public int addNews(String title, String content, String date, Integer commentId) {
+        return newsDao.addNews(title,content,date,commentId);
+    }
+
+    public List<Comment> findShangpinCommentById(Integer commentId) {
         return commentDao.findShangpinCommentById(commentId);
    }
 

@@ -1,10 +1,7 @@
 package com.test.controller;
 
 import com.test.common.Result;
-import com.test.pojo.Cases;
-import com.test.pojo.Comment;
-import com.test.pojo.News;
-import com.test.pojo.Regulation;
+import com.test.pojo.*;
 import com.test.service.InfoService;
 import com.test.service.impl.InfoServiceImpl;
 import com.test.util.WebUtil;
@@ -22,6 +19,8 @@ import java.util.Map;
 public class InfoController extends BaseController{
     private InfoService infoService = new InfoServiceImpl();
 
+    //新闻相关
+
     protected void findAllNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<News> itemList = infoService.findAllNews();
         Map data = new HashMap();
@@ -31,13 +30,27 @@ public class InfoController extends BaseController{
     }
 
     protected void findNewsById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         Integer id = Integer.parseInt(req.getParameter("id"));
         News newsInfo = infoService.findNewsById(id);
         Result result = Result.ok(newsInfo);
         WebUtil.writeJson(resp,result);
-
     }
+
+    protected void DeleteNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        int rows = infoService.DeleteNews(id);
+        Result result = Result.ok(rows);
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void addNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        News news = WebUtil.readJson(req,News.class);
+        int rows = infoService.addNews(news.getTitle(),news.getContent(),news.getDate(),news.getAdminId());
+    }
+
+
+
+    //案例相关
 
     protected void findAllCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Cases> itemList = infoService.findAllCases();
@@ -54,6 +67,10 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+
+
+    //法规相关
+
     protected void findAllRegular(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Regulation> itemList = infoService.findAllAllRegular();
         Map data = new HashMap();
@@ -68,6 +85,9 @@ public class InfoController extends BaseController{
         Result result = Result.ok(regulation);
         WebUtil.writeJson(resp,result);
     }
+
+
+    //评论相关
 
     /**
      * 返回评论
@@ -94,7 +114,6 @@ public class InfoController extends BaseController{
         Integer cid = Integer.valueOf(req.getParameter("cid"));
         String date = req.getParameter("date");
         int rows = infoService.addComment(uid,cid,content,commentType,date);
-
     }
 
 }

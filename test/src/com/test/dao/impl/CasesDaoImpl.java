@@ -18,6 +18,10 @@ public class CasesDaoImpl extends BaseDao implements CasesDao {
         return casesList.isEmpty() ? null : casesList.get(0);
     }
 
+    public List<Cases> findByTitle(String title) {
+        String sql = "select title,id from cases where title like?";
+        return baseQuery(Cases.class, sql, title);
+    }
     // 实现增加 Cases 的方法
     public int addCases(Cases cases) {
         String sql = "insert into cases (title, content, date) values (?, ?, ?)";

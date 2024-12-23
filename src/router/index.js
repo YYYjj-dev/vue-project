@@ -139,6 +139,11 @@ const router = createRouter({
             path: '/cart',
             name: 'Cart',
             component: () => import('../views/user/cart/cart.vue')
+        },
+        {
+            path:'/upload',
+            name:'Upload',
+            component: () => import('../views/test/upload.vue')
         }
         // ... 其他路由
     ]

@@ -38,10 +38,15 @@
         </transition>
       </div>
     </div>
+    <div>
+      <a href="../../public/admin/index.html">
+        <button class="login-btn">管理员登录</button>
+      </a>
+    </div>
 
     <div class="nav-right">
       <div class="search-box" v-if="!hideSearch">
-        <input type="text" class="search-input" placeholder="搜索..." />
+        <input type="text" class="search-input" v-model="seachInfo" placeholder="搜索..." @keyup.enter="seach"/>
         <i class="search-icon"></i>
       </div>
       <div class="cart-box" @click="goToCart">
@@ -76,6 +81,7 @@ export default {
         const showAdditiveDropdown = ref(false)
         const showShopDropdown = ref(false)
         const cartItemCount = ref(0)
+        const seachInfo = ref()
 
         const goToLogin = () => {
             router.push('/login')
@@ -84,10 +90,16 @@ export default {
         const goToCart = () => {
             router.push('/cart')
         }
+        
+        const seach = () => {
+            console.log(seachInfo.value)
+        }
 
         return {
             goToLogin,
             goToCart,
+            seach,
+            seachInfo,
             showAdditiveDropdown,
             showShopDropdown,
             cartItemCount,

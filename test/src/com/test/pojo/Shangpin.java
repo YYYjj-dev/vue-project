@@ -13,7 +13,13 @@ public class Shangpin {
   private double price;
   private double score;
   private long num;
-
+  private String img;
+  public String getImg() {
+    return img;
+  }
+  public void setImg(String img) {
+    this.img = img;
+  }
 
   public long getId() {
     return id;

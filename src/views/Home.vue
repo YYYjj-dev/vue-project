@@ -25,7 +25,7 @@
               <div class="carousel-item" 
                    v-for="(item, index) in additivesList" 
                    :key="index"
-                   @click="goToAdditiveInfo(item.id, item.category)">
+                   @click="goToAdditiveInfo()">
                 <div class="item-card">
                   <div class="item-image">
                     <img :src="item.image" :alt="item.title">
@@ -59,13 +59,13 @@
         </div>
 
         <div class="news-grid">
-          <div class="news-card" v-for="news in newsData" :key="news.id" @click="goToNewsInfo(news.id)">
+          <div class="news-card" v-for="newsItem in news" :key="newsItem.id" @click="goToNewsInfo(news.id)">
             <div class="news-content">
-              <h3>{{ news.title }}</h3>
+              <h3>{{ newsItem.title }}</h3>
               <div class="news-meta">
-                <span class="news-date">{{ news.date }}</span>
+                <span class="news-date">{{newsItem.content }}</span>
               </div>
-              <p class="news-description">{{ news.description }}</p>
+              <p class="news-description">{{ newsItem.description }}</p>
             </div>
           </div>
         </div>
@@ -85,7 +85,8 @@
         <div class="cases-grid">
           <div class="case-card" v-for="case_item in casesData" :key="case_item.id" @click="goToCaseInfo(case_item.id)">
             <div class="case-image">
-              <img :src="case_item.image" :alt="case_item.title">
+              <img :src=imageUrl :alt="case_item.title">
+              <!-- <img :src="case_item.image" :alt="case_item.title"> -->
             </div>
             <div class="case-content">
               <h3>{{ case_item.title }}</h3>
@@ -131,152 +132,53 @@
   </div>
 </template>
 
-<script>
+<script setup name='Home' components="NavBar, Carousel, Footer">
 import NavBar from '../components/NavBar.vue'
 import Carousel from '../components/Carousel.vue'
 import Footer from '../components/Footer.vue'
+import {useRouter} from 'vue-router'
+import {onMounted,ref} from 'vue'
+import request from '../utils/request'
 
-export default {
-  name: 'Home',
-  components: {
-    NavBar,
-    Carousel,
-    Footer
-  },
-  data() {
-    return {
-      // 资讯报道数据
-      newsData: [
-        { 
-          id: 1, 
-          title: '资讯标题1', 
-          description: '这是资讯1的简要描述...', 
-          date: '2024-01-01',
-          details: '这是资讯1的详细内容...'
-        },
-        { 
-          id: 2, 
-          title: '资讯标题2', 
-          description: '这是资讯2的简要描述...', 
-          date: '2024-01-02',
-          details: '这是资讯2的详细内容...'
-        },
-        { 
-          id: 3, 
-          title: '资讯标题3', 
-          description: '这是资讯3的简要描述...', 
-          date: '2024-01-03',
-          details: '这是资讯3的详细内容...'
-        }
-      ],
-      // 应用案例数据
-      casesData: [
-        {
-          id: 1,
-          title: '天然防腐剂在果酱中的应用',
-          description: '探索如何使用天然防腐剂延长果酱保质期，同时保持口感和营养价值...',
-          image: '../img/carrot.jpg',
-          category: '防腐技术',
-          date: '2024-01-15',
-          details: '这是案例1的详细内容...'
-        },
-        {
-          id: 2,
-          title: '植物色素在饮料中的创新应用',
-          description: '研究天然色素在功能性饮料中的应用，实现健康与美味的完美结合...',
-          image: '../img/carrot.jpg',
-          category: '色素应用',
-          date: '2024-01-12',
-          details: '这是案例2的详细内容...'
-        },
-        {
-          id: 3,
-          title: '案例标题3',
-          description: '这是案例3的简要描述...',
-          image: '../img/carrot.jpg',
-          details: '这是案例3的详细内容...'
-        },
-        {
-          id: 4,
-          title: '案例标题4',
-          description: '这是案例4的简要描述...',
-          image: '../img/carrot.jpg',
-          details: '这是案例4的详细内容...'
-        }
-      ],
-      currentIndex: 0,
-      additivesList: [
-        { 
-          id: 1, 
-          image: '../img/additive1.jpg',
-          title: '天然添加剂1',
-          description: '安全、健康的天然防腐剂，广泛应用于食品保鲜领域。',
-          category: 'natural'
-        },
-        { 
-          id: 2, 
-          image: '../img/additive2.jpg',
-          title: '天然添加剂2',
-          description: '纯天然色素提取物，为食品增添自然色彩。',
-          category: 'natural'
-        },
-        { 
-          id: 3, 
-          image: '图片3', 
-          title: '天然添加剂3',
-          category: 'natural'
-        },
-        { 
-          id: 4, 
-          image: '图片4', 
-          title: '天然添加剂4',
-          category: 'natural'
-        },
-        { 
-          id: 5, 
-          image: '图片5', 
-          title: '天然添加剂5',
-          category: 'natural'
-        }
-      ]
-    }
-  },
-  methods: {
+
+      const router = useRouter()
+      let news = ref([])
+      let cases= ref([])
+      let additivesList = ref([])
+      let currentIndex = 0
+      let baseUrl = 'http://localhost:8080/image'
+      let imageUrl = baseUrl+'da.jpg'
+
+      onMounted(()=>{
+        getNews()
+        getAdditives()
+      })
+
+      async function getNews(){
+      let {data} = await request.get('info/findAllNews')
+      news.value = data.data.itemList
+      }
+      async function getAdditives(){
+        let {data} = await request.get('additive/findAllAdditives')
+        additivesList.value = data.data.itemList
+        additivesList.value.forEach(item => {
+          item.image = baseUrl + item.url
+        })
+        console.log(additivesList.value)
+      }
+
     // 转到资讯详情页
-    goToNewsInfo(newsId) {
-      this.$router.push({
+    function goToNewsInfo(newsId) {
+      router.push({
         name: 'news_info',
         params: { id: newsId }
       })
-    },
-    // 跳转到案例详情页
-    goToCaseInfo(caseId) {
-      this.$router.push({
-        name: 'cases_info',
-        params: { id: caseId }
-      })
-    },
-    prevAdditives() {
-      if (this.currentIndex > 0) {
-        this.currentIndex--
-      }
-    },
-    nextAdditives() {
-      if (this.currentIndex < this.additivesList.length - 3) {
-        this.currentIndex++
-      }
-    },
-    goToAdditiveInfo(id, category) {
-      this.$router.push({
-        name: 'additive_type_info',
-        params: { 
-          category: category,
-          imageId: id
-        }
-      })
     }
-  }
-}
+    // 跳转到案例详情页
+
+    function goToAdditiveInfo() {
+     router.push({name: 'additive_type_info'})
+    }
 </script> 
 <style scoped>
 .page-container {

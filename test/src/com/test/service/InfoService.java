@@ -12,6 +12,10 @@ public interface InfoService {
 
     News findNewsById(Integer id);
 
+    int addNews(String title, String content, String date, Integer adminId);
+
+    int DeleteNews(Integer id);
+
     List<Cases> findAllCases();
 
     Cases findCasesById(Integer id);
@@ -22,9 +26,11 @@ public interface InfoService {
 
     List<Comment> findNewsCommentById(Integer commentId);
 
-//    List<Comment> findShangpinCommentById(Integer commentId);
-
     int addComment(Integer id,Integer cid, String content, String commentType, String date);
 
     List<Comment> findShangpinCommentById(Integer commentId);
+
+
+
+
 }
