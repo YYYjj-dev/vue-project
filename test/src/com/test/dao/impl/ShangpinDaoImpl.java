@@ -4,6 +4,7 @@ import com.test.dao.BaseDao;
 import com.test.dao.ShangpinDao;
 import com.test.pojo.Cases;
 import com.test.pojo.Shangpin;
+import com.test.util.OrderUtils;
 
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
     }
 
     @Override
-    public int deleteShangpin(Integer id) {
+    public int deleteShangpinById(Integer id) {
         String sql = "delete from shangpin where id = ?";
         return baseUpdate(sql, id);
     }
@@ -60,4 +61,6 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
         List<Shangpin> shangpinList = baseQuery(Shangpin.class, sql);
         return shangpinList;
     }
+
+
 }

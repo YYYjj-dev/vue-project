@@ -14,4 +14,14 @@ public class AdditiveServiceImpl implements AdditiveService {
     public List<Additive> findAllAdditive() {
         return additiveDao.findAllAdditive();
     }
+
+    @Override
+    public Additive findAdditiveById(Integer id) {
+        return additiveDao.findAdditiveById(id);
+    }
+
+    @Override
+    public int addAdditive(Additive addAdditive) {
+        return additiveDao.addAdditive(addAdditive);
+    }
 }
