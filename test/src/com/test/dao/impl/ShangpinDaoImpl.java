@@ -33,7 +33,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
 
     @Override
     public Shangpin findShangpinById(int id) {
-        String sql = "select * from shangpin where id = ?";
+        String sql = "select id,store_id storeId,gruop,type,`name`,description,standard,price,score,num,img from shangpin where id = ?";
         List<Shangpin> shangpin = baseQuery(Shangpin.class, sql, id);
          if (shangpin.size() > 0) {
             return shangpin.get(0);
@@ -57,7 +57,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
 
     @Override
     public List<Shangpin> findAllShangpin() {
-        String sql = "select * from shangpin";
+        String sql = "select id,store_id storeId,gruop,type,`name`,description,standard,price,score,num,img from shangpin\n";
         List<Shangpin> shangpinList = baseQuery(Shangpin.class, sql);
         return shangpinList;
     }

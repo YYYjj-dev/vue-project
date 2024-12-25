@@ -35,9 +35,7 @@ public class ShangpinController extends BaseController{
 
     protected void findAllShangpin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Shangpin> shangpinList = shangpinService.findAllShangpin();
-        Map data = new HashMap();
-        data.put("itemList", shangpinList);
-        Result result = Result.ok(data);
+        Result result = Result.ok(shangpinList);
         WebUtil.writeJson(resp,result);
     }
 

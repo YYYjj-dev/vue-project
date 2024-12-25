@@ -4,7 +4,7 @@ import {
     createWebHistory,
 } from 'vue-router'
 
-import pinia from '../pinia'
+import pinia from '../store'
 import { defineUser } from '../store/userStore'
 
 let userStore = defineUser(pinia)

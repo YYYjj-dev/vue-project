@@ -10,10 +10,18 @@
             <div class="carousel-wrapper">
                 <div class="carousel-slide" 
                      v-for="(slide, index) in slides" 
-                     :key="index"
-                     :class="{ active: currentSlide === index }">
+                     :key="slide.id"
+                     :class="{ active: currentSlide === index }"
+                     @click="goToDetail(slide.id)">
                     <div class="carousel-image">
-                        <div class="image-content">{{ slide.content }}</div>
+                        <img :src="slide.image" 
+                             :alt="slide.content"
+                             @error="handleImageError" />
+                        <div class="carousel-info">
+                            <h3>{{ slide.content }}</h3>
+                            <p class="price">￥{{ slide.price }}</p>
+                            <p class="score">评分: {{ slide.score }}</p>
+                        </div>
                     </div>
                 </div>
                 <!-- 轮播图控制按钮 -->
@@ -24,7 +32,7 @@
                 <!-- 轮播图指示器 -->
                 <div class="carousel-indicators">
                     <span v-for="(slide, index) in slides" 
-                          :key="index"
+                          :key="slide.id"
                           :class="{ active: currentSlide === index }"
                           @click="setSlide(index)">
                     </span>
@@ -48,16 +56,17 @@
                 <!-- 左侧商品列表 -->
                 <div class="products-grid">
                     <div class="product-card" 
-                         v-for="(item, index) in currentPageProducts" 
-                         :key="index"
+                         v-for="item in currentPageProducts" 
+                         :key="item.id"
                          @click="goToDetail(item.id)">
                         <div class="product-image">
-                            <div class="image-placeholder">图片</div>
+                            <img :src="item.image" :alt="item.title" />
                         </div>
                         <div class="product-content">
                             <div class="product-description">{{ item.title }}</div>
                             <div class="product-bottom">
-                                <span class="price">单价</span>
+                                <span class="price">￥{{ item.price }}</span>
+                                <span class="score">评分: {{ item.score }}</span>
                             </div>
                         </div>
                     </div>
@@ -93,10 +102,15 @@
                     <div class="hot-products-title">热销产品</div>
                     <div class="hot-products-list">
                         <div class="hot-product-item" 
-                             v-for="(item, index) in currentHotProducts" 
-                             :key="index"
+                             v-for="item in currentHotProducts" 
+                             :key="item.id"
                              @click="goToDetail(item.id)">
-                            <div class="hot-product-image">{{ item.title }}</div>
+                            <img :src="item.image" :alt="item.title" class="hot-product-image" />
+                            <div class="hot-product-info">
+                                <div class="title">{{ item.title }}</div>
+                                <div class="price">￥{{ item.price }}</div>
+                                <div class="score">评分: {{ item.score }}</div>
+                            </div>
                         </div>
                     </div>
                     <div class="refresh-container">
@@ -111,6 +125,8 @@
 <script>
 import NavBar from '../../../components/NavBar.vue'
 import { useRouter } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import request from '../../../utils/request'
 
 export default {
     name: 'shop_rec',
@@ -119,115 +135,168 @@ export default {
     },
     setup() {
         const router = useRouter()
-        return { router }
-    },
-    data() {
-        return {
-            currentSlide: 0,
-            slides: [
-                { content: '轮播图1' },
-                { content: '轮播图2' },
-                { content: '轮播图3' }
-            ],
-            currentCategory: 0,
-            categories: [
-                { 
-                    name: '分类1',
-                    products: Array(30).fill().map((_, i) => ({
-                        id: i + 1,
-                        title: `分类1商品${i + 1}`,
-                        price: `${(i % 10 + 1) * 99}.00`
+        const currentSlide = ref(0)
+        const slides = ref([])
+        const categories = ref([])
+        const currentCategory = ref(0)
+        const currentPage = ref(1)
+        const pageSize = ref(6)
+        const totalPages = ref(5)
+        const hotProducts = ref([])
+        const hotProductsIndex = ref(1)
+
+        // 获取轮播图数据
+        const getCarouselData = async () => {
+            try {
+                const response = await request.get('/shangpin/findAllShangpin')
+                console.log('轮播图数据:', response)
+                // 检查数据结构
+                if (response.data && response.data.data) {
+                    // 如果数据在 data.data 中
+                    slides.value = response.data.data.slice(0, 3).map(item => ({
+                        id: item.id,
+                        content: item.name,
+                        image: `http://localhost:8080/image${item.img}`,
+                        price: item.price,
+                        score: item.score
                     }))
-                },
-                {
-                    name: '分类2',
-                    products: Array(30).fill().map((_, i) => ({
-                        id: i + 31,
-                        title: `分类2商品${i + 1}`,
-                        price: `${(i % 10 + 1) * 88}.00`
-                    }))
-                },
-                {
-                    name: '分类3',
-                    products: Array(30).fill().map((_, i) => ({
-                        id: i + 61,
-                        title: `分类3商品${i + 1}`,
-                        price: `${(i % 10 + 1) * 77}.00`
-                    }))
-                },
-                {
-                    name: '分类4',
-                    products: Array(30).fill().map((_, i) => ({
-                        id: i + 91,
-                        title: `分类4商品${i + 1}`,
-                        price: `${(i % 10 + 1) * 66}.00`
+                    console.log(slides.value)
+                }
+            } catch (error) {
+                console.error('获取轮播图数据失败:', error)
+            }
+        }
+
+        // 获取分类数据
+        const getCategoryData = async () => {
+            try {
+                const response = await request.get('/shangpin/findAllShangpin')
+                console.log('分类数据:', response)
+                if (response.data && response.data.data) {
+                    // 将商品按照type分组
+                    const groupedProducts = {}
+                    response.data.data.forEach(product => {
+                        if (!groupedProducts[product.type]) {
+                            groupedProducts[product.type] = []
+                        }
+                        groupedProducts[product.type].push(product)
+                    })
+
+                    categories.value = Object.entries(groupedProducts).map(([name, products]) => ({
+                        name,
+                        products: products.map(p => ({
+                            id: p.id,
+                            title: p.name,
+                            price: p.price,
+                            image: `http://localhost:8080/image${p.img}`,
+                            description: p.description,
+                            score: p.score,
+                            num: p.num,
+                            standard: p.standard
+                        }))
                     }))
                 }
-            ],
-            hotProductsPool: [
-                { id: 101, title: '热销商品1' },
-                { id: 102, title: '热销商品2' },
-                { id: 103, title: '热销商品3' },
-                { id: 104, title: '热销商品4' },
-                { id: 105, title: '热销商品5' },
-                { id: 106, title: '热销商品6' },
-                { id: 107, title: '热销商品7' },
-                { id: 108, title: '热销商品8' },
-                { id: 109, title: '热销商品9' },
-                { id: 110, title: '热销商品10' },
-                { id: 111, title: '热销商品11' },
-                { id: 112, title: '热销商品12' }
-            ],
-            hotProductsIndex: 0,
-            currentPage: 1,
-            pageSize: 6, // 每页显示6个商品
-            totalPages: 5, // 总页数为5
+            } catch (error) {
+                console.error('获取分类数据失败:', error)
+            }
         }
-    },
-    computed: {
-        products() {
-            return this.categories[this.currentCategory].products
-        },
-        currentHotProducts() {
-            const startIndex = this.hotProductsIndex * 4;
-            return this.hotProductsPool.slice(startIndex, startIndex + 4);
-        },
-        // 获取当前页的商品
-        currentPageProducts() {
-            const start = (this.currentPage - 1) * this.pageSize
-            return this.products.slice(start, start + this.pageSize)
+
+        // 获取当前分类的商品
+        const currentPageProducts = computed(() => {
+            if (!categories.value.length) return []
+            const start = (currentPage.value - 1) * pageSize.value
+            return categories.value[currentCategory.value]?.products.slice(start, start + pageSize.value) || []
+        })
+
+        // 获取热销商品
+        const getHotProducts = async () => {
+            try {
+                const response = await request.get('/shangpin/findAllShangpin')
+                console.log('热销商品数据:', response)
+                if (response.data && response.data.data) {
+                    // 按score排序并取前12个
+                    hotProducts.value = response.data.data
+                        .sort((a, b) => b.score - a.score)
+                        .slice(0, 12)
+                        .map(p => ({
+                            id: p.id,
+                            title: p.name,
+                            image: `http://localhost:8080${p.img}`,
+                            price: p.price,
+                            score: p.score
+                        }))
+                }
+            } catch (error) {
+                console.error('获取热销商品失败:', error)
+            }
         }
-    },
-    methods: {
-        nextSlide() {
-            this.currentSlide = (this.currentSlide + 1) % this.slides.length
-        },
-        prevSlide() {
-            this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length
-        },
-        setSlide(index) {
-            this.currentSlide = index
-        },
-        goToDetail(id) {
-            this.router.push(`/shop_rec_info/${id}`)
-        },
-        changeCategory(index) {
-            this.currentCategory = index
-        },
-        refreshHotProducts() {
-            const maxIndex = Math.floor(this.hotProductsPool.length / 4);
-            this.hotProductsIndex = (this.hotProductsIndex + 1) % maxIndex;
-        },
-        // 添加页面切换方法
-        changePage(page) {
-            this.currentPage = page
-            // 滚动到页面顶部
-            window.scrollTo({ top: 0, behavior: 'smooth' })
+
+        // 当前显示的热销商品
+        const currentHotProducts = computed(() => {
+            const startIndex = hotProductsIndex.value * 4
+            return hotProducts.value.slice(startIndex, startIndex + 4)
+        })
+
+        onMounted(() => {
+            getCarouselData()
+            getCategoryData()
+            getHotProducts()
+            startAutoSlide()
+        })
+
+        // 自动轮播
+        const startAutoSlide = () => {
+            setInterval(() => {
+                nextSlide()
+            }, 3000)
         }
-    },
-    mounted() {
-        // 自动播
-        setInterval(this.nextSlide, 3000)
+
+        const nextSlide = () => {
+            currentSlide.value = (currentSlide.value + 1) % slides.value.length
+        }
+
+        const prevSlide = () => {
+            currentSlide.value = (currentSlide.value - 1 + slides.value.length) % slides.value.length
+        }
+
+        const setSlide = (index) => {
+            currentSlide.value = index
+        }
+
+        // 跳转到商品详情
+        const goToDetail = (id) => {
+            router.push(`/shop_rec_info/${id}`)
+        }
+
+        // 图片加载失败时的处理
+        const handleImageError = (e) => {
+            e.target.src = '/default-image.jpg' // 设置默���图片
+        }
+
+        return {
+            currentSlide,
+            slides,
+            categories,
+            currentCategory,
+            currentPage,
+            pageSize,
+            totalPages,
+            currentPageProducts,
+            currentHotProducts,
+            nextSlide,
+            prevSlide,
+            setSlide,
+            goToDetail,
+            changeCategory: (index) => {
+                currentCategory.value = index
+                currentPage.value = 1 // 切换分类时重置页码
+            },
+            changePage: (page) => {
+                currentPage.value = page
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+            },
+            handleImageError
+        }
     }
 }
 </script>
@@ -452,8 +521,10 @@ export default {
 }
 
 .hot-product-image {
-    font-size: 16px;
-    color: #666;
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
 }
 
 .sub-button.active {
@@ -486,7 +557,7 @@ export default {
 
 /* 分页器样式 */
 .pagination {
-    grid-column: 1 / -1; /* ��页器占据整行 */
+    grid-column: 1 / -1; /* 分页器占据整行 */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -530,5 +601,64 @@ export default {
 .page-number:not(.active):hover {
     border-color: #4CAF50;
     color: #4CAF50;
+}
+
+.carousel-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.carousel-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    color: white;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.carousel-info h3 {
+    margin: 0;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.carousel-info .price {
+    margin: 0;
+    font-size: 20px;
+    color: #4CAF50;
+}
+
+.score {
+    color: #ff9800;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.hot-product-info {
+    padding: 8px;
+}
+
+.hot-product-info .title {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hot-product-image {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
 }
 </style>
