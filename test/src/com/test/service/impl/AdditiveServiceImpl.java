@@ -24,4 +24,14 @@ public class AdditiveServiceImpl implements AdditiveService {
     public int addAdditive(Additive addAdditive) {
         return additiveDao.addAdditive(addAdditive);
     }
+
+    @Override
+    public List<Additive> findAdditiveByName(String name) {
+        return null;
+    }
+
+    @Override
+    public List<Additive> findAdditiveByType(String typeName) {
+        return additiveDao.findAdditiveByType(typeName);
+    }
 }

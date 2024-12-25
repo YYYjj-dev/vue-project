@@ -10,4 +10,8 @@ public interface AdditiveService {
     Additive findAdditiveById(Integer id);
 
     int addAdditive(Additive addAdditive);
+
+    List<Additive> findAdditiveByName(String name);
+
+    List<Additive> findAdditiveByType(String typeName);
 }

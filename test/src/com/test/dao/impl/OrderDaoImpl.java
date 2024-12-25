@@ -6,8 +6,6 @@ import com.test.util.OrderUtils;
 
 public class OrderDaoImpl extends BaseDao implements OrderDao {
 
-
-
     @Override
     public int orderShangpin(Integer sid, Integer uid, Integer num,String date) {
 
@@ -33,5 +31,13 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
             String sql5 = "insert into order values(DEFAULT,?,?,?)";
             return baseUpdate(sql5,date,xid,uid);
         }
+    }
+
+    @Override
+    public int deleteOrder(Integer oid) {
+        String sql = "delete from orderdetail where order_id =?";
+        String sql1 = "delete from order where xiangqing_id =?";
+        baseUpdate(sql,oid);
+        return baseUpdate(sql1,oid);
     }
 }

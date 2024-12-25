@@ -10,4 +10,6 @@ public interface AdditiveDao {
     Additive findAdditiveById(Integer id);
 
     int addAdditive(Additive addAdditive);
+
+    List<Additive> findAdditiveByType(String typeName);
 }

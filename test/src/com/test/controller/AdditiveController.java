@@ -22,9 +22,7 @@ public class AdditiveController extends BaseController {
 
     protected void findAllAdditives(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Additive> itemList = additiveService.findAllAdditive();
-        Map data = new HashMap();
-        data.put("itemList", itemList);
-        Result result = Result.ok(data);
+        Result result = Result.ok(itemList);
         WebUtil.writeJson(resp,result);
     }
 
@@ -38,5 +36,19 @@ public class AdditiveController extends BaseController {
     protected void addAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Additive addAdditive = WebUtil.readJson(req,Additive.class);
         int rows = additiveService.addAdditive(addAdditive);
+    }
+
+    protected void findAdditiveByName(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String name = req.getParameter("name");
+        List<Additive> itemList = additiveService.findAdditiveByName(name);
+        Result result = Result.ok(itemList);
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void findAdditiveByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String typeName = req.getParameter("typeName");
+        List<Additive> itemList = additiveService.findAdditiveByType(typeName);
+        Result result = Result.ok(itemList);
+        WebUtil.writeJson(resp,result);
     }
 }

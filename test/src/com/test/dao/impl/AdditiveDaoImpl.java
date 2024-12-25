@@ -39,6 +39,13 @@ public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
                 addAdditive.getImgpath(), addAdditive.getUrl());
     }
 
+    @Override
+    public List<Additive> findAdditiveByType(String typeName) {
+        String sql = "\"select id,typename,name,description,usestandard_internal usestandardInternal,usestandard_international usestandardInternational,analysis,admin_id adminId,imgpath,url from additive where typename = ?";
+        List<Additive> additives = baseQuery(Additive.class, sql, typeName);
+        return additives;
+    }
+
     public int deleteAdditive(Integer id) {
         String sql = "delete from additive where id =?";
         return baseUpdate(sql, id);

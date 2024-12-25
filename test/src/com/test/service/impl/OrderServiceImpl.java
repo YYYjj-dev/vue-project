@@ -11,4 +11,9 @@ public class OrderServiceImpl implements OrderService {
     public int orderShangpin(Integer sid, Integer uid, Integer num, String date) {
             return orderDao.orderShangpin(sid,uid,num,date);
     }
+
+    @Override
+    public int deleteOrder(Integer oid) {
+        return orderDao.deleteOrder(oid);
+    }
 }

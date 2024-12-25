@@ -36,7 +36,6 @@ public class CasesDaoImpl extends BaseDao implements CasesDao {
         return baseUpdate(sql, args);
     }
 
-
     // 删
     public int deleteCases(Integer id) {
         String sql = "delete from cases where id = ?";
