@@ -39,13 +39,19 @@ public class InfoController extends BaseController{
     protected void DeleteNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         int rows = infoService.DeleteNews(id);
-        Result result = Result.ok(rows);
-        WebUtil.writeJson(resp,result);
+        if (rows > 0) {
+            Result result = Result.ok(rows);
+            WebUtil.writeJson(resp,result);
+        }
     }
 
     protected void addNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         News news = WebUtil.readJson(req,News.class);
         int rows = infoService.addNews(news.getTitle(),news.getContent(),news.getDate(),news.getAdminId());
+        if (rows > 0) {
+            Result result = Result.ok(rows);
+            WebUtil.writeJson(resp,result);
+        }
     }
 
 
@@ -64,6 +70,15 @@ public class InfoController extends BaseController{
         Integer id = Integer.parseInt(req.getParameter("id"));
         Cases casesInfo = infoService.findCasesById(id);
         Result result = Result.ok(casesInfo);
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void findCasesByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String type = req.getParameter("type");
+        List<Cases> itemList = infoService.findCasesByType(type);
+        Map data = new HashMap();
+        data.put("itemList", itemList);
+        Result result = Result.ok(data);
         WebUtil.writeJson(resp,result);
     }
 
@@ -86,7 +101,32 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    protected void addRegular(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Regulation regulation = WebUtil.readJson(req,Regulation.class);
+        int rows = infoService.addRegular(regulation);
+        if (rows > 0) {
+            Result result = Result.ok(rows);
+            WebUtil.writeJson(resp,result);
+        }
+    }
 
+    protected void updateRegular(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Regulation regulation = WebUtil.readJson(req,Regulation.class);
+        int rows = infoService.updateRegular(regulation);
+        if (rows > 0) {
+            Result result = Result.ok(rows);
+            WebUtil.writeJson(resp,result);
+        }
+    }
+
+    protected void deleteRegular(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        int rows = infoService.deleteRegular(id);
+        if(rows > 0) {
+            Result result = Result.ok(rows);
+            WebUtil.writeJson(resp,result);
+        }
+    }
     //评论相关
 
     /**

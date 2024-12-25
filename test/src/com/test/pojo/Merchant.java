@@ -1,7 +1,7 @@
 package com.test.pojo;
 
 
-public class Merchant {
+public class Merchant extends User {
 
   private long id;
   private String username;

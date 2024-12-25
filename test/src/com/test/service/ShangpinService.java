@@ -10,4 +10,12 @@ public interface ShangpinService {
     List<Shangpin> findAllShangpin();
 
     Shangpin findShangpinById(Integer id);
+
+    int addShangpin(Shangpin shangpin);
+
+    List<Shangpin> findShangpinByGroup(String group);
+
+    int updateShangpin(Shangpin shangpin);
+
+    List<Shangpin> findShangpinByName(String name);
 }

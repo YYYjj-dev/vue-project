@@ -23,5 +23,16 @@ public class OrderController extends BaseController {
         int rows = orderService.orderShangpin(sid,uid,num,date);
     }
 
+    protected void deleteOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer sid = Integer.parseInt(req.getParameter("oid"));
+    }
+
+    protected void updateOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+    }
+
+    protected void payOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+    }
 
 }

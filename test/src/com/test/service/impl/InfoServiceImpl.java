@@ -24,6 +24,11 @@ public class InfoServiceImpl implements InfoService {
     private RegulationDao regulationDao = new RegulationDaoImpl();
 
     @Override
+    public int addNews(String title, String content, String date, Integer commentId) {
+        return newsDao.addNews(title,content,date,commentId);
+    }
+
+    @Override
     public List<News> findAllNews() {
         return newsDao.findAllNews();
     }
@@ -54,6 +59,21 @@ public class InfoServiceImpl implements InfoService {
     }
 
     @Override
+    public int addRegular(Regulation regulation) {
+        return regulationDao.addRegular(regulation);
+    }
+
+    @Override
+    public int updateRegular(Regulation regulation) {
+        return regulationDao.updateRegular(regulation);
+    }
+
+    @Override
+    public int deleteRegular(Integer id) {
+        return regulationDao.deleteRegular(id);
+    }
+
+    @Override
     public  List<Comment> findNewsCommentById(Integer commentId) {
         return commentDao.findNewsCommentById(commentId);
     }
@@ -62,14 +82,16 @@ public class InfoServiceImpl implements InfoService {
         return newsDao.DeleteNews(id);
     }
 
-    @Override
-    public int addNews(String title, String content, String date, Integer commentId) {
-        return newsDao.addNews(title,content,date,commentId);
-    }
 
     public List<Comment> findShangpinCommentById(Integer commentId) {
         return commentDao.findShangpinCommentById(commentId);
    }
+
+    @Override
+    public List<Cases> findCasesByType(String type) {
+        return casesDao.findCasesByType(type);
+    }
+
 
     @Override
     public int addComment(Integer uid, Integer cid, String content, String commentType, String date) {

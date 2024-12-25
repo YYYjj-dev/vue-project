@@ -18,33 +18,36 @@ public class CasesDaoImpl extends BaseDao implements CasesDao {
         return casesList.isEmpty() ? null : casesList.get(0);
     }
 
-    public List<Cases> findByTitle(String title) {
-        String sql = "select title,id from cases where title like?";
+    @Override
+    public List<Cases> findCasesByType(String type) {
+        String sql = "select title,id from cases where grouptype=?";
+        List<Cases> casesList = baseQuery(Cases.class, sql, type);
+        return casesList.isEmpty() ? null : casesList;
+    }
+
+    public List<Cases> findCasesByTitle(String title) {
+        String sql = "select title,id from cases where title like ?";
         return baseQuery(Cases.class, sql, title);
     }
-    // 实现增加 Cases 的方法
+    // 增
     public int addCases(Cases cases) {
-        String sql = "insert into cases (title, content, date) values (?, ?, ?)";
-        Object[] args = {cases.getTitle(), cases.getContent(), cases.getDate()};
+        String sql = "insert into cases (title,content,admin_id,date,grouptype,imgpath) values (?, ?, ?)";
+        Object[] args = {cases.getTitle(), cases.getContent(), cases.getAdminId(),cases.getDate(),cases.getGrouptype(),cases.getImgpath()};
         return baseUpdate(sql, args);
     }
 
-    // 实现删除 Cases 的方法
+
+    // 删
     public int deleteCases(Integer id) {
         String sql = "delete from cases where id = ?";
         return baseUpdate(sql, id);
     }
 
-    // 实现修改 Cases 的方法
+    // 改
     public int updateCases(Cases cases) {
-        String sql = "update cases set title = ?, content = ?, date = ? where id = ?";
-        Object[] args = {cases.getTitle(), cases.getContent(), cases.getDate(), cases.getId()};
+        String sql = "update cases set title = ?, content = ?, date = ?,grouptype = ? where id = ?";
+        Object[] args = {cases.getTitle(), cases.getContent(), cases.getDate(),cases.getGrouptype(), cases.getId()};
         return baseUpdate(sql, args);
     }
 
-    public List<Cases> findCasesByName(String name) {
-        String sql = "select * from cases where title like ?";
-        Object[] args = {"%" + name + "%"};
-        return baseQuery(Cases.class, sql, args);
-    }
 }

@@ -22,6 +22,26 @@ public class ShangpinServiceImpl implements ShangpinService {
     }
 
     @Override
+    public int addShangpin(Shangpin shangpin) {
+        return shangpinDao.addShangpin(shangpin);
+    }
+
+    @Override
+    public List<Shangpin> findShangpinByGroup(String group) {
+        return shangpinDao.findShangpinByGroup(group);
+    }
+
+    @Override
+    public int updateShangpin(Shangpin shangpin) {
+        return shangpinDao.updateShangpin(shangpin);
+    }
+
+    @Override
+    public List<Shangpin> findShangpinByName(String name) {
+        return shangpinDao.findShangpinByName(name);
+    }
+
+    @Override
     public int deleteShangpinById(Integer id) {
         return shangpinDao.deleteShangpinById(id);
     }

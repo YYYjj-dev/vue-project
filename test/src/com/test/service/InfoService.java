@@ -31,6 +31,11 @@ public interface InfoService {
     List<Comment> findShangpinCommentById(Integer commentId);
 
 
+    List<Cases> findCasesByType(String type);
 
+    int addRegular(Regulation regulation);
 
+    int updateRegular(Regulation regulation);
+
+    int deleteRegular(Integer id);
 }

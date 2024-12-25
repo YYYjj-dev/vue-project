@@ -10,5 +10,8 @@ export const defineUser = defineStore('loginUser', {
 
     actions: {
     
-    }
+    },
+  
+    persist: true,
+
   })

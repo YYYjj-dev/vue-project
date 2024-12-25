@@ -8,4 +8,10 @@ public interface RegulationDao {
     List<Regulation> findAllAllRegular();
 
     Regulation findRegulationById(Integer id);
+
+    int addRegular(Regulation regulation);
+
+    int updateRegular(Regulation regulation);
+
+    int deleteRegular(Integer id);
 }
