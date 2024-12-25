@@ -52,17 +52,20 @@
         下一页
       </button>
     </div>
+    <Footer />
   </div>
 </template>
 
 <script>
 import NavBar from '../../../components/NavBar.vue'
 import request from '../../../utils/request'
+import Footer from '../../../components/Footer.vue'
 
 export default {
   name: 'regulation',
   components: {
-    NavBar
+    NavBar,
+    Footer
   },
   data() {
     return {

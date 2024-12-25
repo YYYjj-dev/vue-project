@@ -105,17 +105,20 @@
                 </div>
             </div>
         </div>
+        <Footer />
     </div>
 </template>
 
 <script>
 import NavBar from '../../../components/NavBar.vue'
+import Footer from '../../../components/Footer.vue'
 import { useRouter } from 'vue-router'
 
 export default {
     name: 'shop_rec',
     components: {
-        NavBar
+        NavBar,
+        Footer
     },
     setup() {
         const router = useRouter()

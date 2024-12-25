@@ -46,10 +46,9 @@ const router = createRouter({
             component: () => import('../views/user/additive/additive_zhuanqu_info2.vue')
         },
         {
-            path: '/additive_type_info/:category/:imageId',
+            path: '/additive_type_info/:id',
             name: 'additive_type_info',
-            component: () => import('../views/user/additive/additive_type_info.vue'),
-            props: true  // 使用路由参数作为 props 传递到组件
+            component: () => import('../views/user/additive/additive_type_info.vue')
         },
         {
             path: '/cases',

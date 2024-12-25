@@ -45,18 +45,21 @@
                 </div>
             </div>
         </div>
+        <Footer />
     </div>
 </template>
 
 <script>
 import NavBar from '../../../components/NavBar.vue'
+import Footer from '../../../components/Footer.vue'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default {
     name: 'shop_sel',
     components: {
-        NavBar
+        NavBar,
+        Footer
     },
     setup() {
         const router = useRouter()

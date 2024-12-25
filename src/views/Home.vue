@@ -23,7 +23,7 @@
           <div class="carousel-container">
             <div class="carousel-track" :style="{ transform: `translateX(-${currentIndex * 33.33}%)` }">
               <div class="carousel-item" 
-                   v-for="(item, index) in additivesList" 
+                   v-for="(item, index) in additivesList.slice(0, 6)" 
                    :key="index"
                    @click="goToAdditiveInfo(item.id)">
                 <div class="item-card">
@@ -41,7 +41,7 @@
             </div>
           </div>
           <button class="carousel-btn next" 
-                  :disabled="currentIndex >= additivesList.length - 3" 
+                  :disabled="isNextDisabled" 
                   @click="nextAdditives">&gt;</button>
         </div>
 
@@ -58,13 +58,16 @@
         </div>
 
         <div class="news-grid">
-          <div class="news-card" v-for="news in newsData" :key="news.id" @click="goToNewsInfo(news.id)">
+          <div class="news-card" 
+               v-for="news in newsData.slice(0, 3)" 
+               :key="news.id" 
+               @click="goToNewsInfo(news.id)">
             <div class="news-content">
               <h3>{{ news.title }}</h3>
               <div class="news-meta">
                 <span class="news-date">{{ news.date }}</span>
               </div>
-              <p class="news-description">{{ news.description }}</p>
+              <p class="news-description">{{ news.content }}</p>
             </div>
           </div>
         </div>
@@ -82,13 +85,16 @@
         </div>
 
         <div class="cases-grid">
-          <div class="case-card" v-for="case_item in casesData" :key="case_item.id" @click="goToCaseInfo(case_item.id)">
+          <div class="case-card" 
+               v-for="case_item in casesData.slice(0, 4)" 
+               :key="case_item.id" 
+               @click="goToCaseInfo(case_item.id)">
             <div class="case-image">
-              <img :src="case_item.image" :alt="case_item.title">
+              <img :src="case_item.imgpath" :alt="case_item.title">
             </div>
             <div class="case-content">
               <h3>{{ case_item.title }}</h3>
-              <p>{{ case_item.description }}</p>
+              <p>{{ case_item.content }}</p>
               <div class="case-meta">
                 <span class="case-date">{{ case_item.date }}</span>
               </div>
@@ -145,87 +151,81 @@ export default {
   data() {
     return {
       // 资讯报道数据
-      newsData: [
-        { 
-          id: 1, 
-          title: '资讯标题1', 
-          description: '这是资讯1的简要描述...', 
-          date: '2024-01-01',
-          details: '这是资讯1的详细内容...'
-        },
-        { 
-          id: 2, 
-          title: '资讯标题2', 
-          description: '这是资讯2的简要描述...', 
-          date: '2024-01-02',
-          details: '这是资讯2的详细内容...'
-        },
-        { 
-          id: 3, 
-          title: '资讯标题3', 
-          description: '这是资讯3的简要描述...', 
-          date: '2024-01-03',
-          details: '这是资讯3的详细内容...'
-        }
-      ],
+      newsData: [],
       // 应用案例数据
-      casesData: [
-        {
-          id: 1,
-          title: '天然防腐剂在果酱中的应用',
-          description: '探索如何使用天然防腐剂延长果酱保质期，同时保持口感和营养价值...',
-          image: '../img/carrot.jpg',
-          category: '防腐技术',
-          date: '2024-01-15',
-          details: '这是案例1的详细内容...'
-        },
-        {
-          id: 2,
-          title: '植物色素��饮料中的创新应用',
-          description: '研究天然色素在功能性饮料中的应用，实现健康与美味的完美结合...',
-          image: '../img/carrot.jpg',
-          category: '色素应用',
-          date: '2024-01-12',
-          details: '这是案例2的详细内容...'
-        },
-        {
-          id: 3,
-          title: '案例标题3',
-          description: '这是案例3的简要描述...',
-          image: '../img/carrot.jpg',
-          details: '这是案例3的详细内容...'
-        },
-        {
-          id: 4,
-          title: '案例标题4',
-          description: '这是案例4的简要描述...',
-          image: '../img/carrot.jpg',
-          details: '这是案例4的详细内容...'
-        }
-      ],
+      casesData: [],
       currentIndex: 0,
       additivesList: []
     }
   },
   created() {
     this.loadAdditives();
+    this.loadNews();
+    this.loadCases();
   },
   methods: {
     loadAdditives() {
       console.log('开始请求添加剂数据');
       
-      request.get('/additive/getAdditives')
+      request.get('/additive/getNature')
         .then(res => {
           console.log('获取到的响应:', res);
           
           if(res.code === '0') {
-            this.additivesList = res.data.map(item => ({
+            this.additivesList = res.data.slice(0, 6).map(item => ({
               id: item.id,
               title: item.name,
               image: item.imgpath,
               category: item.category
             }));
             console.log('处理后的添加剂数据:', this.additivesList);
+          } else {
+            console.error('请求失败:', res.msg);
+          }
+        })
+        .catch(error => {
+          console.error('请求出错:', error);
+        });
+    },
+    loadNews() {
+      console.log('开始请求新闻数据');
+      
+      request.get('/new')
+        .then(res => {
+          console.log('获取到的新闻响应:', res);
+          
+          if(res.code === '0') {
+            this.newsData = res.data.map(item => ({
+              id: item.id,
+              title: item.title,
+              content: item.content,
+              date: item.date
+            }));
+            console.log('处理后的新闻数据:', this.newsData);
+          } else {
+            console.error('请求失败:', res.msg);
+          }
+        })
+        .catch(error => {
+          console.error('请求出错:', error);
+        });
+    },
+    loadCases() {
+      console.log('开始请求案例数据');
+      
+      request.get('/case')
+        .then(res => {
+          console.log('获取到的案例响应:', res);
+          
+          if(res.code === '0') {
+            this.casesData = res.data.map(item => ({
+              id: item.id,
+              title: item.title,
+              content: item.content,
+              date: item.date,
+              imgpath: item.imgpath
+            }));
+            console.log('处理后的案例数据:', this.casesData);
           } else {
             console.error('请求失败:', res.msg);
           }
@@ -241,7 +241,7 @@ export default {
         params: { id: newsId }
       })
     },
-    // 跳转到案例详情页
+    // 转到案例详情页
     goToCaseInfo(caseId) {
       this.$router.push({
         name: 'cases_info',
@@ -261,11 +261,18 @@ export default {
       }
     },
     nextAdditives() {
-      if (this.currentIndex < this.additivesList.length - 3) {
+      const maxIndex = Math.min(this.additivesList.length, 6) - 3;
+      if (this.currentIndex < maxIndex) {
         this.currentIndex++
       }
     },
     
+  },
+  
+  computed: {
+    isNextDisabled() {
+      return this.currentIndex >= Math.min(this.additivesList.length, 6) - 3;
+    }
   }
 }
 </script> 
@@ -331,6 +338,7 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease;
   cursor: pointer;
+  height: 280px;
 }
 
 .news-card:hover {
@@ -339,12 +347,16 @@ export default {
 
 .news-content {
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .news-content h3 {
   font-size: 18px;
   color: #2c3e50;
   margin-bottom: 10px;
+  line-height: 1.4;
 }
 
 .news-meta {
@@ -360,6 +372,24 @@ export default {
   color: #666;
   font-size: 14px;
   line-height: 1.6;
+  flex-grow: 1;
+  position: relative;
+  max-height: 160px;
+  overflow: hidden;
+}
+
+.news-description::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 1)
+  );
 }
 
 /* 应用案例样式 */
@@ -485,8 +515,8 @@ export default {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .card {
-    flex: 0 0 calc((100% - 20px) / 2);
+  .news-card {
+    height: 260px;
   }
 }
 
@@ -520,6 +550,16 @@ export default {
 
   .arrow.right {
     right: 10px;
+  }
+
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .news-card {
+    height: 240px;
+    max-width: 500px;
+    margin: 0 auto;
   }
 }
 

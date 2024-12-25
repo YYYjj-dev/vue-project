@@ -16,8 +16,12 @@
             </div>
 
             <!-- 新增的三个竖向排列的盒子 -->
-            <div class="info-box" v-for="item in news" :key="item.id" @click="goToNewsInfo(item.id)">
-                {{ item.title }}
+            <div class="info-box" 
+                 v-for="item in news.slice(0, 5)" 
+                 :key="item.id" 
+                 @click="goToNewsInfo(item.id)">
+                <div class="info-title">{{ item.title }}</div>
+                <div class="info-date">{{ item.date }}</div>
             </div>
 
             <!-- 营养品与添加剂部分 -->
@@ -29,11 +33,16 @@
                 <!-- 新增的内容盒子 -->
                 <div class="content-box">
                     <div class="icon-text-box" 
-                         v-for="item in nutritionItems" 
+                         v-for="item in nutritionItems.slice(0, 3)" 
                          :key="item.id"
                          @click="goToProduct(item.id)">
-                        <div class="icon">{{ item.icon }}</div>
-                        <div class="text">{{ item.content }}</div>
+                        <div class="icon">
+                            <img :src="item.imgpath" :alt="item.name">
+                        </div>
+                        <div class="text-content">
+                            <div class="text-title">{{ item.name }}</div>
+                            <div class="text-description">{{ item.description }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,6 +57,7 @@
 import Carousel from '../../../components/Carousel.vue';
 import NavBar from '../../../components/NavBar.vue'
 import Footer from '../../../components/Footer.vue'
+import request from '../../../utils/request'
 
 export default {
     name: 'additive_zhuanqu',
@@ -67,25 +77,67 @@ export default {
             this.$router.push('/additive_zhuanqu_info2')
         },
         goToProduct(id) {
+            console.log('跳转到商品详情，ID:', id);
             this.$router.push({
                 name: 'shop_rec_info',
                 params: { id: id.toString() }
-            })
+            });
+        },
+        loadNews() {
+            console.log('开始请求新闻数据');
+            
+            request.get('/new/getReduceDamage')
+                .then(res => {
+                    console.log('获取到的新闻响应:', res);
+                    
+                    if(res.code === '0') {
+                        this.news = res.data.map(item => ({
+                            id: item.id,
+                            title: item.title,
+                            date: item.date
+                        }));
+                        console.log('处理后的新闻数据:', this.news);
+                    } else {
+                        console.error('请求失败:', res.msg);
+                    }
+                })
+                .catch(error => {
+                    console.error('请求出错:', error);
+                });
+        },
+        loadNutrition() {
+            console.log('开始请求营养品数据');
+            
+            request.get('/shangpin')
+                .then(res => {
+                    console.log('获取到的营养品响应:', res);
+                    
+                    if(res.code === '0') {
+                        this.nutritionItems = res.data.map(item => ({
+                            id: item.id,
+                            imgpath: item.imgpath,
+                            name: item.name,
+                            description: item.description
+                        }));
+                        console.log('处理后的营养品数据:', this.nutritionItems);
+                    } else {
+                        console.error('请求失败:', res.msg);
+                    }
+                })
+                .catch(error => {
+                    console.error('请求出错:', error);
+                });
         }
     },
     data() {
         return {
-            news: [
-                { id: 1, title: '资讯报道 1', description: '这是资讯报道 1 的简要描述。' },
-                { id: 2, title: '资讯报道 2', description: '这是资讯报道 2 的简要描述。' },
-                { id: 3, title: '资讯报道 3', description: '这是资讯报道 3 的简要描述。' },
-            ],
-            nutritionItems: [
-                { id: 101, icon: '图标1', content: '营养品内容1', price: '199.00' },
-                { id: 102, icon: '图标2', content: '营养品内容2', price: '299.00' },
-                { id: 103, icon: '图标3', content: '营养品内容3', price: '399.00' }
-            ]
+            news: [],
+            nutritionItems: []
         }
+    },
+    created() {
+        this.loadNews();
+        this.loadNutrition();
     }
 }
 </script>
@@ -173,6 +225,22 @@ export default {
     cursor: pointer;
     transition: all 0.3s ease;
     border: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-title {
+    font-size: 16px;
+    color: #2c3e50;
+    flex-grow: 1;
+    margin-right: 20px;
+}
+
+.info-date {
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
 }
 
 .info-box:hover {
@@ -194,7 +262,7 @@ export default {
     display: flex;
     align-items: center;
     background: white;
-    padding: 20px;
+    padding: 25px;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -209,29 +277,48 @@ export default {
 }
 
 .icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #42b983 0%, #3aa876 100%);
-    margin-right: 20px;
+    width: 120px;
+    height: 120px;
+    margin-right: 25px;
     border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
+    overflow: hidden;
     flex-shrink: 0;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.icon-text-box:hover .icon {
+.icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.icon-text-box:hover .icon img {
     transform: scale(1.1);
 }
 
-.text {
+.text-content {
     flex-grow: 1;
-    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.text-title {
+    font-size: 18px;
+    font-weight: 600;
     color: #2c3e50;
+}
+
+.text-description {
+    font-size: 14px;
+    color: #666;
     line-height: 1.5;
+}
+
+.text {
+    display: none;
 }
 
 /* 商品推荐部分 */
@@ -348,11 +435,27 @@ export default {
     .product-box {
         flex: 0 0 calc((100% - 20px) / 2);
     }
+
+    .icon {
+        width: 100px;
+        height: 100px;
+        margin-right: 20px;
+    }
+
+    .icon-text-box {
+        padding: 20px;
+    }
 }
 
 @media (max-width: 480px) {
     .product-box {
         flex: 0 0 100%;
+    }
+
+    .icon {
+        width: 80px;
+        height: 80px;
+        margin-right: 15px;
     }
 }
 </style>

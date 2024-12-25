@@ -43,6 +43,7 @@
 import NavBar from '../../../components/NavBar.vue'
 import { useRouter } from 'vue-router'
 import Footer from '../../../components/Footer.vue'
+import request from '../../../utils/request'
 
 export default {
     name: 'additive_zhuanqu_info1',
@@ -60,96 +61,110 @@ export default {
             angles: [
                 { 
                     name: '食品安全',
-                    contents: [
-                        { 
-                            id: 1, 
-                            title: '食品添加剂的安全使用标准', 
-                            details: '了解食品添加剂的使用限量和安全标准，避免过量使用带来的健康风险。' 
-                        },
-                        { 
-                            id: 2, 
-                            title: '常见食品添加剂的危害识别', 
-                            details: '识别常见食品添加剂可能带来的潜在危害，提高食品安全意识。' 
-                        },
-                        { 
-                            id: 3, 
-                            title: '儿童食品中的添加剂控制', 
-                            details: '特别关注儿童食品中的添加剂使用，保护儿童健康成长。' 
-                        },
-                        { 
-                            id: 4, 
-                            title: '食品添加剂的替代方案', 
-                            details: '探索使用天然原料替代化学添加剂的可能性，追求更健康的饮食方式。' 
-                        }
-                    ]
+                    contents: []
                 },
                 { 
                     name: '健康饮食',
-                    contents: [
-                        { 
-                            id: 5, 
-                            title: '选择天然食材的重要性', 
-                            details: '了解选择天然、新鲜食材对健康的积极影响，减少添加剂的摄入。' 
-                        },
-                        { 
-                            id: 6, 
-                            title: '健康烹饪方式推荐', 
-                            details: '掌握健康的烹饪方法，在保持食物美味的同时减少添加剂的使用。' 
-                        },
-                        { 
-                            id: 7, 
-                            title: '营养均衡搭配指南', 
-                            details: '学习科学的膳食搭配方法，确保营养均衡的同时避免过度加工食品。' 
-                        },
-                        { 
-                            id: 8, 
-                            title: '日常饮食习惯改善', 
-                            details: '培养健康的饮食习惯，从源头减少不必要的食品添加剂摄入。' 
-                        }
-                    ]
+                    contents: []
                 },
                 { 
                     name: '科学认知',
-                    contents: [
-                        { 
-                            id: 9, 
-                            title: '食品添加剂的科学认识', 
-                            details: '正确理解食品添加剂的作用和必要性，避免过度恐慌。' 
-                        },
-                        { 
-                            id: 10, 
-                            title: '添加剂安全评估方法', 
-                            details: '了解食品添加剂的安全性评估标准和流程，建立科学的认知。' 
-                        },
-                        { 
-                            id: 11, 
-                            title: '食品标签的正确解读', 
-                            details: '学会阅读食品标签上的添加剂信息，做出明智的购买选择。' 
-                        },
-                        { 
-                            id: 12, 
-                            title: '添加剂相关法规解析', 
-                            details: '了解食品添加剂的相关法律法规，保护消费者权益。' 
-                        }
-                    ]
+                    contents: []
                 }
             ]
         }
     },
-    computed: {
-        currentContents() {
-            return this.angles[this.currentAngle].contents
-        }
+    created() {
+        // 初始加载食品安全内容
+        this.loadSafetyContents();
     },
     methods: {
-        switchAngle(index) {
-            this.currentAngle = index
+        // 加载食品安全内容
+        loadSafetyContents() {
+            console.log('开始请求食品安全��据');
+            request.get('/new/getSafety')
+                .then(res => {
+                    if(res.code === '0') {
+                        this.angles[0].contents = res.data.slice(0, 6).map(item => ({
+                            id: item.id,
+                            title: item.title,
+                            details: item.content
+                        }));
+                    }
+                })
+                .catch(error => {
+                    console.error('请求出错:', error);
+                });
         },
+        
+        // 加载健康饮食内容
+        loadHealthContents() {
+            console.log('开始请求健康饮食数据');
+            request.get('/new/getHealth')
+                .then(res => {
+                    if(res.code === '0') {
+                        this.angles[1].contents = res.data.slice(0, 6).map(item => ({
+                            id: item.id,
+                            title: item.title,
+                            details: item.content
+                        }));
+                    }
+                })
+                .catch(error => {
+                    console.error('请求出错:', error);
+                });
+        },
+        
+        // 加载科学认知内容
+        loadScienceContents() {
+            console.log('开始请求科学认知数��');
+            request.get('/new/getScience')
+                .then(res => {
+                    if(res.code === '0') {
+                        this.angles[2].contents = res.data.slice(0, 6).map(item => ({
+                            id: item.id,
+                            title: item.title,
+                            details: item.content
+                        }));
+                    }
+                })
+                .catch(error => {
+                    console.error('请求出错:', error);
+                });
+        },
+        
+        switchAngle(index) {
+            this.currentAngle = index;
+            // 根据切换的角度加载对应数据
+            switch(index) {
+                case 0:
+                    if (this.angles[0].contents.length === 0) {
+                        this.loadSafetyContents();
+                    }
+                    break;
+                case 1:
+                    if (this.angles[1].contents.length === 0) {
+                        this.loadHealthContents();
+                    }
+                    break;
+                case 2:
+                    if (this.angles[2].contents.length === 0) {
+                        this.loadScienceContents();
+                    }
+                    break;
+            }
+        },
+        
         goToNewsInfo(id) {
             this.router.push({
                 name: 'news_info',
                 params: { id: id.toString() }
-            })
+            });
+        }
+    },
+    computed: {
+        currentContents() {
+            return this.angles[this.currentAngle].contents;
         }
     }
 }
@@ -223,10 +238,11 @@ export default {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 内容区域样式 */
+/* 修改内容区域样式 */
 .content-container {
     margin-top: 30px;
     display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* 两列布局 */
     gap: 30px;
     padding: 10px;
 }
@@ -239,6 +255,9 @@ export default {
     transition: all 0.3s ease;
     border: 1px solid #eee;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    height: 280px;  /* 固定高度 */
+    display: flex;
+    flex-direction: column;
 }
 
 .content-box:hover {
@@ -252,18 +271,38 @@ export default {
     color: #2c3e50;
     margin-bottom: 12px;
     font-weight: 500;
+    line-height: 1.4;
 }
 
 .content-preview {
     color: #666;
     font-size: 14px;
     line-height: 1.6;
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
     margin-bottom: 15px;
+}
+
+/* 添加渐变遮罩效果 */
+.content-preview::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 1)
+    );
 }
 
 .content-footer {
     display: flex;
     justify-content: flex-end;
+    margin-top: auto;  /* 确保footer始终在底部 */
 }
 
 .read-more {
@@ -274,39 +313,12 @@ export default {
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-    .content-wrapper {
-        padding: 20px 15px 40px;
-    }
-
-    .page-header h1 {
-        font-size: 24px;
-    }
-
-    .angle-buttons {
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .angle-buttons button {
-        padding: 10px 20px;
-        font-size: 14px;
-        flex: 1;
-        min-width: 120px;
-    }
-
     .content-container {
-        gap: 25px;
-        padding: 5px;
+        grid-template-columns: 1fr;  /* 单列布局 */
     }
 
     .content-box {
-        padding: 25px;
-    }
-}
-
-@media (min-width: 768px) {
-    .content-container {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        height: 250px;  /* 移动端稍微降低高度 */
     }
 }
 </style>

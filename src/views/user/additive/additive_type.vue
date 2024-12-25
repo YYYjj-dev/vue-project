@@ -24,12 +24,39 @@
 
             <!-- 图片网格 -->
             <div class="image-grid">
-                <div class="image-item" 
-                     v-for="(image, index) in filteredImages" 
+                <div class="carousel-item" 
+                     v-for="(image, index) in currentPageImages" 
                      :key="index"
-                     @click="goToDetail(image)">
-                    <div class="image-placeholder">{{ image.title }}</div>
+                     @click="goToDetail(image.id)">
+                    <div class="item-card">
+                        <div class="item-image">
+                            <img :src="image.url" :alt="image.title">
+                            <div class="item-overlay">
+                                <span class="view-more">查看详情</span>
+                            </div>
+                        </div>
+                        <div class="item-content">
+                            <h3 class="item-title">{{ image.title }}</h3>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- 分页器 -->
+            <div class="pagination">
+                <button 
+                    class="page-btn" 
+                    :disabled="currentPage === 1"
+                    @click="changePage(currentPage - 1)">
+                    上一页
+                </button>
+                <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+                <button 
+                    class="page-btn" 
+                    :disabled="currentPage === totalPages"
+                    @click="changePage(currentPage + 1)">
+                    下一页
+                </button>
             </div>
         </div>
 
@@ -42,6 +69,7 @@
 import NavBar from '../../../components/NavBar.vue'
 import ImageGallery from '../../../components/ImageGallery.vue'
 import Footer from '../../../components/Footer.vue'
+import request from '../../../utils/request'
 
 export default {
     name: 'additive_type',
@@ -52,7 +80,7 @@ export default {
     },
     data() {
         return {
-            selectedCategory: '防腐剂', // 默认选中的分类
+            selectedCategory: localStorage.getItem('lastCategory') || '防腐剂',
             categories: [
                 '防腐剂',
                 '抗氧化剂',
@@ -62,99 +90,83 @@ export default {
                 '膨松剂',
                 '香料与香精'
             ],
-            // 图片数据
-            images: {
-                '防腐剂': [
-                    { id: 1, title: '防腐剂1', url: 'path/to/image1' },
-                    { id: 2, title: '防腐剂2', url: 'path/to/image2' },
-                    { id: 3, title: '防腐剂3', url: 'path/to/image3' },
-                    { id: 4, title: '防腐剂4', url: 'path/to/image4' },
-                    { id: 5, title: '防腐剂5', url: 'path/to/image5' },
-                    { id: 6, title: '防腐剂6', url: 'path/to/image6' },
-                    { id: 7, title: '防腐剂7', url: 'path/to/image7' },
-                    { id: 8, title: '防腐剂8', url: 'path/to/image8' }
-                ],
-                '抗氧化剂': [
-                    { id: 9, title: '抗氧化剂1', url: 'path/to/image9' },
-                    { id: 10, title: '抗氧化剂2', url: 'path/to/image10' },
-                    { id: 11, title: '抗氧化剂3', url: 'path/to/image11' },
-                    { id: 12, title: '抗氧化剂4', url: 'path/to/image12' },
-                    { id: 13, title: '抗氧化剂5', url: 'path/to/image13' },
-                    { id: 14, title: '抗氧化剂6', url: 'path/to/image14' },
-                    { id: 15, title: '抗氧化剂7', url: 'path/to/image15' },
-                    { id: 16, title: '抗氧化剂8', url: 'path/to/image16' }
-                ],
-                '甜味剂': [
-                    { id: 17, title: '甜味剂1', url: 'path/to/image17' },
-                    { id: 18, title: '甜味剂2', url: 'path/to/image18' },
-                    { id: 19, title: '甜味剂3', url: 'path/to/image19' },
-                    { id: 20, title: '甜味剂4', url: 'path/to/image20' },
-                    { id: 21, title: '甜味剂5', url: 'path/to/image21' },
-                    { id: 22, title: '甜味剂6', url: 'path/to/image22' },
-                    { id: 23, title: '甜味剂7', url: 'path/to/image23' },
-                    { id: 24, title: '甜味剂8', url: 'path/to/image24' }
-                ],
-                '着色剂': [
-                    { id: 25, title: '着色剂1', url: 'path/to/image25' },
-                    { id: 26, title: '着色剂2', url: 'path/to/image26' },
-                    { id: 27, title: '着色剂3', url: 'path/to/image27' },
-                    { id: 28, title: '着色剂4', url: 'path/to/image28' },
-                    { id: 29, title: '着色剂5', url: 'path/to/image29' },
-                    { id: 30, title: '着色剂6', url: 'path/to/image30' },
-                    { id: 31, title: '着色剂7', url: 'path/to/image31' },
-                    { id: 32, title: '着色剂8', url: 'path/to/image32' }
-                ],
-                '增稠剂': [
-                    { id: 33, title: '增稠剂1', url: 'path/to/image33' },
-                    { id: 34, title: '增稠剂2', url: 'path/to/image34' },
-                    { id: 35, title: '增稠剂3', url: 'path/to/image35' },
-                    { id: 36, title: '增稠剂4', url: 'path/to/image36' },
-                    { id: 37, title: '增稠剂5', url: 'path/to/image37' },
-                    { id: 38, title: '增稠剂6', url: 'path/to/image38' },
-                    { id: 39, title: '增稠剂7', url: 'path/to/image39' },
-                    { id: 40, title: '增稠剂8', url: 'path/to/image40' }
-                ],
-                '膨松剂': [
-                    { id: 41, title: '膨松剂1', url: 'path/to/image41' },
-                    { id: 42, title: '膨松剂2', url: 'path/to/image42' },
-                    { id: 43, title: '膨松剂3', url: 'path/to/image43' },
-                    { id: 44, title: '膨松剂4', url: 'path/to/image44' },
-                    { id: 45, title: '膨松剂5', url: 'path/to/image45' },
-                    { id: 46, title: '膨松剂6', url: 'path/to/image46' },
-                    { id: 47, title: '膨松剂7', url: 'path/to/image47' },
-                    { id: 48, title: '膨松剂8', url: 'path/to/image48' }
-                ],
-                '香料与香精': [
-                    { id: 49, title: '香料与香精1', url: 'path/to/image49' },
-                    { id: 50, title: '香料与香精2', url: 'path/to/image50' },
-                    { id: 51, title: '香料与香精3', url: 'path/to/image51' },
-                    { id: 52, title: '香料与香精4', url: 'path/to/image52' },
-                    { id: 53, title: '香料与香精5', url: 'path/to/image53' },
-                    { id: 54, title: '香料与香精6', url: 'path/to/image54' },
-                    { id: 55, title: '香料与香精7', url: 'path/to/image55' },
-                    { id: 56, title: '香料与香精8', url: 'path/to/image56' }
-                ]
-            }
+            images: [],
+            currentPage: 1,
+            pageSize: 8
         }
     },
     computed: {
-        // 根据选中的分类过滤图片
         filteredImages() {
-            return this.images[this.selectedCategory] || []
+            return this.images;
+        },
+        
+        currentPageImages() {
+            const start = (this.currentPage - 1) * this.pageSize;
+            const end = start + this.pageSize;
+            return this.filteredImages.slice(start, end);
+        },
+        
+        totalPages() {
+            return Math.ceil(this.filteredImages.length / this.pageSize);
         }
     },
+    created() {
+        this.loadAdditives(this.selectedCategory);
+    },
     methods: {
-        selectCategory(category) {
-            this.selectedCategory = category
+        loadAdditives(category) {
+            console.log('开始请求添加剂数据:', category);
+            
+            const apiMap = {
+                '防腐剂': '/additive/getFangFuJi',
+                '抗氧化剂': '/additive/getKangYangHuaJi',
+                '甜味剂': '/additive/getTianWeiJi',
+                '着色剂': '/additive/getZhuoSeJi',
+                '增稠剂': '/additive/getZengChouJi',
+                '膨松剂': '/additive/getPengSongJi',
+                '香料与香精': '/additive/getXiangLiao'
+            };
+            
+            const api = apiMap[category];
+            if (!api) return;
+
+            request.get(api)
+                .then(res => {
+                    console.log('获取到的响应:', res);
+                    
+                    if(res.code === '0') {
+                        this.images = res.data.map(item => ({
+                            id: item.id,
+                            title: item.name,
+                            url: item.imgpath,
+                            typename: item.typename,
+                            description: item.description
+                        }));
+                        console.log('处理后的添加剂数据:', this.images);
+                    } else {
+                        console.error('请求失败:', res.msg);
+                    }
+                })
+                .catch(error => {
+                    console.error('请求出错:', error);
+                });
         },
-        goToDetail(image) {
-            this.$router.push({
-                name: 'additive_type_info',
-                params: {
-                    category: this.selectedCategory,
-                    imageId: image.id
-                }
-            })
+        
+        selectCategory(category) {
+            this.selectedCategory = category;
+            this.currentPage = 1;
+            localStorage.setItem('lastCategory', category);
+            this.loadAdditives(category);
+        },
+        
+        goToDetail(id) {
+            this.$router.push(`/additive_type_info/${id}`);
+        },
+        // 切换页面
+        changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+            }
         }
     }
 }
@@ -170,6 +182,9 @@ export default {
 /* 内容包装器 */
 .content-wrapper {
     flex: 1;
+    margin: 0 auto;
+    width: 70%;
+    max-width: 1200px;
     margin-bottom: 4rem;
     padding: 20px;
 }
@@ -198,6 +213,7 @@ export default {
 
 /* 分类按钮组样式 */
 .category-buttons {
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -230,61 +246,159 @@ export default {
 
 /* 图片网格样式 */
 .image-grid {
+    width: 100%;
     display: grid;
-    grid-template-columns: repeat(4, 250px);
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
     padding: 20px;
     justify-content: center;
 }
 
-.image-item {
-    aspect-ratio: 1;
-    border-radius: 8px;
+/* 添加卡片样式 */
+.carousel-item {
+    padding: 0 15px;
+}
+
+.item-card {
+    background: white;
+    border-radius: 12px;
     overflow: hidden;
-    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    height: 100%;
 }
 
-.image-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+.item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
-.image-placeholder {
+.item-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.item-image img {
     width: 100%;
     height: 100%;
-    background-color: #f5f5f5;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.item-card:hover .item-image img {
+    transform: scale(1.1);
+}
+
+.item-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(66, 185, 131, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #666;
-    border: 1px solid #ddd;
-    transition: all 0.3s ease;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.image-item:hover .image-placeholder {
-    background-color: #e8e8e8;
-    color: #333;
-    border-color: #999;
+.item-card:hover .item-overlay {
+    opacity: 1;
+}
+
+.view-more {
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 20px;
+    border: 2px solid white;
+    border-radius: 20px;
+}
+
+.item-content {
+    padding: 20px;
+}
+
+.item-title {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-align: center;
 }
 
 /* 响应式调整 */
+@media (max-width: 1400px) {
+    .content-wrapper {
+        width: 80%;
+    }
+}
+
 @media (max-width: 1200px) {
+    .content-wrapper {
+        width: 85%;
+    }
+    
     .image-grid {
-        grid-template-columns: repeat(3, 250px);
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
+    .content-wrapper {
+        width: 95%;
+    }
+    
     .image-grid {
-        grid-template-columns: repeat(2, 250px);
+        grid-template-columns: repeat(1, 1fr);
+    }
+    
+    .carousel-item {
+        padding: 0;
+    }
+    
+    .item-card {
+        max-width: 400px;
+        margin: 0 auto;
     }
 }
 
-@media (max-width: 600px) {
-    .image-grid {
-        grid-template-columns: repeat(1, 250px);
-    }
+/* 分页器样式 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+    padding: 20px 0;
+}
+
+.page-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.page-btn:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.page-info {
+    font-size: 14px;
+    color: #666;
 }
 </style>

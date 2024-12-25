@@ -75,8 +75,9 @@
                 <button @click="goToShop">查看更多</button>
             </div>
         </div>
+         
     </div>
-
+    <Footer />
 
 
 
@@ -88,12 +89,14 @@
 import NavBar from '../../../components/NavBar.vue'
 import Carousel from '../../../components/Carousel.vue'
 import { useRouter } from 'vue-router'
+import Footer from '../../../components/Footer.vue'
 
 export default {
   name: 'cases',
   components: {
     NavBar,
-    Carousel
+    Carousel,
+    Footer
   },
   setup() {
     const router = useRouter()
