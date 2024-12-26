@@ -9,28 +9,28 @@ import java.util.List;
 public class RegulationDaoImpl extends BaseDao implements RegulationDao {
 
     public List<Regulation> findAllAllRegular() {
-        String sql = "select title,id from regulation";
+        String sql = "select title,id,date,content from regulation";
         List<Regulation> itemList = baseQuery(Regulation.class, sql);
         return itemList;
     }
 
     public Regulation findRegulationById(Integer id) {
-        String sql = "select title,content,date from regulation where id=?";
+        String sql = "select title,content,date,id from regulation where id=?";
         List<Regulation> regulationList = baseQuery(Regulation.class, sql, id);
         return regulationList.isEmpty() ? null : regulationList.get(0);
     }
 
     @Override
     public int addRegular(Regulation regulation) {
-        String sql ="insert into regulation(title,content,date,admin_id) values(?,?,?,?)";
-        int rows = baseUpdate(sql,regulation.getTitle(),regulation.getContent(),regulation.getContent(),regulation.getAdminId());
+        String sql ="insert into regulation(title,content,date) values(?,?,?)";
+        int rows = baseUpdate(sql,regulation.getTitle(),regulation.getContent(),regulation.getDate());
         return  rows;
     }
 
     @Override
     public int updateRegular(Regulation regulation) {
         String sql ="update regulation set title=?,content=?,date=? where id=?";
-        int rows = baseUpdate(sql,regulation.getTitle(),regulation.getContent(),regulation.getContent(),regulation.getId());
+        int rows = baseUpdate(sql,regulation.getTitle(),regulation.getContent(),regulation.getDate(),regulation.getId());
         return rows;
     }
 

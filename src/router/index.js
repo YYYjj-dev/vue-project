@@ -144,7 +144,44 @@ const router = createRouter({
             path:'/upload',
             name:'Upload',
             component: () => import('../views/test/upload.vue')
-        }
+        }, 
+        {
+        path: '/admin',
+        name: 'admin',
+        component: () => import('../views/Admin.vue'),
+        children: [
+            {
+                path: 'safety',
+                name: 'safety_manage',
+                component: () => import('../views/admin/SafetyManage.vue')
+            },
+            {
+                path: 'news',
+                name: 'news_manage',
+                component: () => import('../views/admin/NewsManage.vue')
+            },
+            {
+                path: 'cases',
+                name: 'cases_manage',
+                component: () => import('../views/admin/CasesManage.vue')
+            },
+            {
+                path: 'additives',
+                name: 'additives_manage',
+                component: () => import('../views/admin/AdditiveManage.vue')
+            },
+            {
+                path: 'users',
+                name: 'users_manage',
+                component: () => import('../views/admin/UsersManage.vue')
+            },
+            {
+                path: 'products',
+                name: 'products_manage',
+                component: () => import('../views/admin/ProductsManage.vue')
+            }
+        ]
+    }
         // ... 其他路由
     ]
 })

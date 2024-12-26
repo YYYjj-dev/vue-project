@@ -10,9 +10,8 @@ public class Additive {
   private String usestandardInternal;
   private String usestandardInternational;
   private String analysis;
-  private long adminId;
-  private long imgpath;
-  private String url;
+  private String imgpath;
+  private String nature;
 
 
   public long getId() {
@@ -23,7 +22,6 @@ public class Additive {
     this.id = id;
   }
 
-
   public String getTypename() {
     return typename;
   }
@@ -31,7 +29,6 @@ public class Additive {
   public void setTypename(String typename) {
     this.typename = typename;
   }
-
 
   public String getName() {
     return name;
@@ -41,7 +38,6 @@ public class Additive {
     this.name = name;
   }
 
-
   public String getDescription() {
     return description;
   }
@@ -49,7 +45,6 @@ public class Additive {
   public void setDescription(String description) {
     this.description = description;
   }
-
 
   public String getUsestandardInternal() {
     return usestandardInternal;
@@ -59,7 +54,6 @@ public class Additive {
     this.usestandardInternal = usestandardInternal;
   }
 
-
   public String getUsestandardInternational() {
     return usestandardInternational;
   }
@@ -67,7 +61,6 @@ public class Additive {
   public void setUsestandardInternational(String usestandardInternational) {
     this.usestandardInternational = usestandardInternational;
   }
-
 
   public String getAnalysis() {
     return analysis;
@@ -78,30 +71,19 @@ public class Additive {
   }
 
 
-  public long getAdminId() {
-    return adminId;
-  }
-
-  public void setAdminId(long adminId) {
-    this.adminId = adminId;
-  }
-
-
-  public long getImgpath() {
+  public String getImgpath() {
     return imgpath;
   }
 
-  public void setImgpath(long imgpath) {
+  public void setImgpath(String imgpath) {
     this.imgpath = imgpath;
   }
 
-
-  public String getUrl() {
-    return url;
+  public String getNature() {
+    return nature;
   }
 
-  public void setUrl(String url) {
-    this.url = url;
+  public void setNature(String nature) {
+    this.nature = nature;
   }
-
 }

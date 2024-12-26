@@ -7,7 +7,6 @@ public class Regulation {
   private String title;
   private String date;
   private String content;
-  private long adminId;
 
 
   public long getId() {
@@ -45,13 +44,5 @@ public class Regulation {
     this.content = content;
   }
 
-
-  public long getAdminId() {
-    return adminId;
-  }
-
-  public void setAdminId(long adminId) {
-    this.adminId = adminId;
-  }
 
 }

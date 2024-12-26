@@ -23,9 +23,7 @@ public class InfoController extends BaseController{
 
     protected void findAllNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<News> itemList = infoService.findAllNews();
-        Map data = new HashMap();
-        data.put("itemList", itemList);
-        Result result = Result.ok(data);
+        Result result = Result.ok(itemList);
         WebUtil.writeJson(resp,result);
     }
 
@@ -36,7 +34,7 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
-    protected void DeleteNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void deleteNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         int rows = infoService.DeleteNews(id);
         if (rows > 0) {
@@ -47,22 +45,34 @@ public class InfoController extends BaseController{
 
     protected void addNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         News news = WebUtil.readJson(req,News.class);
-        int rows = infoService.addNews(news.getTitle(),news.getContent(),news.getDate(),news.getAdminId());
+        int rows = infoService.addNews(news);
         if (rows > 0) {
             Result result = Result.ok(rows);
             WebUtil.writeJson(resp,result);
         }
     }
 
+    protected void updateNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        News news = WebUtil.readJson(req,News.class);
+        int rows = infoService.updateNews(news);
+        if (rows > 0) {
+            Result result = Result.ok(rows);
+            WebUtil.writeJson(resp,result);
+        }
+    }
 
+    protected void findNewsByTitle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String title = req.getParameter("title");
+        List<News> itemList = infoService.findNewsByTitle(title);
+        Result result = Result.ok(itemList);
+        WebUtil.writeJson(resp,result);
+    }
 
     //案例相关
 
     protected void findAllCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Cases> itemList = infoService.findAllCases();
-        Map data = new HashMap();
-        data.put("itemList", itemList);
-        Result result = Result.ok(data);
+        Result result = Result.ok(itemList);
         WebUtil.writeJson(resp,result);
     }
 
@@ -88,9 +98,7 @@ public class InfoController extends BaseController{
 
     protected void findAllRegular(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Regulation> itemList = infoService.findAllAllRegular();
-        Map data = new HashMap();
-        data.put("itemList", itemList);
-        Result result = Result.ok(data);
+        Result result = Result.ok(itemList);
         WebUtil.writeJson(resp,result);
     }
 

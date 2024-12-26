@@ -11,5 +11,9 @@ public interface NewsDao {
 
     int DeleteNews(Integer id);
 
-    int addNews(String title, String content, String date,Integer id);
+    int addNews(News news);
+
+    int updateNews(News news);
+
+    List<News> findNewsByTitle(String title);
 }

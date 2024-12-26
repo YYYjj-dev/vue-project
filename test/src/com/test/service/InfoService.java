@@ -12,7 +12,7 @@ public interface InfoService {
 
     News findNewsById(Integer id);
 
-    int addNews(String title, String content, String date, Integer adminId);
+    int addNews(News news);
 
     int DeleteNews(Integer id);
 
@@ -38,4 +38,8 @@ public interface InfoService {
     int updateRegular(Regulation regulation);
 
     int deleteRegular(Integer id);
+
+    int updateNews(News news);
+
+    List<News> findNewsByTitle(String title);
 }

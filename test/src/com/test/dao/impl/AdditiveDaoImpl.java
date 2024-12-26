@@ -10,7 +10,7 @@ public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
 
     @Override
     public List<Additive> findAllAdditive() {
-        String sql = "select id,typename,name,description,usestandard_internal usestandardInternal,usestandard_international usestandardInternational,analysis,admin_id adminId,imgpath,url from additive";
+        String sql = "select id,typename,name,description, usestandardInternal, usestandardInternational,analysis,admin_id adminId,imgpath from additive";
         List<Additive> additivesList = baseQuery(Additive.class, sql);
         return additivesList;
     }

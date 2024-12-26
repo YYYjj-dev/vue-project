@@ -24,8 +24,8 @@ public class InfoServiceImpl implements InfoService {
     private RegulationDao regulationDao = new RegulationDaoImpl();
 
     @Override
-    public int addNews(String title, String content, String date, Integer commentId) {
-        return newsDao.addNews(title,content,date,commentId);
+    public int addNews(News news) {
+        return newsDao.addNews(news);
     }
 
     @Override
@@ -71,6 +71,16 @@ public class InfoServiceImpl implements InfoService {
     @Override
     public int deleteRegular(Integer id) {
         return regulationDao.deleteRegular(id);
+    }
+
+    @Override
+    public int updateNews(News news) {
+        return newsDao.updateNews(news);
+    }
+
+    @Override
+    public List<News> findNewsByTitle(String title) {
+        return newsDao.findNewsByTitle(title);
     }
 
     @Override

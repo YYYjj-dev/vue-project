@@ -6,10 +6,16 @@ public class News {
   private Integer id;
   private String title;
   private String content;
-  private Integer commentId;
-  private Integer adminId;
   private String date;
+  private String type;
 
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
 
   public Integer getId() {
     return id;
@@ -19,7 +25,6 @@ public class News {
     this.id = id;
   }
 
-
   public String getTitle() {
     return title;
   }
@@ -28,7 +33,6 @@ public class News {
     this.title = title;
   }
 
-
   public String getContent() {
     return content;
   }
@@ -36,25 +40,6 @@ public class News {
   public void setContent(String content) {
     this.content = content;
   }
-
-
-  public Integer getCommentId() {
-    return commentId;
-  }
-
-  public void setCommentId(Integer commentId) {
-    this.commentId = commentId;
-  }
-
-
-  public Integer getAdminId() {
-    return adminId;
-  }
-
-  public void setAdminId(Integer adminId) {
-    this.adminId = adminId;
-  }
-
 
   public String getDate() {
     return date;

@@ -35,7 +35,7 @@
                   </div>
                   <div class="item-content">
                     <h3 class="item-title">{{ item.title }}</h3>
-                    <p class="item-description">{{ item.description }}</p>
+                    <p class="item-description">{{ item.name }}</p>
                   </div>
                 </div>
               </div>
@@ -145,9 +145,21 @@ import request from '../utils/request'
       let news = ref([])
       let cases= ref([])
       let additivesList = ref([])
-      let currentIndex = 0
-      let baseUrl = 'http://localhost:8080/image'
+      let currentIndex = ref(0)
+      let baseUrl = 'http://localhost:8080/image/'
       let imageUrl = baseUrl+'da.jpg'
+
+      const prevAdditives = () => {
+        if (currentIndex.value > 0) {
+          currentIndex.value--
+        }
+      }
+
+      const nextAdditives = () => {
+        if (currentIndex.value < additivesList.value.length - 3) {
+          currentIndex.value++
+        }
+      }
 
       onMounted(()=>{
         getNews()
@@ -157,12 +169,13 @@ import request from '../utils/request'
       async function getNews(){
       let {data} = await request.get('info/findAllNews')
       news.value = data.data.itemList
+      console.log(news.value)
       }
       async function getAdditives(){
         let {data} = await request.get('additive/findAllAdditives')
-        additivesList.value = data.data.itemList
+        additivesList.value = data.data.slice(0, 6)
         additivesList.value.forEach(item => {
-          item.image = baseUrl + item.url
+          item.image = baseUrl + item.imgpath
         })
         console.log(additivesList.value)
       }

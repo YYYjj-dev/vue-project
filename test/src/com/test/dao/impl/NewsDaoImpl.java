@@ -8,18 +8,18 @@ import java.util.List;
 
 public class NewsDaoImpl extends BaseDao implements NewsDao {
     public List<News> findAllNews() {
-        String sql = "select title,id,content from news";
+        String sql = "select *  from news";
         return baseQuery(News.class, sql);
     }
 
     public News findNewsById(Integer id) {
-        String sql = "select title,content,date,comment_id commentId from news where id=?";
+        String sql = "select * from news where id=?";
         List<News> newsList = baseQuery(News.class, sql, id);
         return newsList.isEmpty() ? null : newsList.get(0);
     }
 
     public List<News> findNewsByTitle(String title) {
-        String sql = "select title,id from news where title like ?";
+        String sql = "select * from news where title like ?";
         return baseQuery(News.class, sql, title);
     }
 
@@ -30,8 +30,14 @@ public class NewsDaoImpl extends BaseDao implements NewsDao {
     }
 
     @Override
-    public int addNews(String title, String content, String date, Integer id) {
-        String sql = "insert into news(title,content,date,admin_id) values(?,?,?,?)";
-        return baseUpdate(sql, title, content, date,id);
+    public int addNews(News news) {
+        String sql = "insert into news(title,content,date,type) values(?,?,?,?)";
+        return baseUpdate(sql, news.getTitle(), news.getContent(), news.getDate(),news.getType());
+    }
+
+    @Override
+    public int updateNews(News news) {
+        String sql = "update news set title=?,content=?,date=? where id=?";
+        return baseUpdate(sql, news.getTitle(), news.getContent(), news.getDate(),news.getId());
     }
 }
