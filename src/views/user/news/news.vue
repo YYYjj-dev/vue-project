@@ -16,7 +16,6 @@
       <div class="news-content">
         <div class="news-item" v-for="newsInfo,index in pagedNews" :key="index" @click="goToNewsInfo(newsInfo.id)">
           <h2>{{ newsInfo.title }}</h2>
-          <p> news </p>
           <!-- <p>{{ news.description }}</p> -->
         </div>
       </div>
@@ -89,7 +88,8 @@ import request from '../../../utils/request'
     
     async function showNews(){
       let {data} = await request.get('info/news/findAllNews')
-      news.value = data.data.itemList
+      console.log(data)
+      news.value = data.data
       totalPages.value= Math.ceil(news.value.length / itemsPerPage)
       let start = Math.max(1, currentPage.value - 1);
       let end = Math.min(start + 2, totalPages.value);

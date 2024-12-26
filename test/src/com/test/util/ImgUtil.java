@@ -1,15 +1,9 @@
-package com.test.controller;
+package com.test.util;
 
-import com.test.common.Result;
 import com.test.pojo.Additive;
-
 import com.test.service.AdditiveService;
 import com.test.service.impl.AdditiveServiceImpl;
-import com.test.util.DataUtils;
-import com.test.util.ImgUtil;
-import com.test.util.WebUtil;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory;
@@ -18,46 +12,28 @@ import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
-@WebServlet("/additive/*")
-public class AdditiveController extends BaseController {
-    private AdditiveService additiveService = new AdditiveServiceImpl();
-    private ImgUtil imgUtil = new ImgUtil();
+public class ImgUtil {
 
-    protected void findAllAdditives(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
-        DiskFileItemFactory diskFileItemFactory = builder.get();
-        List<Additive> itemList = additiveService.findAllAdditive();
-        Result result = Result.ok(itemList);
-        WebUtil.writeJson(resp,result);
-    }
 
-    protected void findAdditiveById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        Additive additiveInfo = additiveService.findAdditiveById(id);
-        Result result = Result.ok(additiveInfo);
-        WebUtil.writeJson(resp,result);
-
-    }
-    protected void addAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public Additive update(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //如果你的表单是enctype="multipart/form-data", req.getParameter("id") 得不到id
         int id = DataUtils.parseInt(req.getParameter("id"), 0);
         //获取到对应furn对象[从db中获取]
-        DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
-        DiskFileItemFactory diskFileItemFactory = builder.get();
         AdditiveService additiveService = new AdditiveServiceImpl();
         Additive additive = additiveService.findAdditiveById(id);
         //todo 做一个判断 furn为空就不处理
         //1. 判断是不是文件表单(enctype="multipart/form-data")
         if (JakartaServletFileUpload.isMultipartContent(req)) {
             //2. 创建 DiskFileItemFactory 对象, 用于构建一个解析上传数据的工具对象
-//            DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
-//            DiskFileItemFactory diskFileItemFactory = builder.get();
+            DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
+            DiskFileItemFactory diskFileItemFactory = builder.get();
             //3. 创建一个解析上传数据的工具对象
             JakartaServletFileUpload servletFileUpload =
                     new JakartaServletFileUpload(diskFileItemFactory);
@@ -138,40 +114,8 @@ public class AdditiveController extends BaseController {
             System.out.println("不是文件表单...");
         }
 
-        int rows = additiveService.addAdditive(additive);
-        Result result = Result.ok(rows);
-        WebUtil.writeJson(resp,result);
-    }
-
-    protected void findAdditiveByName(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String name = req.getParameter("name");
-        List<Additive> itemList = additiveService.findAdditiveByName(name);
-        Result result = Result.ok(itemList);
-        WebUtil.writeJson(resp,result);
-    }
-
-    protected void findAdditiveByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String typeName = req.getParameter("typeName");
-        List<Additive> itemList = additiveService.findAdditiveByType(typeName);
-        Result result = Result.ok(itemList);
-        WebUtil.writeJson(resp,result);
-    }
-
-    protected void updateAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Additive additive = WebUtil.readJson(req,Additive.class);
-        int rows = additiveService.updateAdditive(additive);
-        if (rows > 0) {
-            Result result = Result.ok(rows);
-            WebUtil.writeJson(resp, result);
-        }
-    }
-
-    protected void deleteAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        int rows = additiveService.deleteAdditive(id);
-        if (rows > 0) {
-            Result result = Result.ok(rows);
-            WebUtil.writeJson(resp,result);
-        }
+        //更新furn对象->DB
+        //furnService.updateFurn(furn);
+        return additive;
     }
 }

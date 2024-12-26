@@ -12,4 +12,8 @@ public interface AdditiveDao {
     int addAdditive(Additive addAdditive);
 
     List<Additive> findAdditiveByType(String typeName);
+
+    int updateAdditive(Additive additive);
+
+    int deleteAdditive(Integer id);
 }

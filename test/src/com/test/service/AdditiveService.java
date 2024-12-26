@@ -14,4 +14,8 @@ public interface AdditiveService {
     List<Additive> findAdditiveByName(String name);
 
     List<Additive> findAdditiveByType(String typeName);
+
+    int updateAdditive(Additive additive);
+
+    int deleteAdditive(Integer id);
 }

@@ -168,11 +168,12 @@ import request from '../utils/request'
 
       async function getNews(){
       let {data} = await request.get('info/findAllNews')
-      news.value = data.data.itemList
+      news.value = data.data
       console.log(news.value)
       }
       async function getAdditives(){
         let {data} = await request.get('additive/findAllAdditives')
+        console.log(data)
         additivesList.value = data.data.slice(0, 6)
         additivesList.value.forEach(item => {
           item.image = baseUrl + item.imgpath

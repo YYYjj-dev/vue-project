@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory;
 import org.apache.commons.fileupload2.core.FileItem;
-import org.apache.commons.fileupload2.jakarta.servlet5.JakartaServletFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 
 
 import java.io.File;
@@ -67,7 +67,7 @@ public class FileUploadServlet extends HttpServlet {
                     String fileDiskPath = uploadPath+ UUID.randomUUID()+"_" +fileItem.getName();
                     File uploadFileDisk = new File(fileDiskPath);
                     //将网络文件写入磁盘
-                   // fileItem.write(uploadFileDisk.toPath());
+                    fileItem.write(uploadFileDisk.toPath());
                 }
 
             }

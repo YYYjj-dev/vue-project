@@ -15,7 +15,6 @@
       <div class="laws-content">
         <div class="law-item" v-for="(law, index) in pagedLaws" :key="index" @click="goToLawInfo(law.id)">
           <h2>{{ law.title }}</h2>
-          <p>法规描述</p>
         </div>
       </div>
     </div>
@@ -88,7 +87,7 @@ import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue'
     })
     async function showNews(){
       let {data} = await request.get('info/findAllRegular')
-      laws.value = data.data.itemList
+      laws.value = data.data
       totalPages.value= Math.ceil(laws.value.length / itemsPerPage)
       let start = Math.max(1, currentPage.value - 1);
       let end = Math.min(start + 2, totalPages.value);
