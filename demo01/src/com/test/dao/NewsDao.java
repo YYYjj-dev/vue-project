@@ -16,4 +16,6 @@ public interface NewsDao {
     int updateNews(News news);
 
     List<News> findNewsByTitle(String title);
+
+    List<News> findNewsByType(String type);
 }

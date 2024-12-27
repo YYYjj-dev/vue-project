@@ -19,4 +19,6 @@ public interface ShangpinDao {
     List<Shangpin> findAllShangpin();
 
     int deleteShangpinById(Integer id);
+
+    List<Shangpin> findShangpinByType(String type);
 }

@@ -9,7 +9,15 @@ public class Order {
   private Double sub;
   private Integer quantity;
   private Integer shangpinId;
+  private Shangpin status;
 
+  public Shangpin getStatus() {
+    return status;
+  }
+
+  public void setStatus(Shangpin status) {
+    this.status = status;
+  }
 
   public Integer getId() {
     return id;

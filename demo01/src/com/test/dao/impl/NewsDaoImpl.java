@@ -24,6 +24,12 @@ public class NewsDaoImpl extends BaseDao implements NewsDao {
     }
 
     @Override
+    public List<News> findNewsByType(String type) {
+        String sql = "select * from news where type like ?";
+        return baseQuery(News.class, sql, type);
+    }
+
+    @Override
     public int DeleteNews(Integer id) {
         String sql = "delete from news where id=?";
         return baseUpdate(sql, id);

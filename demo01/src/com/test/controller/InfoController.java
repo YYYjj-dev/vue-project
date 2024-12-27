@@ -34,6 +34,13 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    protected void findNewsByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String type = req.getParameter("type");
+        List<News> newsList = infoService.findNewsByType(type);
+        Result result = Result.ok(newsList);
+        WebUtil.writeJson(resp,result);
+    }
+
     protected void deleteNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         int rows = infoService.DeleteNews(id);
@@ -54,12 +61,13 @@ public class InfoController extends BaseController{
     }
 
     protected void updateNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        News news = WebUtil.readJson(req,News.class);
+        News news = ImgUtil.updateNews(req);
         int rows = infoService.updateNews(news);
+        Result result = Result.build(null,ResultCodeEnum.UPDATE_FAILED);
         if (rows > 0) {
-            Result result = Result.ok(rows);
-            WebUtil.writeJson(resp,result);
+            result = Result.ok(rows);
         }
+        WebUtil.writeJson(resp,result);
     }
 
     protected void findNewsByTitle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -171,12 +179,17 @@ public class InfoController extends BaseController{
         List<Comment> commentList=null;
         Integer commentId = Integer.valueOf(req.getParameter("commentId"));
         String commentType = req.getParameter("commentType");
-        if(commentType.equals("1")){
+        if(commentType.equals("news")){
             commentList = infoService.findNewsCommentById(commentId);
-        }else if(commentType.equals("2")){
+        }else if(commentType.equals("shangpin")){
             commentList = infoService.findShangpinCommentById(commentId);
+        }else if(commentType.equals("case")){
+            commentList = infoService.findCasesCommentById(commentId);
         }
-        Result result = Result.ok(commentList);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(commentList==null || commentList.size()==0){
+            result = Result.ok(commentList);
+        }
         WebUtil.writeJson(resp,result);
     }
     /**
@@ -189,6 +202,20 @@ public class InfoController extends BaseController{
         Integer cid = Integer.valueOf(req.getParameter("cid"));
         String date = req.getParameter("date");
         int rows = infoService.addComment(uid,cid,content,commentType,date);
+        Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
+        if(rows>0){
+            result = Result.ok(rows);
+        }
+    }
+
+    protected void deleteComment(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        int rows = infoService.deleteComment(id);
+    }
+
+    protected void findCommentByUid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        List<Comment> commentList=infoService.findCommentByUid(id);
     }
 
 }

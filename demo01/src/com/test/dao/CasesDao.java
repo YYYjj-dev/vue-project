@@ -1,6 +1,7 @@
 package com.test.dao;
 
 import com.test.pojo.Cases;
+import com.test.pojo.Comment;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface CasesDao {
     List<Cases> findCasesByTitle(String type);
     int updateCases(Cases cases);
     int deleteCases(Integer id);
+
 }

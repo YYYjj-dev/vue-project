@@ -3,6 +3,7 @@ package com.test.dao.impl;
 import com.test.dao.BaseDao;
 import com.test.dao.CasesDao;
 import com.test.pojo.Cases;
+import com.test.pojo.Comment;
 
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class CasesDaoImpl extends BaseDao implements CasesDao {
         String sql = "delete from cases where id = ?";
         return baseUpdate(sql, id);
     }
+
 
     // 改
     public int updateCases(Cases cases) {

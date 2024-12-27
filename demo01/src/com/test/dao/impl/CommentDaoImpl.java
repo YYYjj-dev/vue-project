@@ -15,15 +15,29 @@ public class CommentDaoImpl extends BaseDao implements CommentDao {
         String sql = "select user_id userId,content,date from comment where shangpin_id=?";
         return baseQuery(Comment.class, sql, commentId);
     }
-
-    public int addNewsComment(Integer id,Integer cid ,String content, String date) {
-        String sql = "insert into comment (user_id,news_id,content,date) values(?,?,?,?)";
-        return baseUpdate(sql, id, cid, content, date);
+    @Override
+    public List<Comment> findCasesCommentById(Integer commentId) {
+        String sql = "select user_id userId,content,date from comment where cases_id=?";
+        return baseQuery(Comment.class, sql, commentId);
     }
 
-    public int addShangpinComment(Integer uid, Integer cid,String content, String date) {
-        String sql = "insert into comment (user_id,shangpin_id,content,date) values(?,?,?,?)";
+    @Override
+    public int addComment(Integer uid, Integer cid, String content, String commentType, String date) {
+        String sql = null;
+        if(commentType.equals("news")){
+            sql = "insert into comment (user_id,news_id,content,date) values(?,?,?,?)";
+        }else if(commentType.equals("shangpin")){
+            sql = "insert into comment (user_id,shangpin_id,content,date) values(?,?,?,?)";
+        }else if(commentType.equals("cases")){
+            sql = "insert into comment (user_id,case_id,content,date) values(?,?,?,?)";
+        }
         return baseUpdate(sql, uid, cid, content, date);
+    }
+
+    @Override
+    public List<Comment> findCommentByUid(Integer id) {
+        String sql = "select user_id userId,shangpin_id shangpinId,cases_id caseId,news_id news_Id,content,date from comment where user_id=?";
+        return baseQuery(Comment.class, sql, id);
     }
 
     @Override

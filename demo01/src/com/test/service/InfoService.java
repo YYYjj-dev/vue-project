@@ -48,4 +48,12 @@ public interface InfoService {
     int updateCases(Cases cases);
 
     int deleteCases(Integer id);
+
+    List<Comment> findCasesCommentById(Integer commentId);
+
+    int deleteComment(Integer id);
+
+    List<Comment> findCommentByUid(Integer id);
+
+    List<News> findNewsByType(String type);
 }

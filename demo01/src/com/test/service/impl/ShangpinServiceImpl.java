@@ -43,6 +43,11 @@ public class ShangpinServiceImpl implements ShangpinService {
     }
 
     @Override
+    public List<Shangpin> findShangpinByType(String type) {
+        return shangpinDao.findShangpinByType(type);
+    }
+
+    @Override
     public int deleteShangpinById(Integer id) {
         return shangpinDao.deleteShangpinById(id);
     }

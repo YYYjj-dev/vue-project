@@ -18,4 +18,6 @@ public interface ShangpinService {
     int updateShangpin(Shangpin shangpin);
 
     List<Shangpin> findShangpinByName(String name);
+
+    List<Shangpin> findShangpinByType(String type);
 }

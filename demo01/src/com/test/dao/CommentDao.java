@@ -5,13 +5,16 @@ import com.test.pojo.Comment;
 import java.util.List;
 
 public interface CommentDao {
+
+    int addComment(Integer uid, Integer cid, String content, String commentType, String date);
+
+    int deleteCommentById(Integer commentId);
+
     List<Comment> findNewsCommentById(Integer commentId);
 
     List<Comment> findShangpinCommentById(Integer commentId);
 
-    int addNewsComment(Integer uid, Integer cid, String content, String date);
+    List<Comment> findCasesCommentById(Integer commentId);
 
-    int addShangpinComment(Integer uid, Integer cid, String content, String date);
-
-    int deleteCommentById(Integer commentId);
+    List<Comment> findCommentByUid(Integer id);
 }

@@ -64,6 +64,13 @@ public class ShangpinController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    protected void findShangpinByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String type = req.getParameter("type");
+        List<Shangpin> shangpinList = shangpinService.findShangpinByType(type);
+        Result result = Result.ok(shangpinList);
+        WebUtil.writeJson(resp,result);
+    }
+
     protected void updateShangpin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Shangpin shangpin = ImgUtil.updateShangpin(req);
         int rows = shangpinService.updateShangpin(shangpin);

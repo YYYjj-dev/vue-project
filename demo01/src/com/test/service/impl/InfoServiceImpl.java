@@ -44,6 +44,11 @@ public class InfoServiceImpl implements InfoService {
     }
 
     @Override
+    public List<News> findNewsByType(String type) {
+        return newsDao.findNewsByType(type);
+    }
+
+    @Override
     public Cases findCasesById(Integer id) {
         return casesDao.findCasesById(id);
     }
@@ -118,13 +123,24 @@ public class InfoServiceImpl implements InfoService {
     }
 
     @Override
+    public List<Comment> findCasesCommentById(Integer commentId) {
+        return commentDao.findCasesCommentById(commentId);
+    }
+
+    @Override
+    public int deleteComment(Integer id) {
+        return commentDao.deleteCommentById(id);
+    }
+
+    @Override
+    public List<Comment> findCommentByUid(Integer id) {
+        return commentDao.findCommentByUid(id);
+    }
+
+
+
+    @Override
     public int addComment(Integer uid, Integer cid, String content, String commentType, String date) {
-        if(commentType.equals("1")){
-            return commentDao.addNewsComment(uid,cid,content,date);
-        }else if(commentType.equals("2")){
-            return commentDao.addShangpinComment(uid,cid,content,date);
-        }else {
-            return 0;
-        }
+        return commentDao.addComment(uid,cid,content,commentType,date);
     }
 }
