@@ -24,7 +24,7 @@ public class ShangpinController extends BaseController{
     private ShangpinService shangpinService = new ShangpinServiceImpl();
 
     public void addShangpin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shangpin shangpin = ImgUtil.updateShangpin(req, resp);
+        Shangpin shangpin = ImgUtil.updateShangpin(req);
         int rows = shangpinService.addShangpin(shangpin);
         Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
         if (rows > 0) {
@@ -65,7 +65,7 @@ public class ShangpinController extends BaseController{
     }
 
     protected void updateShangpin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shangpin shangpin = ImgUtil.updateShangpin(req, resp);
+        Shangpin shangpin = ImgUtil.updateShangpin(req);
         int rows = shangpinService.updateShangpin(shangpin);
         Result result = Result.build(null,ResultCodeEnum.UPDATE_FAILED);
         if (rows > 0) {

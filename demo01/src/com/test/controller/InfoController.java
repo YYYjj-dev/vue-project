@@ -44,7 +44,7 @@ public class InfoController extends BaseController{
     }
 
     protected void addNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        News news = ImgUtil.updateNews(req,resp);
+        News news = ImgUtil.updateNews(req);
         int rows = infoService.addNews(news);
         Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
         if (rows > 0) {

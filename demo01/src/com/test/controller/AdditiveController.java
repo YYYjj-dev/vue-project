@@ -63,7 +63,7 @@ public class AdditiveController extends BaseController {
     }
 
     protected void addAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Additive additive = ImgUtil.updateAdditive(req, resp);
+        Additive additive = ImgUtil.updateAdditive(req);
         int rows = additiveService.addAdditive(additive);
         Result result = Result.build(null, ResultCodeEnum.ADDITION_FAILED);
         if (rows > 0) {
@@ -81,7 +81,7 @@ public class AdditiveController extends BaseController {
     }
 
     protected void updateAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Additive additive = ImgUtil.updateAdditive(req, resp);
+        Additive additive = ImgUtil.updateAdditive(req);
         int rows = additiveService.updateAdditive(additive);
         if (rows > 0) {
             Result result = Result.ok(rows);
