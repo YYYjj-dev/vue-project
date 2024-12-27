@@ -2,6 +2,7 @@ package com.test.util;
 
 import com.test.pojo.Additive;
 import com.test.pojo.Cases;
+import com.test.pojo.News;
 import com.test.pojo.Shangpin;
 import com.test.service.AdditiveService;
 import com.test.service.InfoService;
@@ -25,21 +26,15 @@ import java.util.UUID;
 
 @SuppressWarnings("all")
 public class ImgUtil {
-
+    private static DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
+    private static DiskFileItemFactory diskFileItemFactory = builder.get();
+    private static Shangpin shangpin = new Shangpin();
 
     public static Additive updateAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //如果你的表单是enctype="multipart/form-data", req.getParameter("id") 得不到id
-        int id = DataUtils.parseInt(req.getParameter("id"), 0);
-        //获取到对应furn对象[从db中获取]
+        //获取到对应对象[从db中获取]
         DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
         DiskFileItemFactory diskFileItemFactory = builder.get();
-        AdditiveService additiveService = new AdditiveServiceImpl();
-
-        Additive additive = additiveService.findAdditiveById(id);
-        if(additive == null)
-        {
-            additive = new Additive();
-        }
+        Additive additive = new Additive();
         //todo 做一个判断 furn为空就不处理
         //1. 判断是不是文件表单(enctype="multipart/form-data")
         if (JakartaServletFileUpload.isMultipartContent(req)) {
@@ -132,18 +127,11 @@ public class ImgUtil {
     }
 
     public static Cases updateCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //如果你的表单是enctype="multipart/form-data", req.getParameter("id") 得不到id
-        int id = DataUtils.parseInt(req.getParameter("id"), 0);
-        //获取到对应furn对象[从db中获取]
+        //获取到对应对象[从db中获取]
         DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
         DiskFileItemFactory diskFileItemFactory = builder.get();
-        InfoService infoService= new InfoServiceImpl();
 
-        Cases cases = infoService.findCasesById(id);
-        if(cases == null)
-        {
-            cases = new Cases();
-        }
+            Cases cases = new Cases();
         //todo 做一个判断 furn为空就不处理
         //1. 判断是不是文件表单(enctype="multipart/form-data")
         if (JakartaServletFileUpload.isMultipartContent(req)) {
@@ -227,14 +215,74 @@ public class ImgUtil {
     }
 
     public static Shangpin updateShangpin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //如果你的表单是enctype="multipart/form-data", req.getParameter("id") 得不到id
-        int id = DataUtils.parseInt(req.getParameter("id"), 0);
+
+        //todo 做一个判断 furn为空就不处理
+        if (JakartaServletFileUpload.isMultipartContent(req)) {
+
+            JakartaServletFileUpload servletFileUpload =
+                    new JakartaServletFileUpload(diskFileItemFactory);
+
+            try {
+                List<FileItem> list = servletFileUpload.parseRequest(req);
+                for (FileItem fileItem : list) {
+                    if (fileItem.isFormField()) {
+                        Charset charset = Charset.forName("UTF-8");
+                        if ("StoreId".equals(fileItem.getFieldName())) {
+                            shangpin.setStoreId(Integer.parseInt(fileItem.getString()));
+                        } else if ("group".equals(fileItem.getFieldName())) {
+                            shangpin.setGruop(fileItem.getString(charset));
+                        } else if ("type".equals(fileItem.getFieldName())) {
+                            shangpin.setType(fileItem.getString(charset));
+                        } else if ("description".equals(fileItem.getFieldName())) {
+                            shangpin.setDescription(fileItem.getString(charset));
+                        }  else if ("standard".equals(fileItem.getFieldName())) {
+                            shangpin.setStandard(fileItem.getString(charset));
+                        }  else if ("date".equals(fileItem.getFieldName())) {
+                            shangpin.setNum(Integer.parseInt(fileItem.getString()));
+                        }  else if ("price".equals(fileItem.getFieldName())) {
+                            shangpin.setPrice(Double.parseDouble(fileItem.getString(charset)));
+                        } else if ("id".equals(fileItem.getFieldName())) {
+                            if(!(fileItem.getString()).equals("")){
+                                shangpin.setId(Integer.parseInt(fileItem.getString()));
+                            }
+                        }
+                    }
+                    else {
+
+                        String name = fileItem.getName();
+                        if (!"".equals(name)) {
+                            String filePath = "/" + "image";
+                            String fileRealPath =
+                                    req.getServletContext().getRealPath(filePath);
+                            File fileRealPathDirectory = new File(fileRealPath);
+                            if (!fileRealPathDirectory.exists()) {
+                                fileRealPathDirectory.mkdirs();
+                            }
+                            name = UUID.randomUUID().toString() + "_" + System.currentTimeMillis() + "_" + name;
+                            String fileFullPath = fileRealPathDirectory + "/" + name;
+                            Path path = Paths.get(fileFullPath);
+                            System.out.println(fileFullPath);
+                            fileItem.write(path);
+                            shangpin.setImgpath(name);
+                            fileItem.getOutputStream().close();//关闭流
+                            //todo 删除原来旧的不用的图片
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("不是文件表单...");
+        }
+        return shangpin;
+    }
+
+    public static News updateNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //获取到对应furn对象[从db中获取]
         DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
         DiskFileItemFactory diskFileItemFactory = builder.get();
-        InfoService infoService= new InfoServiceImpl();
-
-        Shangpin shangpin = new Shangpin();
+        News news = new News();
         //todo 做一个判断 furn为空就不处理
         //1. 判断是不是文件表单(enctype="multipart/form-data")
         if (JakartaServletFileUpload.isMultipartContent(req)) {
@@ -256,23 +304,17 @@ public class ImgUtil {
                     //判断是不是一个文件=> 你是OOP程序员
                     if (fileItem.isFormField()) {//如果是true就是文本 input text(普通的表单字段)
                         Charset charset = Charset.forName("UTF-8");
-                        if ("StoreId".equals(fileItem.getFieldName())) {
-                            shangpin.setStoreId(Integer.parseInt(fileItem.getString()));
-                        } else if ("group".equals(fileItem.getFieldName())) {
-                            shangpin.setGruop(fileItem.getString(charset));
+                        if ("title".equals(fileItem.getFieldName())) {
+                            news.setTitle(fileItem.getString(charset));
+                        } else if ("content".equals(fileItem.getFieldName())) {
+                            news.setContent(fileItem.getString(charset));
                         } else if ("type".equals(fileItem.getFieldName())) {
-                            shangpin.setType(fileItem.getString(charset));
-                        } else if ("description".equals(fileItem.getFieldName())) {
-                            shangpin.setDescription(fileItem.getString(charset));
-                        }  else if ("standard".equals(fileItem.getFieldName())) {
-                            shangpin.setStandard(fileItem.getString(charset));
-                        }  else if ("date".equals(fileItem.getFieldName())) {
-                            shangpin.setNum(Integer.parseInt(fileItem.getString()));
-                        }  else if ("price".equals(fileItem.getFieldName())) {
-                            shangpin.setPrice(Double.parseDouble(fileItem.getString(charset)));
+                            news.setType(fileItem.getString(charset));
+                        } else if ("date".equals(fileItem.getFieldName())) {
+                            news.setDate(fileItem.getString(charset));
                         } else if ("id".equals(fileItem.getFieldName())) {
                             if(!(fileItem.getString()).equals("")){
-                                shangpin.setId(Integer.parseInt(fileItem.getString()));
+                                news.setId(Integer.parseInt(fileItem.getString()));
                             }
                         }
                     }
@@ -305,7 +347,7 @@ public class ImgUtil {
                             fileItem.write(path); //保存
 
 
-                            shangpin.setImg(name);
+                            news.setImg(name);
 
                             fileItem.getOutputStream().close();//关闭流
                             //更新家居的图片路径
@@ -320,7 +362,7 @@ public class ImgUtil {
         } else {
             System.out.println("不是文件表单...");
         }
-        return shangpin;
+        return news;
     }
 }
 

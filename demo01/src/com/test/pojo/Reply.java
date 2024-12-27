@@ -3,26 +3,26 @@ package com.test.pojo;
 
 public class Reply {
 
-  private long id;
-  private long commentId;
+  private Integer id;
+  private Integer commentId;
   private String content;
   private String date;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
 
-  public long getCommentId() {
+  public Integer getCommentId() {
     return commentId;
   }
 
-  public void setCommentId(long commentId) {
+  public void setCommentId(Integer commentId) {
     this.commentId = commentId;
   }
 

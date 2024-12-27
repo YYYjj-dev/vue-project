@@ -8,7 +8,7 @@ public class Admin {
   private String password;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 

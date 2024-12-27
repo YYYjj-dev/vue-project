@@ -3,34 +3,34 @@ package com.test.pojo;
 
 public class Score {
 
-  private long id;
-  private long shangpinId;
-  private double score;
+  private Integer id;
+  private Integer shangpinId;
+  private Double score;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
 
-  public long getShangpinId() {
+  public Integer getShangpinId() {
     return shangpinId;
   }
 
-  public void setShangpinId(long shangpinId) {
+  public void setShangpinId(Integer shangpinId) {
     this.shangpinId = shangpinId;
   }
 
 
-  public double getScore() {
+  public Double getScore() {
     return score;
   }
 
-  public void setScore(double score) {
+  public void setScore(Double score) {
     this.score = score;
   }
 

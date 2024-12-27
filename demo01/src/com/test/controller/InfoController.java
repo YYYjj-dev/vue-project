@@ -44,12 +44,13 @@ public class InfoController extends BaseController{
     }
 
     protected void addNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        News news = WebUtil.readJson(req,News.class);
+        News news = ImgUtil.updateNews(req,resp);
         int rows = infoService.addNews(news);
+        Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
         if (rows > 0) {
-            Result result = Result.ok(rows);
-            WebUtil.writeJson(resp,result);
+            result = Result.ok(rows);
         }
+        WebUtil.writeJson(resp,result);
     }
 
     protected void updateNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

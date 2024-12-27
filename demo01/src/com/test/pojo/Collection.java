@@ -3,34 +3,34 @@ package com.test.pojo;
 
 public class Collection {
 
-  private long id;
-  private long userId;
-  private long storeId;
+  private Integer id;
+  private Integer userId;
+  private Integer storeId;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
 
-  public long getUserId() {
+  public Integer getUserId() {
     return userId;
   }
 
-  public void setUserId(long userId) {
+  public void setUserId(Integer userId) {
     this.userId = userId;
   }
 
 
-  public long getStoreId() {
+  public Integer getStoreId() {
     return storeId;
   }
 
-  public void setStoreId(long storeId) {
+  public void setStoreId(Integer storeId) {
     this.storeId = storeId;
   }
 

@@ -3,16 +3,16 @@ package com.test.pojo;
 
 public class Image {
 
-  private long id;
+  private Integer id;
   private String path;
   private String page;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

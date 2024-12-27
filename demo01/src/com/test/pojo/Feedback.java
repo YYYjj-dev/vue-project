@@ -3,18 +3,18 @@ package com.test.pojo;
 
 public class Feedback {
 
-  private long id;
+  private Integer id;
   private String content;
   private String type;
   private String email;
   private String phone;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

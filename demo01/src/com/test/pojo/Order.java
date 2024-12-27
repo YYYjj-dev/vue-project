@@ -3,17 +3,19 @@ package com.test.pojo;
 
 public class Order {
 
-  private long id;
+  private Integer id;
   private String date;
-  private long xiangqingId;
-  private long userId;
+  private Integer userId;
+  private Double sub;
+  private Integer quantity;
+  private Integer shangpinId;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -26,21 +28,35 @@ public class Order {
     this.date = date;
   }
 
-
-  public long getXiangqingId() {
-    return xiangqingId;
-  }
-
-  public void setXiangqingId(long xiangqingId) {
-    this.xiangqingId = xiangqingId;
-  }
-
-
-  public long getUserId() {
+  public Integer getUserId() {
     return userId;
   }
 
-  public void setUserId(long userId) {
+  public Double getSub() {
+    return sub;
+  }
+
+  public void setSub(Double sub) {
+    this.sub = sub;
+  }
+
+  public Integer getQuantity() {
+    return quantity;
+  }
+
+  public void setQuantity(Integer quantity) {
+    this.quantity = quantity;
+  }
+
+  public Integer getShangpinId() {
+    return shangpinId;
+  }
+
+  public void setShangpinId(Integer shangpinId) {
+    this.shangpinId = shangpinId;
+  }
+
+  public void setUserId(Integer userId) {
     this.userId = userId;
   }
 

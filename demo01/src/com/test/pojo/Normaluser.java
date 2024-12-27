@@ -3,17 +3,25 @@ package com.test.pojo;
 
 public class Normaluser extends User {
 
-  private long id;
+  private Integer id;
   private String username;
   private String password;
   private String sex;
+  private String img;
 
+  public String getImg() {
+    return img;
+  }
 
-  public long getId() {
+  public void setImg(String img) {
+    this.img = img;
+  }
+
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

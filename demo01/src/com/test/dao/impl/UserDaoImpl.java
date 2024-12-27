@@ -35,7 +35,7 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 
     public int Merchant(Merchant merchant) {
         String sql = "insert into merchant values(DEFAULT,?,?,?,?)";
-        return
+        return 1;
      }
 
      public int addNormalUser(Normaluser normaluser) {

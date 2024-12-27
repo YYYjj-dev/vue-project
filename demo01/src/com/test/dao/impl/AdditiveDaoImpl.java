@@ -41,7 +41,7 @@ public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
 
     @Override
     public List<Additive> findAdditiveByType(String typeName) {
-        String sql = "select id,typename,name,description,usestandardInterna, usestandardInternational,analysis,imgpath,nature from additive where typename = ?";
+        String sql = "select id,typename,name,description,usestandardInternal, usestandardInternational,analysis,imgpath,nature from additive where typename = ?";
         List<Additive> additives = baseQuery(Additive.class, sql, typeName);
         return additives;
     }

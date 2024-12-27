@@ -3,27 +3,27 @@ package com.test.pojo;
 
 public class Store {
 
-  private long id;
-  private long shangjiaId;
+  private Integer id;
+  private Integer shangjiaId;
   private String name;
   private String description;
   private String imgpath;
 
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
 
-  public long getShangjiaId() {
+  public Integer getShangjiaId() {
     return shangjiaId;
   }
 
-  public void setShangjiaId(long shangjiaId) {
+  public void setShangjiaId(Integer shangjiaId) {
     this.shangjiaId = shangjiaId;
   }
 

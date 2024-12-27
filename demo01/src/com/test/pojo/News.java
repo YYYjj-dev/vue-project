@@ -8,6 +8,15 @@ public class News {
   private String content;
   private String date;
   private String type;
+  private String img;
+
+  public String getImg() {
+    return img;
+  }
+
+  public void setImg(String img) {
+    this.img = img;
+  }
 
   public String getType() {
     return type;

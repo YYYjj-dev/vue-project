@@ -3,18 +3,26 @@ package com.test.pojo;
 
 public class Merchant extends User {
 
-  private long id;
+  private Integer id;
   private String username;
   private String password;
   private String name;
   private String description;
+  private String logo;
 
+  public String getLogo() {
+    return logo;
+  }
 
-  public long getId() {
+  public void setLogo(String logo) {
+    this.logo = logo;
+  }
+
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

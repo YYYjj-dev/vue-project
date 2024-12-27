@@ -3,46 +3,54 @@ package com.test.pojo;
 
 public class Comment {
 
-  private long id;
-  private long userId;
-  private long shangpinId;
-  private long newsId;
+  private Integer id;
+  private Integer userId;
+  private Integer shangpinId;
+  private Integer newsId;
   private String content;
   private String date;
+  private Integer caseId;
 
+  public Integer getCaseId() {
+    return caseId;
+  }
 
-  public long getId() {
+  public void setCaseId(Integer caseId) {
+    this.caseId = caseId;
+  }
+
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
 
-  public long getUserId() {
+  public Integer getUserId() {
     return userId;
   }
 
-  public void setUserId(long userId) {
+  public void setUserId(Integer userId) {
     this.userId = userId;
   }
 
 
-  public long getShangpinId() {
+  public Integer getShangpinId() {
     return shangpinId;
   }
 
-  public void setShangpinId(long shangpinId) {
+  public void setShangpinId(Integer shangpinId) {
     this.shangpinId = shangpinId;
   }
 
 
-  public long getNewsId() {
+  public Integer getNewsId() {
     return newsId;
   }
 
-  public void setNewsId(long newsId) {
+  public void setNewsId(Integer newsId) {
     this.newsId = newsId;
   }
 

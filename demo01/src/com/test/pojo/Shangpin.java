@@ -3,38 +3,48 @@ package com.test.pojo;
 
 public class Shangpin {
 
-  private long id;
-  private long storeId;
+  private Integer id;
+  private Integer storeId;
   private String gruop;
   private String type;
   private String name;
   private String description;
   private String standard;
-  private double price;
-  private double score;
-  private long num;
-  private String img;
-  public String getImg() {
-    return img;
-  }
-  public void setImg(String img) {
-    this.img = img;
+  private Double price;
+  private Double score;
+  private Integer num;
+  private String imgpath;
+
+  public void setPrice(Double price) {
+    this.price = price;
   }
 
-  public long getId() {
+  public void setScore(Double score) {
+    this.score = score;
+  }
+
+  public String getImgpath() {
+    return imgpath;
+  }
+  public void setImgpath(String imgpath) {
+    this.imgpath = imgpath;
+  }
+
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+
+  public void setId(Integer id) {
     this.id = id;
   }
 
 
-  public long getStoreId() {
+  public Integer getStoreId() {
     return storeId;
   }
 
-  public void setStoreId(long storeId) {
+  public void setStoreId(Integer storeId) {
     this.storeId = storeId;
   }
 
@@ -102,11 +112,11 @@ public class Shangpin {
   }
 
 
-  public long getNum() {
+  public Integer getNum() {
     return num;
   }
 
-  public void setNum(long num) {
+  public void setNum(Integer num) {
     this.num = num;
   }
 
