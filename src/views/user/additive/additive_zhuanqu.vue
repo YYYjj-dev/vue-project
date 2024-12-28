@@ -2,11 +2,38 @@
     <div class="page-container">
         <!-- 导航栏 -->
         <NavBar />
-        
+
         <!-- 主要内容区域 -->
         <div class="content-wrapper">
-            <Carousel />
-            
+            <div class="carousel-container" @mouseenter="pauseAutoPlay" @mouseleave="resumeAutoPlay">
+                <div class="carousel-wrapper" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
+                    <div v-for="(image, index) in images" :key="index" class="carousel-item">
+                        <img :src="image" :alt="`轮播图 ${index + 1}`" class="carousel-image">
+                    </div>
+                </div>
+
+                <!-- 轮播图指示器 -->
+                <div class="carousel-indicators">
+                    <span v-for="(_, index) in images" :key="index"
+                        :class="['indicator', { active: currentIndex === index }]"
+                        @click="setCurrentIndex(index)"></span>
+                </div>
+
+                <!-- 左右箭头 -->
+                <button class="carousel-button prev" @click="prev">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <button class="carousel-button next" @click="next">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+
             <!-- 第一个标题和按钮的容器 -->
             <div class="section-container">
                 <div class="section-header">
@@ -18,6 +45,9 @@
             <!-- 新增的三个竖向排列的盒子 -->
             <div class="info-box" v-for="item in news" :key="item.id" @click="goToNewsInfo(item.id)">
                 {{ item.title }}
+                <div v-if="!news.length" class="no-news">
+                    <p>暂无相关新闻</p>
+                </div>
             </div>
 
             <!-- 营养品与添加剂部分 -->
@@ -26,41 +56,28 @@
                     <h1>营养品与添加剂</h1>
                     <button class="overall-more-button" @click="goToZhuanquInfo2">更多</button>
                 </div>
-                <!-- 新增的内容盒子 -->
+                <!-- 内容盒子 -->
                 <div class="content-box">
-                    <div class="icon-text-box" 
-                         v-for="item in nutritionItems" 
-                         :key="item.id"
-                         @click="goToProduct(item.id)">
-                        <div class="icon">{{ item.icon }}</div>
-                        <div class="text">{{ item.content }}</div>
+                    <div v-if="loading" class="loading-state">
+                        <p>加载中...</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- 商品推荐部分 -->
-            <div class="product-section">
-                <h2>商品推荐</h2>
-                <div class="product-carousel">
-                    <button class="carousel-btn prev" @click="prevSlide">
-                        &lt;
-                    </button>
-                    <div class="product-container">
-                        <div class="product-wrapper" :style="{ transform: `translateX(-${currentIndex * (100 / 4)}%)` }">
-                            <div v-for="(product, index) in products" :key="index" class="product-box">
-                                <div class="product-image">
-                                    <img :src="product.image" :alt="product.title">
-                                </div>
-                                <div class="product-info">
-                                    <h3 class="product-title">{{ product.title }}</h3>
-                                    <p class="product-price">¥{{ product.price }}</p>
-                                </div>
+                    <div v-else-if="!nutritionItems.length" class="empty-state">
+                        <p>暂无相关商品</p>
+                    </div>
+                    <div class="icon-text-box" v-for="item in nutritionItems" :key="item.id"
+                        @click="goToProduct(item.id)">
+                        <div class="product-image">
+                            <img v-if="item.imgpath" :src="baseUrl + item.imgpath" :alt="item.name">
+                            <div v-else class="placeholder">
+                                <span>{{ item.name?.charAt(0) }}</span>
                             </div>
                         </div>
+                        <div class="product-info">
+                            <h3>{{ item.name }}</h3>
+                            <p>{{ item.description }}</p>
+                            <span class="price" v-if="item.price">¥{{ item.price }}</span>
+                        </div>
                     </div>
-                    <button class="carousel-btn next" @click="nextSlide">
-                        &gt;
-                    </button>
                 </div>
             </div>
         </div>
@@ -74,6 +91,7 @@
 import Carousel from '../../../components/Carousel.vue';
 import NavBar from '../../../components/NavBar.vue'
 import Footer from '../../../components/Footer.vue'
+import request from '../../../utils/request'
 
 export default {
     name: 'additive_zhuanqu',
@@ -91,6 +109,18 @@ export default {
         },
         goToZhuanquInfo2() {
             this.$router.push('/additive_zhuanqu_info2')
+        },
+        async fetchNews() {
+            try {
+                const { data } = await request.get('/info/findAllNews')
+                if (data.code === 200) {
+                    this.news = data.data.slice(0, 5)
+                } else {
+                    console.warn('获取新闻失败:', data.msg)
+                }
+            } catch (error) {
+                console.error('获取新闻出错:', error)
+            }
         },
         prevSlide() {
             if (this.currentIndex > 0) {
@@ -111,30 +141,84 @@ export default {
                 name: 'shop_rec_info',
                 params: { id: id.toString() }
             })
-        }
+        },
+        // 获取营养品数据
+        async fetchNutritionItems() {
+            this.loading = true
+            try {
+                const { data } = await request.get('/shangpin/findShangpinByType', {
+                    params: { type: '营养品' }  // 假设 'nutrition' 是营养品分组
+                })
+                if (data.code === 200) {
+                    this.nutritionItems = data.data || []
+                } else {
+                    console.warn('获取营养品数据失败:', data.msg)
+                }
+            } catch (error) {
+                console.error('获取营养品数据出错:', error)
+            } finally {
+                this.loading = false
+            }
+        },
+        next() {
+            this.currentIndex = (this.currentIndex + 1) % this.images.length
+        },
+        prev() {
+            this.currentIndex = this.currentIndex === 0
+                ? this.images.length - 1
+                : this.currentIndex - 1
+        },
+        setCurrentIndex(index) {
+            this.currentIndex = index
+        },
+        startAutoPlay() {
+            if (!this.isPaused) {
+                this.autoPlayInterval = setInterval(() => {
+                    this.next()
+                }, 5000)
+            }
+        },
+        stopAutoPlay() {
+            if (this.autoPlayInterval) {
+                clearInterval(this.autoPlayInterval)
+                this.autoPlayInterval = null
+            }
+        },
+        pauseAutoPlay() {
+            this.isPaused = true
+            this.stopAutoPlay()
+        },
+        resumeAutoPlay() {
+            this.isPaused = false
+            this.startAutoPlay()
+        },
     },
     data() {
         return {
-            news: [
-                { id: 1, title: '资讯报道 1', description: '这是资讯报道 1 的简要描述。' },
-                { id: 2, title: '资讯报道 2', description: '这是资讯报道 2 的简要描述。' },
-                { id: 3, title: '资讯报道 3', description: '这是资讯报道 3 的简要描述。' },
-            ],
+            news: [],
             currentIndex: 0,
-            products: [
-                { id: 1, image: '商品图片1', title: '商品1', price: '99.00' },
-                { id: 2, image: '商品图片2', title: '商品2', price: '199.00' },
-                { id: 3, image: '商品图片3', title: '商品3', price: '299.00' },
-                { id: 4, image: '商品图片4', title: '商品4', price: '399.00' },
-                { id: 5, image: '商品图片5', title: '商品5', price: '499.00' },
-                { id: 6, image: '商品图片6', title: '商品6', price: '599.00' }
+            nutritionItems: [],
+            loading: false,
+            baseUrl: 'http://localhost:8080/image/',
+            images: [
+                '/src/img/img4.jpg',
+                '/src/img/img7.jpg',
+                '/src/img/img6.jpg',
+                '/src/img/img2.jpg',
+                '/src/img/img3.jpg',
+                '/src/img/img5.jpg',
             ],
-            nutritionItems: [
-                { id: 101, icon: '图标1', content: '营养品内容1', price: '199.00' },
-                { id: 102, icon: '图标2', content: '营养品内容2', price: '299.00' },
-                { id: 103, icon: '图标3', content: '营养 品内容3', price: '399.00' }
-            ]
+            autoPlayInterval: null,
+            isPaused: false,
         }
+    },
+    mounted() {
+        this.fetchNews()
+        this.fetchNutritionItems()
+        this.startAutoPlay()
+    },
+    beforeUnmount() {
+        this.stopAutoPlay()
     },
     computed: {
         maxIndex() {
@@ -149,22 +233,22 @@ export default {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #f8f7f2;
+    background-color: #f8f9fa;
 }
 
 .content-wrapper {
     flex: 1;
-    margin-bottom: 4rem;
+    padding: 0 0 40px 0;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 20px;
 }
 
 /* 标题和按钮容器 */
 .section-container {
-    width: 90%;
+    width: 100%;
     max-width: 1200px;
     margin: 40px auto;
+    padding: 0 20px;
 }
 
 .section-header {
@@ -216,10 +300,10 @@ export default {
 
 /* 信息盒子 */
 .info-box {
-    width: 90%;
+    width: 100%;
     max-width: 1200px;
     margin: 20px auto;
-    padding: 25px;
+    padding: 25px 20px;
     background: white;
     text-align: left;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -249,164 +333,316 @@ export default {
     align-items: center;
     background: white;
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
     border: 1px solid #eee;
+    overflow: hidden;
+    min-height: 200px;
+    position: relative;
 }
 
 .icon-text-box:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 30px rgba(66, 185, 131, 0.1);
     border-color: #42b983;
 }
 
-.icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #42b983 0%, #3aa876 100%);
-    margin-right: 20px;
-    border-radius: 12px;
+.product-image {
+    width: 200px;
+    height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 24px;
     flex-shrink: 0;
     transition: all 0.3s ease;
-}
-
-.icon-text-box:hover .icon {
-    transform: scale(1.1);
-}
-
-.text {
-    flex-grow: 1;
-    font-size: 16px;
-    color: #2c3e50;
-    line-height: 1.5;
-}
-
-/* 商品推荐部分 */
-.product-section {
-    width: 90%;
-    max-width: 1200px;
-    margin: 40px auto;
-}
-
-.product-carousel {
+    overflow: hidden;
     position: relative;
-    display: flex;
-    align-items: center;
-    margin: 20px 0;
-    padding: 0 50px;
-}
-
-.carousel-btn {
-    width: 40px;
-    height: 40px;
-    background: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    position: absolute;
-    color: #42b983;
-    font-size: 18px;
-}
-
-.carousel-btn.prev {
-    left: -10px;
-}
-
-.carousel-btn.next {
-    right: -10px;
-}
-
-.carousel-btn:hover {
-    background: #42b983;
-    color: white;
-    transform: scale(1.1);
-}
-
-.carousel-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.product-container {
-    width: 100%;
-    overflow: hidden;
-}
-
-.product-wrapper {
-    display: flex;
-    gap: 20px;
-    transition: transform 0.5s ease;
-}
-
-.product-box {
-    flex: 0 0 calc((100% - 60px) / 4);
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.product-image {
-    width: 100%;
-    height: 200px;
     background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 8px;
 }
 
 .product-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.5s ease;
+}
+
+.icon-text-box:hover .product-image img {
+    transform: scale(1.08);
+}
+
+.placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #42b983 0%, #3aa876 60%, #2d8b5f 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+    text-transform: uppercase;
+    font-weight: 600;
+    border-radius: 8px;
 }
 
 .product-info {
-    padding: 15px;
-}
-
-.product-title {
-    font-size: 16px;
+    flex-grow: 1;
     color: #2c3e50;
-    margin-bottom: 10px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    position: relative;
+    z-index: 1;
 }
 
-.product-price {
-    color: #42b983;
-    font-weight: 600;
+.product-info h3 {
     font-size: 18px;
+    color: #2c3e50;
+    margin: 0;
+    margin-bottom: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
+.product-info p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+    flex-grow: 1;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    opacity: 0.85;
+}
+
+.product-info .price {
+    color: #42b983;
+    font-weight: 500;
+    font-size: 18px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.product-info .price::before {
+    content: '￥';
+    font-size: 0.8em;
+    opacity: 0.9;
+}
+
+/* 响应式调整 */
 @media (max-width: 1024px) {
-    .product-box {
-        flex: 0 0 calc((100% - 40px) / 3);
+    .content-wrapper {
+        padding: 0 15px 40px;
     }
 }
 
 @media (max-width: 768px) {
-    .product-box {
-        flex: 0 0 calc((100% - 20px) / 2);
+    .section-container {
+        margin: 30px auto;
+    }
+
+    .info-box {
+        margin: 15px auto;
+        padding: 20px;
+    }
+
+    .icon-text-box {
+        min-height: 160px;
+        padding: 15px;
+    }
+
+    .product-image {
+        width: 160px;
+        height: 160px;
+    }
+
+    .product-info {
+        padding: 0 15px;
+    }
+
+    .product-info h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+        -webkit-line-clamp: 1;
+    }
+
+    .product-info p {
+        font-size: 13px;
+        -webkit-line-clamp: 2;
+    }
+
+    .product-info .price {
+        font-size: 16px;
+        margin-top: 8px;
     }
 }
 
 @media (max-width: 480px) {
-    .product-box {
-        flex: 0 0 100%;
+    .section-header h1 {
+        font-size: 20px;
+    }
+
+    .content-box {
+        padding: 0 15px;
+        gap: 15px;
+    }
+
+    .icon-text-box {
+        min-height: 140px;
+        padding: 12px;
+    }
+
+    .product-image {
+        width: 140px;
+        height: 140px;
+    }
+
+    .product-info {
+        padding: 0 12px;
+    }
+
+    .product-info h3 {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    .product-info p {
+        font-size: 12px;
+        -webkit-line-clamp: 2;
+    }
+
+    .product-info .price {
+        font-size: 15px;
+        margin-top: 6px;
+    }
+
+    .placeholder {
+        font-size: 24px;
+    }
+}
+
+.no-news {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+    font-size: 1rem;
+}
+
+.loading-state,
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.carousel-wrapper {
+    display: flex;
+    transition: transform 0.5s ease;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-item {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.indicator.active {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+    transition: background-color 0.3s;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-button.prev {
+    left: 10px;
+}
+
+.carousel-button.next {
+    right: 10px;
+}
+
+@media (max-width: 768px) {
+    .carousel-container {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-container {
+        height: 200px;
     }
 }
 </style>

@@ -1,24 +1,30 @@
 <template>
     <div class="cases-info">
-        <!-- 导航栏 -->
-        <NavBar />
+        <div class="nav-wrapper">
+            <NavBar />
+        </div>
 
         <div class="content-container">
             <!-- 案例标题和发布信息 -->
             <div class="case-header">
-                <h1 class="case-title">{{ caseTitle }}</h1>
+                <h1 class="case-title">{{ caseInfo.title }}</h1>
                 <div class="publish-meta">
-                    <span class="publish-date">发布时间：2024-01-20</span>
+                    <span class="publish-date">发布时间：{{ caseInfo.date }}</span>
                     <span class="view-count">浏览量：2.3k</span>
-                    <span class="category">分类：食品安全</span>
                 </div>
             </div>
 
             <!-- 案例简介 -->
             <div class="case-intro">
+                <div class="case-image" v-if="caseInfo.imgpath">
+                    <img :src="baseUrl + caseInfo.imgpath" :alt="caseInfo.title">
+                </div>
+
                 <h2 class="section-title">案例简介</h2>
                 <div class="intro-content">
-                    <p>{{ caseIntro }}</p>
+                    <div class="content-paragraphs">
+                        {{ formatContent(caseInfo.content) }}
+                    </div>
                 </div>
             </div>
 
@@ -39,20 +45,16 @@
 
                 <!-- 评论列表 -->
                 <div class="comments-list">
-                    <div class="comment-item" v-for="(comment, index) in comments" :key="index">
+                    <div class="comment-item" v-for="comment in comments" :key="comment.id">
                         <div class="comment-user">
                             <div class="user-avatar"></div>
                             <div class="user-info">
-                                <span class="username">用户{{ index + 1 }}</span>
-                                <span class="comment-time">2024-01-20</span>
+                                <span class="username">用户{{ comment.userId }}</span>
+                                <span class="comment-time">{{ comment.date }}</span>
                             </div>
                         </div>
                         <div class="comment-content">{{ comment.content }}</div>
                         <div class="comment-actions">
-                            <button class="action-link">
-                                <i class="icon-thumbs-up"></i>
-                                <span>点赞</span>
-                            </button>
                             <button class="action-link">
                                 <i class="icon-reply"></i>
                                 <span>回复</span>
@@ -66,74 +68,189 @@
             <div class="related-products">
                 <h2 class="section-title">相关商品推荐</h2>
                 <div class="products-grid">
-                    <div class="product-card" 
-                         v-for="(product, index) in relatedProducts" 
-                         :key="index"
-                         @click="goToProduct(product.id)">
+                    <div class="product-card" v-for="product in relatedProducts" :key="product.id"
+                        @click="goToProduct(product.id)">
                         <div class="product-image">
-                            <img :src="product.image" :alt="product.title">
+                            <img :src="baseUrl + product.img" :alt="product.name">
                             <div class="hover-overlay">
                                 <span>查看详情</span>
                             </div>
                         </div>
                         <div class="product-info">
-                            <h3 class="product-title">商品{{ index + 1 }}</h3>
-                            <p class="product-desc">这是一段商品描述文字...</p>
+                            <h3 class="product-title">{{ product.name }}</h3>
+                            <p v-if="product.description" class="product-desc">{{ product.description }}</p>
+                            <p v-if="product.price" class="product-price">¥{{ product.price }}</p>
                         </div>
                     </div>
+                </div>
+                <div v-if="!relatedProducts.length" class="no-products">
+                    <p>暂无相关商品推荐</p>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<script>
+<script setup>
 import NavBar from '../../../components/NavBar.vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import request from '../../../utils/request'
 
-export default {
-    name: 'cases_info',
-    components: {
-        NavBar
-    },
-    setup() {
-        const router = useRouter()
-        const route = useRoute()
-        return { router, route }
-    },
-    data() {
-        return {
-            caseTitle: '标题',
-            publishInfo: '发布信息',
-            caseIntro: '',
-            newComment: '',
-            comments: [
-                { content: '评论1' },
-                { content: '评论2' },
-                { content: '评论3' },
-                { content: '评论4' }
-            ],
-            relatedProducts: [
-                { id: 1, image: '/src/img/product1.jpg', title: '商品A' },
-                { id: 2, image: '/src/img/product2.jpg', title: '商品B' },
-                { id: 3, image: '/src/img/product3.jpg', title: '商品C' },
-                { id: 4, image: '/src/img/product4.jpg', title: '商品D' }
-            ]
+const router = useRouter()
+const route = useRoute()
+const baseUrl = 'http://localhost:8080/image/'
+
+// 定义响应式数据
+const caseInfo = ref({
+    id: '',
+    title: '',
+    content: '',
+    imgpath: '',
+    grouptype: '',
+    date: ''
+})
+
+const newComment = ref('')
+const comments = ref([])
+const relatedProducts = ref([])
+
+// 获取案例详情
+const getCaseInfo = async () => {
+    try {
+        const { data } = await request.get('/info/findCasesById', {
+            params: { id: route.params.id }
+        })
+        if (data.code === 200 && data.data) {
+            console.log('后端返回的案例数据:', data.data)
+            caseInfo.value = data.data
+            // 检查分组类型是否存在
+            if (!data.data.grouptype) {
+                console.warn('案例数据中缺少grouptype字段')
+                return
+            }
+            // 获取评论数据
+            await getComments(route.params.id)
+            // 获取相关商品数据
+            await getRelatedProducts(data.data.grouptype)
+            console.log('案例分组类型:', data.data.grouptype)
         }
-    },
-    methods: {
-        goToProduct(id) {
-            this.router.push(`/shop_rec_info/${id}`)
-        }
+    } catch (error) {
+        console.error('获取案例详情失败:', error)
     }
 }
+
+// 获取评论数据
+const getComments = async (caseId) => {
+    try {
+        const { data } = await request.get(`info/showComment`, {
+            params: {
+                commentId: caseId,
+                commentType: 2 // 假设2代表案例评论类型
+            }
+        })
+        if (data.code === 200) {
+            comments.value = data.data || []
+        }
+    } catch (error) {
+        console.error('获取评论失败:', error)
+    }
+}
+
+// 获取相关商品数据
+const getRelatedProducts = async (groupType) => {
+    try {
+        console.log('正在获取商品，分组类型:', groupType)
+        if (!groupType) {
+            console.warn('未获取到分组类型')
+            return
+        }
+
+        // 打印完整的请求URL和参数
+        const requestUrl = '/shangpin/findShangpinByGroup'
+        console.log('发送请求:', {
+            url: requestUrl,
+            params: { 'group': groupType }
+        })
+
+        const { data } = await request.get(requestUrl, {
+            params: {
+                'group': groupType
+            }
+
+        })
+
+
+        // 打印完整的响应数据
+        console.log('接收到的响应:', {
+            status: data.code,
+            data: data.data,
+            fullResponse: data
+        })
+
+        if (data.code === 200) {
+            // 处理返回的数据
+            if (data.data && Array.isArray(data.data)) {
+                relatedProducts.value = data.data
+            } else if (data.data && data.data.itemList) {
+                relatedProducts.value = data.data.itemList
+            } else {
+                relatedProducts.value = []
+            }
+
+            if (!relatedProducts.value.length) {
+                console.warn('未找到相关商品')
+            } else {
+                console.log('成功获取到商品:', relatedProducts.value.length, '条记录')
+            }
+        }
+    } catch (error) {
+        console.error('获取相关商品失败:', {
+            error: error.response?.data || error,
+            groupType,
+            fullError: error,
+            stack: error.stack
+        })
+    }
+}
+
+// 跳转到商品详情
+const goToProduct = (id) => {
+    router.push(`/shop_rec_info/${id}`)
+}
+
+// 添加格式化内容的方法
+const formatContent = (content) => {
+    if (!content) return '';
+    // 将连续的换行符替换为单个换行符，并按段落分割
+    return content.replace(/\n\s*\n/g, '\n').split('\n').map(paragraph =>
+        paragraph.trim()
+    ).filter(paragraph =>
+        paragraph.length > 0
+    ).join('\n\n');
+}
+
+// 页面加载时获取数据
+onMounted(() => {
+    getCaseInfo()
+})
 </script>
 
 <style scoped>
 .cases-info {
     min-height: 100vh;
-    background-color: #f8f7f2;
-    padding: 20px;
+    background-color: #f8f9fa;
+    padding-top: 80px;
+}
+
+.nav-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .content-container {
@@ -199,6 +316,38 @@ export default {
     line-height: 1.8;
     color: #333;
     font-size: 1.1rem;
+    white-space: pre-wrap;
+    padding: 20px;
+    background: #fafafa;
+    border-radius: 12px;
+}
+
+.content-paragraphs {
+    text-align: justify;
+    text-indent: 2em;
+}
+
+.content-paragraphs::first-letter {
+    font-size: 1.5em;
+    font-weight: 500;
+    color: #42b983;
+    padding-right: 4px;
+}
+
+/* 段落间距 */
+.content-paragraphs p {
+    margin-bottom: 1.5em;
+}
+
+.content-paragraphs p:last-child {
+    margin-bottom: 0;
+}
+
+/* 处理段落文本 */
+.content-paragraphs>p {
+    text-indent: 2em;
+    margin-bottom: 1.5em;
+    line-height: 1.8;
 }
 
 /* 评论区样式 */
@@ -381,6 +530,42 @@ export default {
     line-height: 1.5;
 }
 
+.no-products {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 1.1rem;
+    width: 100%;
+}
+
+.product-price {
+    color: #e74c3c;
+    font-weight: 500;
+    margin-top: 8px;
+}
+
+/* 案例图片样式 */
+.case-image {
+    width: 100%;
+    max-height: 400px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.case-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.case-image:hover img {
+    transform: scale(1.02);
+}
+
 @media (max-width: 768px) {
     .content-container {
         padding: 20px;
@@ -398,6 +583,37 @@ export default {
 
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .intro-content {
+        padding: 15px;
+        font-size: 1rem;
+        text-indent: 2em;
+    }
+
+    .content-paragraphs::first-letter {
+        font-size: 1.3em;
+    }
+
+    .case-image {
+        max-height: 300px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .intro-content {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+
+    .content-paragraphs p {
+        margin-bottom: 1.2em;
+    }
+
+    .case-image {
+        max-height: 200px;
+        margin-bottom: 15px;
     }
 }
 </style>

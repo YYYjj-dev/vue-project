@@ -6,6 +6,7 @@ import com.test.pojo.Cases;
 import com.test.pojo.Comment;
 
 import java.util.List;
+import java.util.Map;
 
 public class CasesDaoImpl extends BaseDao implements CasesDao {
     public List<Cases> findAllCases() {
@@ -42,6 +43,12 @@ public class CasesDaoImpl extends BaseDao implements CasesDao {
     public int deleteCases(Integer id) {
         String sql = "delete from cases where id = ?";
         return baseUpdate(sql, id);
+    }
+
+    @Override
+    public List<Cases> findCases(Map<String, Object> queryParams) {
+        String sql = buildQuery(queryParams,"*","cases");
+        return baseQuery(Cases.class, sql);
     }
 
 

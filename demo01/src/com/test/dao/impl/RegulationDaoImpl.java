@@ -40,4 +40,10 @@ public class RegulationDaoImpl extends BaseDao implements RegulationDao {
         int rows = baseUpdate(sql,id);
         return rows;
     }
+
+    @Override
+    public List<Regulation> findRegularByTitle(String title) {
+        String sql = "select * from regulation where title like ?";
+        return baseQuery(Regulation.class, sql, title);
+    }
 }

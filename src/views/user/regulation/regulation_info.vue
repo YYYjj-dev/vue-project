@@ -20,6 +20,7 @@
             <p>未找到相关法律条文信息</p>
         </div>
     </div>
+    <Footer />
 </template>
 
 <script setup name='regulation_info' comments="NavBar">
@@ -27,7 +28,7 @@ import NavBar from '../../../components/NavBar.vue'
 import { useRouter,useRoute } from 'vue-router'
 import request from '../../../utils/request'
 import {ref,reactive,onMounted } from 'vue';
-    
+import Footer from '../../../components/Footer.vue'
     const router = useRouter()
     const route = useRoute()
     let law=ref({title:'',content:'',data:''})
@@ -52,7 +53,7 @@ import {ref,reactive,onMounted } from 'vue';
 /* 基础布局 */
 .regulation-info {
     min-height: 100vh;
-    background-color: #f8f7f2;
+    background-color: #f8f9fa;
     padding: 20px;
     padding-bottom: 60px;
 }

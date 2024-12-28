@@ -4,6 +4,7 @@ import com.test.pojo.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InfoService {
     List<News> findAllNews();
@@ -64,4 +65,10 @@ public interface InfoService {
     int addCarousel(Image img);
 
     int deleteCarousel(Integer id);
+
+    List<News> findNews(Map<String, Object> queryParams);
+
+    List<Cases> findCases(Map<String, Object> queryParams);
+
+    List<Regulation> findRegularByTitle(String title);
 }

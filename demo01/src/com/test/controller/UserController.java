@@ -24,7 +24,6 @@ public class UserController extends BaseController {
 
     private UserService userService = new UserServiceImpl();
 
-
     /**
      * 注册业务
      */

@@ -3,6 +3,7 @@ package com.test.dao;
 import com.test.pojo.News;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NewsDao {
     List<News> findAllNews();
@@ -18,4 +19,6 @@ public interface NewsDao {
     List<News> findNewsByTitle(String title);
 
     List<News> findNewsByType(String type);
+
+    List<News> findNews(Map<String, Object> queryParams);
 }

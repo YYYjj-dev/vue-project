@@ -4,6 +4,7 @@ import com.test.pojo.Cases;
 import com.test.pojo.Comment;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CasesDao {
 //增删查改
@@ -15,4 +16,5 @@ public interface CasesDao {
     int updateCases(Cases cases);
     int deleteCases(Integer id);
 
+    List<Cases> findCases(Map<String, Object> queryParams);
 }

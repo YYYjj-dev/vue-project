@@ -3,18 +3,14 @@
         <div class="nav-wrapper">
             <NavBar />
         </div>
-        
+
         <div class="main-content">
             <!-- 左侧商品分类 -->
             <div class="category-sidebar">
                 <div class="category-title">商品分类</div>
                 <div class="category-list">
-                    <button 
-                        v-for="category in categories" 
-                        :key="category.id"
-                        class="category-btn"
-                        :class="{ active: currentCategory === category.id }"
-                        @click="changeCategory(category.id)">
+                    <button v-for="category in categories" :key="category.id" class="category-btn"
+                        :class="{ active: currentCategory === category.id }" @click="changeCategory(category.id)">
                         {{ category.name }}
                     </button>
                 </div>
@@ -22,25 +18,27 @@
 
             <!-- 右侧商家列表 -->
             <div class="seller-list">
-                <div class="seller-card" v-for="seller in filteredSellers" :key="seller.id">
+                <div v-if="isLoading" class="loading-state">
+                    正在加载商家信息...
+                </div>
+                <div v-else-if="merchants.length === 0" class="no-results">
+                    暂无相关商家
+                </div>
+                <div v-else class="seller-card" v-for="seller in merchants" :key="seller.id">
                     <div class="seller-header">
-                        <div class="seller-logo">{{ seller.logo }}</div>
+                        <div class="seller-logo">
+                            <template v-if="seller.logo">
+                                <img :src="seller.logo" :alt="seller.name">
+                            </template>
+                            <template v-else>
+                                {{ seller.name.charAt(0) }}
+                            </template>
+                        </div>
                         <div class="seller-info">
                             <div class="seller-name">{{ seller.name }}</div>
                             <div class="seller-desc">{{ seller.description }}</div>
                         </div>
-                        <button class="enter-store" @click="goToStore(seller.id)">进店</button>
-                    </div>
-                    <div class="seller-images">
-                        <button class="scroll-btn left" @click="scrollImages('left', seller.id)">&lt;</button>
-                        <div class="images-wrapper">
-                            <div class="images-container" :id="`seller-${seller.id}-images`">
-                                <div class="image-item" v-for="(image, index) in seller.images" :key="index">
-                                    <div class="image-placeholder">{{ image }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="scroll-btn right" @click="scrollImages('right', seller.id)">&gt;</button>
+                        <button class="enter-store" @click="goToStore(seller)">进店</button>
                     </div>
                 </div>
             </div>
@@ -50,8 +48,9 @@
 
 <script>
 import NavBar from '../../../components/NavBar.vue'
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import request from '../../../utils/request'
 
 export default {
     name: 'shop_sel',
@@ -60,241 +59,86 @@ export default {
     },
     setup() {
         const router = useRouter()
-        const currentCategory = ref(1) // 默认选中第一个分类
+        const baseUrl = 'http://localhost:8080/image/'
+        const currentCategory = ref(1)
+        const isLoading = ref(false)
+        const merchants = ref([])
 
         // 分类数据
         const categories = [
-            { id: 1, name: '商品类别1' },
-            { id: 2, name: '商品类别2' },
-            { id: 3, name: '商品类别3' },
-            { id: 4, name: '商品类别4' }
+            { id: 1, name: '果蔬', type: '果蔬' },
+            { id: 2, name: '肉类', type: '肉类' },
+            { id: 3, name: '饮料', type: '饮料' },
+            { id: 4, name: '其他', type: '其他' }
         ]
 
-        // 商家数据
-        const sellers = [
-            { 
-                id: 1, 
-                categoryId: 1,
-                logo: '制造商A',
-                name: '制造商A名称',
-                description: '专注于添加剂研发与生产的领军企业',
-                images: ['图片A1', '图片A2', '图片A3', '图片A4', '图片A5']
-            },
-            { 
-                id: 2, 
-                categoryId: 1,
-                logo: '制造商B',
-                name: '制造商B名称',
-                description: '国际认证的添加剂生产商',
-                images: ['图片B1', '图片B2', '图片B3', '图片B4', '图片B5']
-            },
-            { 
-                id: 3, 
-                categoryId: 1,
-                logo: '制造商C',
-                name: '制造商C名称',
-                description: '创新型添加剂研发机构',
-                images: ['图片C1', '图片C2', '图片C3', '图片C4', '图片C5']
-            },
-            { 
-                id: 4, 
-                categoryId: 1,
-                logo: '制造商D',
-                name: '制造商D名称',
-                description: '专业的食品添加剂供应商',
-                images: ['图片D1', '图片D2', '图片D3', '图片D4', '图片D5']
-            },
-            { 
-                id: 5, 
-                categoryId: 1,
-                logo: '制造商E',
-                name: '制造商E名称',
-                description: '全球领先的添加剂制造商',
-                carousel: '轮播图E',
-                images: ['图片E1', '图片E2', '图片E3', '图片E4', '图片E5']
-            },
-            { 
-                id: 6, 
-                categoryId: 2,
-                logo: '制造商F',
-                name: '制造商F名称',
-                description: '天然添加剂研发专家',
-                carousel: '轮播图F',
-                images: ['图片F1', '图片F2', '图片F3', '图片F4', '图片F5']
-            },
-            { 
-                id: 7, 
-                categoryId: 2,
-                logo: '制造商G',
-                name: '制造商G名称',
-                description: '有机添加剂生产基地',
-                carousel: '轮播图G',
-                images: ['图片G1', '图片G2', '图片G3', '图片G4', '图片G5']
-            },
-            { 
-                id: 8, 
-                categoryId: 2,
-                logo: '制造商H',
-                name: '制造商H名称',
-                description: '绿色环保添加剂制造商',
-                carousel: '轮播图H',
-                images: ['图片H1', '图片H2', '图片H3', '图片H4', '图片H5']
-            },
-            { 
-                id: 9, 
-                categoryId: 2,
-                logo: '制造商I',
-                name: '制造商I名称',
-                description: '高科技添加剂研发中心',
-                carousel: '轮播图I',
-                images: ['图片I1', '图片I2', '图片I3', '图片I4', '图片I5']
-            },
-            { 
-                id: 10, 
-                categoryId: 2,
-                logo: '制造商J',
-                name: '制造商J名称',
-                description: '创新型添加剂生产企业',
-                carousel: '轮播图J',
-                images: ['图片J1', '图片J2', '图片J3', '图片J4', '图片J5']
-            },
-            { 
-                id: 11, 
-                categoryId: 3,
-                logo: '制造商K',
-                name: '制造商K名称',
-                description: '专业食品级添加剂制造商',
-                carousel: '轮播图K',
-                images: ['图片K1', '图片K2', '图片K3', '图片K4', '图片K5']
-            },
-            { 
-                id: 12, 
-                categoryId: 3,
-                logo: '制造商L',
-                name: '制造商L名称',
-                description: '现代化添加剂生产基地',
-                carousel: '轮播图L',
-                images: ['图片L1', '图片L2', '图片L3', '图片L4', '图片L5']
-            },
-            { 
-                id: 13, 
-                categoryId: 3,
-                logo: '制造商M',
-                name: '制造商M名称',
-                description: '国际标准添加剂供应商',
-                carousel: '轮播图M',
-                images: ['图片M1', '图片M2', '图片M3', '图片M4', '图片M5']
-            },
-            { 
-                id: 14, 
-                categoryId: 3,
-                logo: '制造商N',
-                name: '制造商N名称',
-                description: '高品质添加剂研发机构',
-                carousel: '轮播图N',
-                images: ['图片N1', '图片N2', '图片N3', '图片N4', '图片N5']
-            },
-            { 
-                id: 15, 
-                categoryId: 3,
-                logo: '制造商O',
-                name: '制造商O名称',
-                description: '专业添加剂技术服务商',
-                carousel: '轮播图O',
-                images: ['图片O1', '图片O2', '图片O3', '图片O4', '图片O5']
-            },
-            { 
-                id: 16, 
-                categoryId: 4,
-                logo: '制造商P',
-                name: '制造商P名称',
-                description: '创新型添加剂解决方案提供商',
-                carousel: '轮播图P',
-                images: ['图片P1', '图片P2', '图片P3', '图片P4', '图片P5']
-            },
-            { 
-                id: 17, 
-                categoryId: 4,
-                logo: '制造商Q',
-                name: '制造商Q名称',
-                description: '全球化添加剂研发中心',
-                carousel: '轮播图Q',
-                images: ['图片Q1', '图片Q2', '图片Q3', '图片Q4', '图片Q5']
-            },
-            { 
-                id: 18, 
-                categoryId: 4,
-                logo: '制造商R',
-                name: '制造商R名称',
-                description: '专业添加剂生产企业',
-                carousel: '轮播图R',
-                images: ['图片R1', '图片R2', '图片R3', '图片R4', '图片R5']
-            },
-            { 
-                id: 19, 
-                categoryId: 4,
-                logo: '制造商S',
-                name: '制造商S名称',
-                description: '高新技术添加剂制造商',
-                carousel: '轮播图S',
-                images: ['图片S1', '图片S2', '图片S3', '图片S4', '图片S5']
-            },
-            { 
-                id: 20, 
-                categoryId: 4,
-                logo: '制造商T',
-                name: '制造商T名称',
-                description: '综合性添加剂服务提供商',
-                carousel: '轮播图T',
-                images: ['图片T1', '图片T2', '图片T3', '图片T4', '图片T5']
+        // 获取商家数据
+        const getMerchantsByType = async (type) => {
+            try {
+                isLoading.value = true
+                console.log('发送请求的type值:', type)
+
+                const response = await request.get('/merchant/findMerchantByType', {
+                    params: { type: type }
+                })
+                console.log('商家数据响应:', response)
+
+                if (response.data && response.data.code === 200) {
+                    merchants.value = response.data.data.map(merchant => ({
+                        id: merchant.id,
+                        username: merchant.username,
+                        name: merchant.name,
+                        description: merchant.description || '暂无描述',
+                        logo: baseUrl + merchant.logo,
+                        type: merchant.type
+                    }))
+                    console.log('处理后的商家数据:', merchants.value)
+                } else {
+                    merchants.value = []
+                    console.log('获取商家数据失败:', response.data)
+                }
+            } catch (error) {
+                console.error('获取商家数据错误:', error)
+                merchants.value = []
+            } finally {
+                isLoading.value = false
             }
-        ]
-
-        // 根据当前选中的分类筛选商家
-        const filteredSellers = computed(() => {
-            return sellers.filter(seller => seller.categoryId === currentCategory.value)
-        })
+        }
 
         // 切换分类
-        const changeCategory = (categoryId) => {
+        const changeCategory = async (categoryId) => {
             currentCategory.value = categoryId
+            const category = categories.find(c => c.id === categoryId)
+            if (category) {
+                console.log('切换到分类:', category.type)
+                await getMerchantsByType(category.type)
+            }
         }
 
         // 进入商家店铺
-        const goToStore = (sellerId) => {
+        const goToStore = (seller) => {
             router.push({
                 name: 'shop_sel_info1',
-                params: { id: sellerId }
+                params: { username: seller.username }
             })
         }
 
-        // 修改滚动逻辑
-        const scrollImages = (direction, sellerId) => {
-            const container = document.getElementById(`seller-${sellerId}-images`)
-            if (container) {
-                const scrollAmount = 220 // 图片宽度 + 间距
-                const currentScroll = container.style.transform || 'translateX(0px)'
-                const currentX = parseInt(currentScroll.replace(/[^\d-]/g, '')) || 0
-                
-                let newX
-                if (direction === 'left') {
-                    newX = Math.min(0, currentX + scrollAmount)
-                } else {
-                    const maxScroll = -(container.scrollWidth - container.parentElement.clientWidth)
-                    newX = Math.max(maxScroll, currentX - scrollAmount)
-                }
-                
-                container.style.transform = `translateX(${newX}px)`
+        // 页面加载时获取默认分类的商家数据
+        onMounted(() => {
+            const defaultCategory = categories.find(c => c.id === currentCategory.value)
+            if (defaultCategory) {
+                getMerchantsByType(defaultCategory.type)
             }
-        }
+        })
 
         return {
             categories,
             currentCategory,
-            filteredSellers,
+            merchants,
             changeCategory,
             goToStore,
-            scrollImages
+            isLoading,
+            baseUrl
         }
     }
 }
@@ -303,8 +147,9 @@ export default {
 <style scoped>
 .shop-sel {
     min-height: 100vh;
-    background-color: #f8f7f2;
-    padding-top: 60px; /* 为固定导航栏留出空间 */
+    background-color: #f8f9fa;
+    padding-top: 60px;
+    /* 为固定导航栏留出空间 */
 }
 
 .nav-wrapper {
@@ -380,50 +225,97 @@ export default {
 
 .seller-card {
     background: white;
-    border-radius: 8px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.seller-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .seller-header {
     display: flex;
     align-items: center;
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 25px;
 }
 
 .seller-logo {
-    width: 80px;
-    height: 80px;
-    background: #f0f0f0;
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(145deg, #f0f0f0, #ffffff);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 28px;
+    color: #4CAF50;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.seller-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.seller-logo:hover img {
+    transform: scale(1.05);
 }
 
 .seller-info {
     flex: 1;
     padding: 0 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .seller-name {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
     margin-bottom: 5px;
 }
 
 .seller-desc {
     font-size: 14px;
     color: #666;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.seller-type {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #f0f7f0;
+    color: #4CAF50;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .enter-store {
-    padding: 8px 20px;
+    padding: 10px 25px;
     background: #4CAF50;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.enter-store:hover {
+    background: #43a047;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .seller-carousel {
@@ -440,68 +332,16 @@ export default {
     color: #666;
 }
 
-/* 修改图片展示区域样式 */
-.seller-images {
-    position: relative;
-    width: 100%;
-    padding: 20px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.images-wrapper {
-    flex: 1;
-    overflow: hidden;
-}
-
-.images-container {
-    display: flex;
-    gap: 20px;
-    transition: transform 0.3s ease;
-}
-
-.image-item {
-    flex: 0 0 200px;
-    height: 200px;
-    background: #f0f0f0;
-    border-radius: 4px;
-}
-
-.image-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* 添加加载状态和无结果状态的样式 */
+.loading-state,
+.no-results {
+    text-align: center;
+    padding: 50px;
     color: #666;
-}
-
-.scroll-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.3);
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    transition: background-color 0.3s;
-    z-index: 1;
-}
-
-.scroll-btn:hover {
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.scroll-btn.left {
-    left: 0;
-}
-
-.scroll-btn.right {
-    right: 0;
+    font-size: 16px;
+    background: white;
+    border-radius: 12px;
+    margin: 20px 0;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 </style>

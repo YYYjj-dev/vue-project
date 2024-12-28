@@ -4,114 +4,59 @@
     <div class="nav-wrapper">
       <NavBar />
     </div>
-    
+
     <div class="news_content">
       <!-- 标题 -->
       <div class="page-title">
         <h1>热门资讯</h1>
-        <!-- <input class="file" name="file" type="file" accept="image/png,image/gif,image/jpeg" @change="update"/> -->
       </div>
 
       <!-- 资讯报道内容 -->
       <div class="news-content">
-        <div class="news-item" v-for="newsInfo,index in pagedNews" :key="index" @click="goToNewsInfo(newsInfo.id)">
+        <div class="news-item" v-for="newsInfo, index in news" :key="index" @click="goToNewsInfo(newsInfo.id)">
           <h2>{{ newsInfo.title }}</h2>
-          <!-- <p>{{ news.description }}</p> -->
         </div>
       </div>
     </div>
-    
-    <!-- 分页器 -->
-    <div class="pagination">
-      <button 
-        class="page-btn" 
-        :disabled="currentPage === 1"
-        @click="changePage(currentPage - 1)"
-      >
-        上一页
-      </button>
-      
-      <div class="page-numbers">
-        <button 
-          v-for="pageNum in pages" 
-          :key="pageNum"
-          class="page-num"
-          :class="{ active: currentPage === pageNum }"
-          @click="changePage(pageNum)"
-        >
-          {{ pageNum }}
-        </button>
-      </div>
-
-      <button 
-        class="page-btn"
-        :disabled="currentPage === totalPages"
-        @click="changePage(currentPage + 1)"
-      >
-        下一页
-      </button>
-    </div>
   </div>
+
+  <!-- 页脚 -->
+  <Footer />
 </template>
 
 <script setup name="news" components="NavBar">
 import NavBar from '../../../components/NavBar.vue'
-import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue';
+import { computed, onMounted, onBeforeMount, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import request from '../../../utils/request'
+import Footer from '../../../components/Footer.vue'
 
-  
-      let currentPage = ref(1)
-      let itemsPerPage = 6 
-      const router = useRouter()
-      let news = ref([])
-      let pages = ref([])
-      let totalPages = ref(0)
-      
-    let pagedNews =  computed( ()=>{
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return news.value.slice(start, end);  // 获取当前页需要展示的资讯报道
-    })
+const router = useRouter()
+let news = ref([])
 
-    function changePage(page) {
-        currentPage.value = page; 
-        console.log(currentPage.value) // 切换页面
-    }
-    function goToNewsInfo(id) {
-      router.push({ path:'/news_info/'+id });  // 跳转到 'news_info' 页面，并传递 'id'
-    }
-
-    onMounted(async ()=> {
-      showNews()
-    })
-    
-    async function showNews(){
-      let {data} = await request.get('info/news/findAllNews')
-      console.log(data)
-      news.value = data.data
-      totalPages.value= Math.ceil(news.value.length / itemsPerPage)
-      let start = Math.max(1, currentPage.value - 1);
-      let end = Math.min(start + 2, totalPages.value);
-      // 调整起始页，确保始终显示3个页码
-      if (end - start < 2) {
-        start = Math.max(1, end - 2);
-      }
-      for (let i = start; i <= end; i++) {
-        pages.value.push(i);
-      }
-      console.log(pages.value)
+function goToNewsInfo(id) {
+  router.push({ path: '/news_info/' + id });  // 跳转到 'news_info' 页面，并传递 'id'
 }
-    
+
+onMounted(async () => {
+  showNews()
+})
+
+async function showNews() {
+  let { data } = await request.get('info/news/findAllNews')
+  console.log(data)
+  news.value = data.data
+}
+
 </script>
 
 <style scoped>
 .news {
   min-height: 100vh;
-  background-color: #f8f7f2;
-  padding-top: 60px; /* 为固定定位的导航栏留出空间 */
   display: flex;
   flex-direction: column;
+  background-color: #f8f9fa;
+  padding-top: 60px;
 }
 
 /* 添加导航栏包装器样式 */
@@ -121,8 +66,10 @@ import request from '../../../utils/request'
   left: 0;
   right: 0;
   z-index: 100;
-  background-color: #fff; /* 确保导航栏背景不透明 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+  background-color: #fff;
+  /* 确保导航栏背景不透明 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* 添加阴影效果 */
 }
 
 .news_content {
@@ -160,24 +107,25 @@ import request from '../../../utils/request'
 }
 
 .news-content {
-  margin-bottom: 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 .news-item {
-  background: white;
+  background: #fff;
   border-radius: 12px;
   padding: 24px;
-  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid #eee;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .news-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border-color: #4CAF50;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .news-item h2 {
@@ -192,73 +140,25 @@ import request from '../../../utils/request'
   line-height: 1.6;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 40px;
-  margin-bottom: 20px;
-}
-
-.page-numbers {
-  display: flex;
-  gap: 8px;
-}
-
-.page-btn,
-.page-num {
-  min-width: 40px;
-  height: 40px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: white;
-  color: #666;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px;
-}
-
-.page-btn:hover:not(:disabled),
-.page-num:hover:not(.active) {
-  border-color: #4CAF50;
-  color: #4CAF50;
-}
-
-.page-btn:disabled {
-  background-color: #f5f5f5;
-  border-color: #e0e0e0;
-  color: #999;
-  cursor: not-allowed;
-}
-
-.page-num.active {
-  background-color: #4CAF50;
-  border-color: #4CAF50;
-  color: white;
-  cursor: default;
-}
-
+/* 响应式调整 */
 @media (max-width: 768px) {
   .news {
-    padding: 20px;
+    padding-top: 50px;
   }
-  
+
   .news_content {
     width: 95%;
-    padding: 20px 0;
+    padding: 15px 0;
   }
-  
+
   .news-item {
     padding: 20px;
   }
-  
-  .news-item h2 {
-    font-size: 18px;
+}
+
+@media (max-width: 480px) {
+  .news-item {
+    padding: 16px;
   }
 }
 </style>

@@ -12,7 +12,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -115,6 +117,20 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *多条件查询咨询，可选titie，type
+     */
+    protected void findNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("title", req.getParameter("title"));
+        queryParams.put("type", req.getParameter("type"));
+        List<News> newsList = infoService.findNews(queryParams);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(newsList.size()>0){
+            result=Result.ok(newsList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
 
 
      //案例相关业务
@@ -160,6 +176,7 @@ public class InfoController extends BaseController{
         }
         WebUtil.writeJson(resp,result);
     }
+
     protected void updateCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Cases cases = ImgUtil.updateCases(req, resp);
         int rows = infoService.updateCases(cases);
@@ -179,6 +196,20 @@ public class InfoController extends BaseController{
         }
     }
 
+    /**
+     *多条件查询案例，可选title，grouptype
+     */
+    protected void findCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("title", req.getParameter("title"));
+        queryParams.put("grouptype", req.getParameter("grouptype"));
+        List<Cases> casesList = infoService.findCases(queryParams);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(casesList.size()>0){
+            result=Result.ok(casesList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
 
     //法规相关
 
@@ -192,6 +223,13 @@ public class InfoController extends BaseController{
         Integer id = Integer.parseInt(req.getParameter("id"));
         Regulation regulation = infoService.findRegulationById(id);
         Result result = Result.ok(regulation);
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void findRegularByTitle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String title = req.getParameter("title");
+        List<Regulation> regularList = infoService.findRegularByTitle(title);
+        Result result = Result.ok(regularList);
         WebUtil.writeJson(resp,result);
     }
 
@@ -221,6 +259,8 @@ public class InfoController extends BaseController{
             WebUtil.writeJson(resp,result);
         }
     }
+
+
     //评论相关
 
     /**
@@ -243,6 +283,7 @@ public class InfoController extends BaseController{
         }
         WebUtil.writeJson(resp,result);
     }
+
     /**
       添加评论
      */

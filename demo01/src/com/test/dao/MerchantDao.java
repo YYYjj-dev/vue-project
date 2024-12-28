@@ -9,7 +9,7 @@ public interface MerchantDao {
 
     List<Merchant> findAllMerchants();
 
-    List<Merchant> findMerchantByType(Integer type);
+    List<Merchant> findMerchantByType(String type);
 
     int addMerchant(Merchant merchant);
 

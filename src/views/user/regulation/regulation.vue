@@ -4,7 +4,7 @@
     <div class="nav-wrapper">
       <NavBar />
     </div>
-    
+
     <div class="regulation_content">
       <!-- 标题 -->
       <div class="page-title">
@@ -13,92 +13,39 @@
 
       <!-- 法律法规内容 -->
       <div class="laws-content">
-        <div class="law-item" v-for="(law, index) in pagedLaws" :key="index" @click="goToLawInfo(law.id)">
+        <div class="law-item" v-for="(law, index) in laws" :key="index" @click="goToLawInfo(law.id)">
           <h2>{{ law.title }}</h2>
         </div>
       </div>
     </div>
-    
-    <!-- 分页器 -->
-    <div class="pagination">
-      <button 
-        class="page-btn" 
-        :disabled="currentPage === 1"
-        @click="changePage(currentPage - 1)"
-      >
-        上一页
-      </button>
-      
-      <div class="page-numbers">
-        <button 
-          v-for="pageNum in pages" 
-          :key="pageNum"
-          class="page-num"
-          :class="{ active: currentPage === pageNum }"
-          @click="changePage(pageNum)"
-        >
-          {{ pageNum }}
-        </button>
-      </div>
 
-      <button 
-        class="page-btn"
-        :disabled="currentPage === totalPages"
-        @click="changePage(currentPage + 1)"
-      >
-        下一页
-      </button>
-    </div>
+    <!-- 添加页脚 -->
+    <Footer />
   </div>
 </template>
 
-<script setup name="regulation"  components="NavBar" >
+<script setup name="regulation" components="NavBar, Footer">
 import NavBar from '../../../components/NavBar.vue'
+import Footer from '../../../components/Footer.vue'
 import request from '../../../utils/request'
 import { useRouter } from 'vue-router'
-import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue'
+import { computed, onMounted, onBeforeMount, reactive, ref } from 'vue'
 
-      let pages = ref([])
-      let totalPages = ref(0)
-      let currentPage = ref(1)
-      let laws = ref([])
-      let itemsPerPage = 6// 每页最多显示6条法律条文
-      const router = useRouter()
-      
-  
-    // compute
-    let pagedLaws =  computed( ()=>{
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return laws.value.slice(start, end);  // 获取当前页需要展示的资讯报道
-    })
-  // js
-  function changePage(page) {
-        currentPage.value = page; 
-        console.log(currentPage.value) // 切换页面
-    }
+let laws = ref([])
+const router = useRouter()
 
-    function goToLawInfo(id) {
-      router.push({ path:'/regulation_info/'+id });  // 跳转到 'regulation_info' 页面，并传递 'id'
-    }
+function goToLawInfo(id) {
+  router.push({ path: '/regulation_info/' + id });
+}
 
-    onMounted(async ()=> {
-      showNews()
-    })
-    async function showNews(){
-      let {data} = await request.get('info/findAllRegular')
-      laws.value = data.data
-      totalPages.value= Math.ceil(laws.value.length / itemsPerPage)
-      let start = Math.max(1, currentPage.value - 1);
-      let end = Math.min(start + 2, totalPages.value);
-      // 调整起始页，确保始终显示3个页码
-      if (end - start < 2) {
-        start = Math.max(1, end - 2);
-      }
-      for (let i = start; i <= end; i++) {
-        pages.value.push(i);
-      }
-      console.log(laws.value)
+onMounted(async () => {
+  showNews()
+})
+
+async function showNews() {
+  let { data } = await request.get('info/findAllRegular')
+  laws.value = data.data
+  console.log(laws.value)
 }
 
 </script>
@@ -106,10 +53,10 @@ import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue'
 <style scoped>
 .regulation {
   min-height: 100vh;
-  background-color: #f8f7f2;
-  padding-top: 60px; /* 为固定定位的导航栏留出空间 */
   display: flex;
   flex-direction: column;
+  background-color: #f8f9fa;
+  padding-top: 80px;
 }
 
 /* 添加导航栏包装器样式 */
@@ -118,9 +65,11 @@ import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue'
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  background-color: #fff; /* 确保导航栏背景不透明 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+  z-index: 1000;
+  background-color: #fff;
+  /* 确保导航栏背景不透明 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* 添加阴影效果 */
 }
 
 .regulation_content {
@@ -190,72 +139,22 @@ import { computed,onMounted,onBeforeMount,reactive,ref } from 'vue'
   line-height: 1.6;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 40px;
-  margin-bottom: 20px;
-}
-
-.page-numbers {
-  display: flex;
-  gap: 8px;
-}
-
-.page-btn,
-.page-num {
-  min-width: 40px;
-  height: 40px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: white;
-  color: #666;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px;
-}
-
-.page-btn:hover:not(:disabled),
-.page-num:hover:not(.active) {
-  border-color: #4CAF50;
-  color: #4CAF50;
-}
-
-.page-btn:disabled {
-  background-color: #f5f5f5;
-  border-color: #e0e0e0;
-  color: #999;
-  cursor: not-allowed;
-}
-
-.page-num.active {
-  background-color: #4CAF50;
-  border-color: #4CAF50;
-  color: white;
-  cursor: default;
-}
-
+/* 响应式调整 */
 @media (max-width: 768px) {
-  .regulation {
-    padding-top: 50px; /* 移动端导航栏可能更窄 */
+
+  .page-btn,
+  .page-num {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
   }
-  
-  .regulation_content {
-    width: 95%;
+
+  .pagination {
+    gap: 4px;
   }
-  
-  .law-item {
-    padding: 20px;
-  }
-  
-  .law-item h2 {
-    font-size: 18px;
+
+  .page-numbers {
+    gap: 4px;
   }
 }
 </style>

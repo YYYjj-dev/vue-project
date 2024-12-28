@@ -52,10 +52,10 @@ public class MerchantController extends BaseController{
      *根据商家类型（type）返回商家列表
      */
     protected void findMerchantByType(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Integer type = Integer.valueOf(req.getParameter("type"));
+        String type = req.getParameter("type");
         List<Merchant> merchantList = merchantService.findMerchantByType(type);
         Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
-        if(merchantList.isEmpty()){
+        if(!merchantList.isEmpty()){
             result=Result.ok(merchantList);
         }
         WebUtil.writeJson(resp,result);

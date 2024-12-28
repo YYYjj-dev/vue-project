@@ -21,7 +21,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public List<Merchant> findMerchantByType(Integer type) {
+    public List<Merchant> findMerchantByType(String type) {
         return merchantDao.findMerchantByType(type);
     }
 

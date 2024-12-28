@@ -8,6 +8,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BaseDao {
     // 公共的查询方法  返回的是单个对象
@@ -150,6 +151,23 @@ public class BaseDao {
         }
         // 返回的是影响数据库记录数
         return rows;
+    }
+    public String buildQuery(Map<String, Object> queryParams,String column,String table) {
+        StringBuilder sql = new StringBuilder("SELECT "+column+" FROM " + table + " WHERE 1=1");
+
+        for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
+            String field = entry.getKey();
+            Object value = entry.getValue();
+
+            // 根据不同类型拼接SQL
+            if (value instanceof String && ((String) value).isEmpty()) {
+                sql.append(" AND ").append(field).append(" LIKE '%").append(value).append("%'");
+            } else if (value instanceof Integer && ((Integer) value).describeConstable().isEmpty()) {
+                sql.append(" AND ").append(field).append(" = ").append(value);
+            }
+            // 其他类型处理...
+        }
+        return sql.toString();
     }
 
 }

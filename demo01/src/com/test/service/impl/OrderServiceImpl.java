@@ -21,7 +21,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public int payOrder(Integer oid) {
+    public int payOrder(List<Integer> oid) {
         return orderDao.payOrder(oid);
     }
 

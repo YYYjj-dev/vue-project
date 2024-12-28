@@ -14,4 +14,6 @@ public interface RegulationDao {
     int updateRegular(Regulation regulation);
 
     int deleteRegular(Integer id);
+
+    List<Regulation> findRegularByTitle(String title);
 }

@@ -1,5 +1,6 @@
 package com.test.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.test.common.Result;
 import com.test.pojo.Order;
 import com.test.service.OrderService;
@@ -37,8 +38,8 @@ public class OrderController extends BaseController {
     }
 
     protected void payOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer oid = Integer.parseInt(req.getParameter("oid"));
-        int rows = orderService.payOrder(oid);
+        List<Integer> oidList = WebUtil.readSetByJson(req,Integer.class);
+        int rows = orderService.payOrder(oidList);
         Result result = Result.ok(rows);
         WebUtil.writeJson(resp,result);
     }

@@ -22,7 +22,7 @@ public class MerchantDaoImpl extends BaseDao implements MerchantDao {
     }
 
     @Override
-    public List<Merchant> findMerchantByType(Integer type) {
+    public List<Merchant> findMerchantByType(String type) {
         String sql = "select * from merchant where type = ?";
         return baseQuery(Merchant.class,sql,type);
     }

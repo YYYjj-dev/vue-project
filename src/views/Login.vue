@@ -20,39 +20,41 @@
 </template>
 
 <script setup>
-import { ref ,reactive} from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '../utils/request'
-import { defineUser } from '../store/userStore' 
+import { defineUser } from '../store/userStore'
 
 const router = useRouter()
 let loginUser = reactive({
-    username:'',
-    password:''
+    username: '',
+    password: ''
 })
 let userStore = defineUser()
 
-    async function Login() {
-        // 这里添加登录逻辑
-        let {data} = await request.post('/user/login',loginUser)
-        if(data.code==200){
-            alert("登录成功,前去首页")
-            userStore.id = data.data.id
-            userStore.username = data.data.username
-            router.push('/')
-        }else if(data.code==501){
-            alert("账号不存在")
-        }else if(data.code==503){
-            alert("密码错误")
-        }else{
-            alert("其他未知错误")
-        }
-        console.log(data)
-    }
+async function Login() {
+    try {
+        const response = await request.post('/user/login', {
+            username: loginUser.username,
+            password: loginUser.password
+        })
 
-    const goToRegister = () => {
-        router.push('/register')
+        if (response.data.code === 200) {
+            // 使用store的action来设置用户信息
+            userStore.setUserInfo(response.data.data.username, response.data.data.token)
+            router.push('/')
+        } else {
+            // 处理登录失败
+            console.error('登录失败:', response.data.message)
+        }
+    } catch (error) {
+        console.error('登录错误:', error)
     }
+}
+
+const goToRegister = () => {
+    router.push('/register')
+}
 </script>
 
 <style scoped>
@@ -111,7 +113,8 @@ input:focus {
     padding-left: 60px;
 }
 
-.login-btn, .register-btn {
+.login-btn,
+.register-btn {
     flex: 1;
     padding: 10px 0;
     border: none;

@@ -1,6 +1,7 @@
 package com.test.service.impl;
 
 
+import com.test.common.Result;
 import com.test.dao.*;
 import com.test.dao.impl.*;
 import com.test.pojo.*;
@@ -8,6 +9,7 @@ import com.test.service.InfoService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
+import java.util.Map;
 
 public class InfoServiceImpl implements InfoService {
     private NewsDao newsDao = new NewsDaoImpl();
@@ -65,6 +67,21 @@ public class InfoServiceImpl implements InfoService {
     @Override
     public int deleteCarousel(Integer id) {
         return imageDao.deleteCarousel(id);
+    }
+
+    @Override
+    public List<News> findNews(Map<String, Object> queryParams) {
+        return newsDao.findNews(queryParams);
+    }
+
+    @Override
+    public List<Cases> findCases(Map<String, Object> queryParams) {
+        return casesDao.findCases(queryParams);
+    }
+
+    @Override
+    public List<Regulation> findRegularByTitle(String title) {
+        return regulationDao.findRegularByTitle(title);
     }
 
 

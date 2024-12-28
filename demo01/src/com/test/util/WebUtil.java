@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.List;
+
 
 public class WebUtil {
     private static ObjectMapper objectMapper;
@@ -35,6 +37,23 @@ public class WebUtil {
         }
         return t;
     }
+    public static <T> List<T>  readSetByJson(HttpServletRequest request, Class<T> clazz){
+        List t =null;
+        BufferedReader reader = null;
+        try {
+            reader = request.getReader();
+            StringBuffer buffer =new StringBuffer();
+            String line =null;
+            while((line = reader.readLine())!= null){
+                buffer.append(line);
+            }
+            t = (List) objectMapper.readValue( buffer.toString(), objectMapper.getTypeFactory().constructParametricType(List.class,clazz));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return t;
+    }
+
     // 将Result对象转换成JSON串并放入响应对象
     public static void writeJson(HttpServletResponse response, Result result){
         response.setContentType("application/json;charset=UTF-8");

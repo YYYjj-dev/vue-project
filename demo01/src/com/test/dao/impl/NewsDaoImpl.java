@@ -5,6 +5,7 @@ import com.test.dao.NewsDao;
 import com.test.pojo.News;
 
 import java.util.List;
+import java.util.Map;
 
 public class NewsDaoImpl extends BaseDao implements NewsDao {
     public List<News> findAllNews() {
@@ -27,6 +28,12 @@ public class NewsDaoImpl extends BaseDao implements NewsDao {
     public List<News> findNewsByType(String type) {
         String sql = "select * from news where type = ?";
         return baseQuery(News.class, sql, type);
+    }
+
+    @Override
+    public List<News> findNews(Map<String, Object> queryParams) {
+        String sql = buildQuery(queryParams,"*","news");
+        return baseQuery(News.class, sql);
     }
 
     @Override

@@ -29,9 +29,14 @@ const router = createRouter({
             component: () => import('../views/user/regulation/regulation.vue')
         },
         {
-            path: '/additive_type',
+            path: '/additive_type/:typename?',
             name: 'additive_type',
             component: () => import('../views/user/additive/additive_type.vue')
+        },
+        {
+            path: '/additive_search',
+            name: 'additive_search',
+            component: () => import('../views/user/additive/additive_search.vue')
         },
         {
             path: '/additive_zhuanqu',
@@ -50,7 +55,7 @@ const router = createRouter({
             component: () => import('../views/user/additive/additive_zhuanqu_info2.vue')
         },
         {
-            path: '/additive_type_info/:category/:imageId',
+            path: '/additive_type_info/:id',
             name: 'additive_type_info',
             component: () => import('../views/user/additive/additive_type_info.vue'),
             props: true  // 使用路由参数作为 props 传递到组件
@@ -66,7 +71,7 @@ const router = createRouter({
             component: () => import('../views/user/cases/cases_more.vue')
         },
         {
-            path: '/cases_info/',
+            path: '/cases_info/:id',
             name: 'cases_info',
             component: () => import('../views/user/cases/cases_info.vue'),
             props: true  // 使用路由参数作为 props 传递到组件
@@ -94,10 +99,10 @@ const router = createRouter({
             props: true  // 使用路由参数作为 props 传递到组件
         },
         {
-            path: '/shop_sel_info1/:id',
+            path: '/shop_sel_info1/:username',
             name: 'shop_sel_info1',
             component: () => import('../views/user/shop/shop_sel_info1.vue'),
-            props: true  // 启用 props 传递路由参数
+            props: true
         },
         {
             path: '/shop_sel_info2',
@@ -141,49 +146,75 @@ const router = createRouter({
             component: () => import('../views/user/cart/cart.vue')
         },
         {
-            path:'/upload',
-            name:'Upload',
+            path: '/upload',
+            name: 'Upload',
             component: () => import('../views/test/upload.vue')
-        }, 
+        },
         {
-        path: '/admin',
-        name: 'admin',
-        component: () => import('../views/Admin.vue'),
-        children: [
-            {
-                path: 'safety',
-                name: 'safety_manage',
-                component: () => import('../views/admin/SafetyManage.vue')
-            },
-            {
-                path: 'news',
-                name: 'news_manage',
-                component: () => import('../views/admin/NewsManage.vue')
-            },
-            {
-                path: 'cases',
-                name: 'cases_manage',
-                component: () => import('../views/admin/CasesManage.vue')
-            },
-            {
-                path: 'additives',
-                name: 'additives_manage',
-                component: () => import('../views/admin/AdditiveManage.vue')
-            },
-            {
-                path: 'users',
-                name: 'users_manage',
-                component: () => import('../views/admin/UsersManage.vue')
-            },
-            {
-                path: 'products',
-                name: 'products_manage',
-                component: () => import('../views/admin/ProductsManage.vue')
-            }
-        ]
-    }
+            path: '/admin',
+            name: 'admin',
+            component: () => import('../views/Admin.vue'),
+            children: [
+                {
+                    path: 'safety',
+                    name: 'safety_manage',
+                    component: () => import('../views/admin/SafetyManage.vue')
+                },
+                {
+                    path: 'news',
+                    name: 'news_manage',
+                    component: () => import('../views/admin/NewsManage.vue')
+                },
+                {
+                    path: 'cases',
+                    name: 'cases_manage',
+                    component: () => import('../views/admin/CasesManage.vue')
+                },
+                {
+                    path: 'additives',
+                    name: 'additives_manage',
+                    component: () => import('../views/admin/AdditiveManage.vue')
+                },
+                {
+                    path: 'users',
+                    name: 'users_manage',
+                    component: () => import('../views/admin/UsersManage.vue')
+                },
+                {
+                    path: 'products',
+                    name: 'products_manage',
+                    component: () => import('../views/admin/ProductsManage.vue')
+                }
+            ]
+        },
+        {
+            path: '/shop_rec_search',
+            name: 'shop_rec_search',
+            component: () => import('../views/user/shop/shop_rec_search.vue')
+        },
+        {
+            path: '/profile',
+            name: 'Profile',
+            component: () => import('../views/Profile.vue')
+        }
         // ... 其他路由
-    ]
+    ],
+    // 添加全局滚动行为配置
+    scrollBehavior() {
+        return {
+            top: 0,
+            behavior: 'auto'
+        }
+    }
+})
+router.beforeEach((to, from, next) => {
+    // chrome
+    document.body.scrollTop = 0
+    // firefox
+    document.documentElement.scrollTop = 0
+    // safari
+    window.pageYOffset = 0
+    next()
 })
 
 export default router

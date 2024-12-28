@@ -29,9 +29,14 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
     }
 
     @Override
-    public int payOrder(Integer oid) {
-        String sql = "update `order` set status = '已支付' where order_id =?";
-        return baseUpdate(sql,oid);
+    public int payOrder(List<Integer> oid) {
+        int rows = 0;
+        for(Integer id:oid){
+            String sql = "update `order` set status = '已支付' where order_id =?";
+            baseUpdate(sql, id);
+            rows++;
+        }
+        return rows;
     }
 
     @Override

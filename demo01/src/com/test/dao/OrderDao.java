@@ -10,7 +10,7 @@ public interface OrderDao {
 
     int deleteOrder(Integer oid);
 
-    int payOrder(Integer oid);
+    int payOrder(List<Integer> oid);
 
     List<Order> findOrderByMid(Integer mid);
 
