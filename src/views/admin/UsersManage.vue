@@ -2,22 +2,23 @@
   <div class="manage-container">
     <div class="page-header">
       <h2>用户管理</h2>
-      <button class="add-btn" @click="showAddDialog">添加新用户</button>
+      <button class="add-btn" @click="showAddDialog">添加用户</button>
     </div>
 
     <!-- 搜索栏 -->
     <div class="search-bar">
-      <input type="text" v-model="searchQuery" placeholder="搜索用户名/邮箱...">
-      <select v-model="searchRole" class="search-select">
-        <option value="">所有角色</option>
+      <input type="text" v-model="searchQuery" placeholder="搜索用户名...">
+      <select v-model="searchType" class="search-select">
+        <option value="">所有类型</option>
         <option value="admin">管理员</option>
-        <option value="user">普通用户</option>
-        <option value="business">企业用户</option>
+        <option value="merchant">商家</option>
+        <option value="normal">普通用户</option>
       </select>
-      <select v-model="searchStatus" class="search-select">
-        <option value="">所有状态</option>
-        <option value="active">正常</option>
-        <option value="locked">已锁定</option>
+      <select v-model="searchGender" class="search-select">
+        <option value="">所有性别</option>
+        <option value="男">男</option>
+        <option value="女">女</option>
+        <option value="保密">保密</option>
       </select>
       <button class="search-btn" @click="handleSearch">搜索</button>
     </div>
@@ -29,87 +30,67 @@
           <tr>
             <th>ID</th>
             <th>用户名</th>
-            <th>邮箱</th>
-            <th>角色</th>
-            <th>注册时间</th>
-            <th>状态</th>
+            <th>用户类型</th>
+            <th>性别</th>
+            <th>头像</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in usersList" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
+          <tr v-for="item in userList" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.username }}</td>
+            <td>{{ item.type }}</td>
+            <td>{{ item.gender }}</td>
             <td>
-              <span :class="['role-tag', user.role]">
-                {{ getRoleName(user.role) }}
-              </span>
+              <img v-if="item.img" :src="'http://localhost:8080/image/' + item.img" 
+                   alt="用户头像" class="user-avatar">
+              <span v-else>无头像</span>
             </td>
-            <td>{{ user.registerTime }}</td>
-            <td>
-              <span :class="['status-tag', user.status === 'active' ? 'active' : 'locked']">
-                {{ user.status === 'active' ? '正常' : '已锁定' }}
-              </span>
-            </td>
-            <td>
-              <button class="edit-btn" @click="handleEdit(user)">编辑</button>
-              <button 
-                :class="['toggle-btn', user.status === 'active' ? 'lock-btn' : 'unlock-btn']"
-                @click="handleToggleStatus(user)">
-                {{ user.status === 'active' ? '锁定' : '解锁' }}
-              </button>
-              <button class="delete-btn" @click="handleDelete(user.id)">删除</button>
+            <td class="operation-group">
+              <button class="edit-btn" @click="handleEdit(item)">编辑</button>
+              <button class="delete-btn" @click="handleDelete(item.username)">删除</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- 分页 -->
-    <div class="pagination">
-      <button :disabled="currentPage === 1" @click="handlePageChange(currentPage - 1)">上一页</button>
-      <span>第 {{ currentPage }} 页</span>
-      <button :disabled="currentPage === totalPages" @click="handlePageChange(currentPage + 1)">下一页</button>
-    </div>
-
     <!-- 添加/编辑对话框 -->
     <div v-if="showDialog" class="dialog-overlay">
       <div class="dialog">
-        <h3>{{ isEditing ? '编辑用户' : '添加新用户' }}</h3>
-        <form @submit.prevent="handleSubmit">
+        <h3>{{ isEditing ? '编辑用户' : '添加用户' }}</h3>
+        <form @submit.prevent="handleSubmit" enctype="multipart/form-data">
           <div class="form-group">
             <label>用户名：</label>
             <input type="text" v-model="formData.username" required>
-          </div>
-          <div class="form-group">
-            <label>邮箱：</label>
-            <input type="email" v-model="formData.email" required>
           </div>
           <div class="form-group" v-if="!isEditing">
             <label>密码：</label>
             <input type="password" v-model="formData.password" required>
           </div>
           <div class="form-group">
-            <label>角色：</label>
-            <select v-model="formData.role" required>
+            <label>用户类型：</label>
+            <select v-model="formData.type" required>
               <option value="admin">管理员</option>
-              <option value="user">普通用户</option>
-              <option value="business">企业��户</option>
+              <option value="merchant">商家</option>
+              <option value="normal">普通用户</option>
             </select>
           </div>
           <div class="form-group">
-            <label>手机号：</label>
-            <input type="tel" v-model="formData.phone">
+            <label>性别：</label>
+            <select v-model="formData.gender" required>
+              <option value="男">男</option>
+              <option value="女">女</option>
+              <option value="保密">保密</option>
+            </select>
           </div>
           <div class="form-group">
-            <label>公司名称：</label>
-            <input type="text" v-model="formData.company" 
-                   :required="formData.role === 'business'">
-          </div>
-          <div class="form-group">
-            <label>备注：</label>
-            <textarea v-model="formData.remarks" rows="3"></textarea>
+            <label>用户头像：</label>
+            <input type="file" @change="handleImageUpload" accept="image/*">
+            <div v-if="imagePreview" class="image-preview">
+              <img :src="imagePreview" alt="头像预览">
+            </div>
           </div>
           <div class="dialog-buttons">
             <button type="submit" class="submit-btn">提交</button>
@@ -126,126 +107,211 @@ import { ref, onMounted } from 'vue'
 import request from '../../utils/request'
 
 // 数据状态
-const usersList = ref([])
-const currentPage = ref(1)
-const totalPages = ref(1)
+const userList = ref([])
 const searchQuery = ref('')
-const searchRole = ref('')
-const searchStatus = ref('')
+const searchType = ref('')
+const searchGender = ref('')
 const showDialog = ref(false)
 const isEditing = ref(false)
+const imagePreview = ref('')
 const formData = ref({
+  id: '',
   username: '',
-  email: '',
   password: '',
-  role: 'user',
-  phone: '',
-  company: '',
-  remarks: ''
+  type: '',
+  gender: '',
+  img: ''
 })
-
-// 获取角色名称
-const getRoleName = (role) => {
-  const roleMap = {
-    admin: '管理员',
-    user: '普通用户',
-    business: '企业用户'
-  }
-  return roleMap[role] || role
-}
 
 // 获取数据
 const fetchData = async () => {
   try {
-    const { data } = await request.get('user/findAll', {
-      params: {
-        page: currentPage.value,
-        query: searchQuery.value,
-        role: searchRole.value,
-        status: searchStatus.value
+    const response = await request.get('user/findAllUser')
+    console.log('API返回的原始数据：', response)
+    
+    if (response.data) {
+      if (response.data.code === 404) {
+        userList.value = []
+        console.error('获取数据失败：', response.data)
+        return
       }
-    })
-    usersList.value = data.data
-    totalPages.value = data.totalPages || 1
+      
+      if (Array.isArray(response.data)) {
+        userList.value = response.data
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        userList.value = response.data.data
+      } else if (typeof response.data === 'object') {
+        userList.value = [response.data]
+      } else {
+        userList.value = []
+      }
+    } else {
+      console.error('API返回数据格式不正确：', response)
+      userList.value = []
+    }
   } catch (error) {
     console.error('获取数据失败：', error)
+    userList.value = []
   }
 }
 
 // 搜索
-const handleSearch = () => {
-  currentPage.value = 1
-  fetchData()
-}
-
-// 分页
-const handlePageChange = (page) => {
-  currentPage.value = page
-  fetchData()
+const handleSearch = async () => {
+  try {
+    const params = {}
+    if (searchQuery.value) params.username = searchQuery.value
+    if (searchType.value) params.type = searchType.value
+    if (searchGender.value) params.gender = searchGender.value
+    
+    if (Object.keys(params).length > 0) {
+      const response = await request.get('user/findUser', { params })
+      console.log('搜索返回的原始数据：', response)
+      
+      if (response.data) {
+        if (response.data.code === 404) {
+          userList.value = []
+          return
+        }
+        
+        if (Array.isArray(response.data)) {
+          userList.value = response.data
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          userList.value = response.data.data
+        } else if (typeof response.data === 'object' && !response.data.code) {
+          userList.value = [response.data]
+        } else {
+          userList.value = []
+        }
+      } else {
+        userList.value = []
+      }
+    } else {
+      await fetchData()
+    }
+  } catch (error) {
+    console.error('搜索失败：', error)
+    alert('搜索失败')
+    userList.value = []
+  }
 }
 
 // 显示添加对话框
 const showAddDialog = () => {
   isEditing.value = false
   formData.value = {
+    id: '',
     username: '',
-    email: '',
     password: '',
-    role: 'user',
-    phone: '',
-    company: '',
-    remarks: ''
+    type: 'normal',
+    gender: '保密',
+    img: ''
   }
+  imagePreview.value = ''
   showDialog.value = true
 }
 
 // 编辑
-const handleEdit = (user) => {
-  isEditing.value = true
-  formData.value = { ...user }
-  delete formData.value.password // 编辑时不显示密码字段
-  showDialog.value = true
-}
-
-// 切换用户状态
-const handleToggleStatus = async (user) => {
-  const action = user.status === 'active' ? 'lock' : 'unlock'
-  const confirmMessage = `确定要${action === 'lock' ? '锁定' : '解锁'}该用户吗？`
-  
-  if (confirm(confirmMessage)) {
-    try {
-      await request.put(`user/${action}/${user.id}`)
-      fetchData()
-    } catch (error) {
-      console.error(`${action}失败：`, error)
+const handleEdit = async (item) => {
+  try {
+    console.log('开始编辑用户：', item)
+    isEditing.value = true
+    formData.value = { ...item } // 先使用传入的数据
+    imagePreview.value = item.img ? `http://localhost:8080/image/${item.img}` : ''
+    showDialog.value = true // 立即显示对话框
+    
+    // 然后获取详细信息
+    const response = await request.get(`user/findUserById?id=${item.id}`)
+    console.log('获取到的用户详情：', response)
+    
+    if (response.data) {
+      if (response.data.code === 404) {
+        alert('获取用户详情失败')
+        return
+      }
+      
+      const userData = response.data.data || response.data
+      formData.value = { 
+        ...userData,
+        password: '' // 清空密码字段
+      }
+      imagePreview.value = userData.img ? `http://localhost:8080/image/${userData.img}` : ''
     }
+  } catch (error) {
+    console.error('获取用户详情失败：', error)
+    alert('获取用户详情失败')
   }
 }
 
 // 删除
-const handleDelete = async (id) => {
-  if (confirm('确定要删除该用户吗？此操作不可恢复！')) {
+const handleDelete = async (username) => {
+  if (confirm('确定要删除这个用户吗？')) {
     try {
-      await request.delete(`user/delete/${id}`)
+      await request.get(`user/deleteUser?username=${username}`)
+      alert('删除成功')
       fetchData()
     } catch (error) {
       console.error('删除失败：', error)
+      alert('删除失败')
     }
+  }
+}
+
+// 处理图片上传
+const handleImageUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imagePreview.value = e.target.result
+    }
+    reader.readAsDataURL(file)
+    formData.value.imageFile = file
   }
 }
 
 // 提交表单
 const handleSubmit = async () => {
   try {
+    const formDataToSend = new FormData()
+    
+    // 添加基本字段
+    formDataToSend.append('username', formData.value.username)
+    formDataToSend.append('type', formData.value.type)
+    formDataToSend.append('gender', formData.value.gender)
+    
+    if (!isEditing.value) {
+      formDataToSend.append('password', formData.value.password)
+    }
+    
     if (isEditing.value) {
-      await request.put(`user/update/${formData.value.id}`, formData.value)
+      formDataToSend.append('id', formData.value.id)
+      // 如果是编辑模式且没有新上传的图���，则传入原图片路径
+      if (!formData.value.imageFile && formData.value.img) {
+        formDataToSend.append('img', formData.value.img)
+      }
+    }
+    
+    // 添加新上传的图片文件
+    if (formData.value.imageFile) {
+      formDataToSend.append('file', formData.value.imageFile)
+    }
+    
+    console.log('提交的数据：', Object.fromEntries(formDataToSend))
+
+    if (isEditing.value) {
+      const response = await request.post('user/updateUser', formDataToSend)
+      console.log('更新响应：', response)
+      alert('修改成功')
     } else {
-      await request.post('user/add', formData.value)
+      const response = await request.post('user/addUser', formDataToSend)
+      console.log('添加响应：', response)
+      alert('添加成功')
     }
     closeDialog()
-    fetchData()
+    await fetchData()
   } catch (error) {
     console.error('提交失败：', error)
+    alert('操作失败，请重试')
   }
 }
 
@@ -253,171 +319,56 @@ const handleSubmit = async () => {
 const closeDialog = () => {
   showDialog.value = false
   formData.value = {
+    id: '',
     username: '',
-    email: '',
     password: '',
-    role: 'user',
-    phone: '',
-    company: '',
-    remarks: ''
+    type: '',
+    gender: '',
+    img: ''
   }
+  imagePreview.value = ''
 }
 
-onMounted(() => {
-  fetchData()
+onMounted(async () => {
+  await fetchData()
 })
 </script>
 
 <style scoped>
-/* 复用基础样式 */
+@import '../../../src/style/admin-common.css';
+
 .manage-container {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  min-height: 500px;
 }
 
-/* 角色标签样式 */
-.role-tag {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.role-tag.admin {
-  background-color: #fef0f0;
-  color: #f56c6c;
-}
-
-.role-tag.user {
-  background-color: #f0f9eb;
-  color: #67c23a;
-}
-
-.role-tag.business {
-  background-color: #f4f4f5;
-  color: #909399;
-}
-
-/* 状态标签样式 */
-.status-tag {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.status-tag.active {
-  background-color: #f0f9eb;
-  color: #67c23a;
-}
-
-.status-tag.locked {
-  background-color: #fef0f0;
-  color: #f56c6c;
-}
-
-/* 按钮样式 */
-.edit-btn, .toggle-btn, .delete-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 5px;
-  font-size: 12px;
-}
-
-.edit-btn {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.lock-btn {
-  background-color: #f56c6c;
-  color: white;
-}
-
-.unlock-btn {
-  background-color: #67c23a;
-  color: white;
-}
-
-.delete-btn {
-  background-color: #dc3545;
-  color: white;
-}
-
-/* 表单样式 */
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.form-group textarea {
-  resize: vertical;
-}
-
-/* 搜索栏样式 */
-.search-bar {
+.operation-group {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 8px;
 }
 
-.search-bar input,
-.search-select {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.search-bar input {
-  flex: 1;
-}
-
-.search-select {
-  width: 120px;
-}
-
-/* 对话框样式 */
 .dialog {
-  width: 500px;
-  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-/* 分页样式 */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.pagination button {
-  padding: 8px 15px;
+.image-preview {
+  margin-top: 10px;
+  max-width: 200px;
   border: 1px solid #ddd;
-  background-color: white;
-  cursor: pointer;
   border-radius: 4px;
+  overflow: hidden;
 }
 
-.pagination button:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
+.image-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 </style> 

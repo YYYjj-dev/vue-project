@@ -29,7 +29,7 @@
             <th>ID</th>
             <th>名称</th>
             <th>种类</th>
-            <th>描述</th>
+            <!-- <th>描述</th> -->
             <th>来源于自然</th>
             <th>操作</th>
           </tr>
@@ -39,8 +39,8 @@
             <td>{{ item.id }}</td>
             <td>{{ item.name }}</td>
             <td>{{ item.typename }}</td>
-            <td>{{ item.description }}</td>
-            <td>{{ item.nature ? '是' : '否' }}</td>
+            <!-- <td>{{ item.description }}</td> -->
+            <td>{{ item.nature}}</td>
             <td class="operation-group">
               <button class="edit-btn" @click="handleEdit(item)">编辑</button>
               <button class="delete-btn" @click="handleDelete(item.id)">删除</button>
@@ -90,8 +90,8 @@
           <div class="form-group">
             <label>来源于自然：</label>
             <select v-model="formData.nature" required>
-              <option :value="true">是</option>
-              <option :value="false">否</option>
+              <option value="天然">天然</option>
+              <option value="人工">人工</option>
             </select>
           </div>
           <div class="form-group">
@@ -164,7 +164,7 @@ const fetchData = async () => {
 const handleSearch = async () => {
   try {
     if (searchType.value) {
-      const response = await request.get(`additive/ffindAdditiveByType?type=${searchType.value}`)
+      const response = await request.get(`additive/findAdditiveByType?type=${searchType.value}`)
       if (response.data) {
         additivesList.value = Array.isArray(response.data) ? response.data : [response.data]
       }
@@ -247,16 +247,29 @@ const handleSubmit = async () => {
     const formDataToSend = new FormData()
     
     // 添加基本字段
-    Object.keys(formData.value).forEach(key => {
-      if (key !== 'imageFile' && key !== 'imgpath') {
-        formDataToSend.append(key, formData.value[key])
-        console.log(key, formData.value[key])
+    formDataToSend.append('name', formData.value.name)
+    formDataToSend.append('typename', formData.value.typename)
+    formDataToSend.append('description', formData.value.description)
+    formDataToSend.append('usestandardInternal', formData.value.usestandardInternal)
+    formDataToSend.append('usestandardInternational', formData.value.usestandardInternational)
+    formDataToSend.append('analysis', formData.value.analysis)
+    formDataToSend.append('nature', formData.value.nature)
+    
+    if (isEditing.value) {
+      formDataToSend.append('id', formData.value.id)
+      // 如果是编辑模式且没有新上传的图片，则传入原图片路径
+      if (!formData.value.imageFile && formData.value.imgpath) {
+        formDataToSend.append('imgpath', formData.value.imgpath)
       }
-    })
-    // 添加图片文件
+    }
+    
+    // 添加新上传的图片文件
     if (formData.value.imageFile) {
       formDataToSend.append('file', formData.value.imageFile)
     }
+    
+    console.log('提交的数据：', Object.fromEntries(formDataToSend))
+
     if (isEditing.value) {
       const response = await request.post('additive/updateAdditive', formDataToSend)
       console.log('更新响应：', response)

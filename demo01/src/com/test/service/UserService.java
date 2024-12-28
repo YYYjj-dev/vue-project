@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
@@ -26,4 +27,10 @@ public interface UserService {
     int updatePassword(String newPassword);
 
     int deleteUser(String username);
+
+    List<User> findUser(Map<String, Object> queryParams);
+
+    int addUser(User user);
+
+    User findUserById(Integer uid);
 }

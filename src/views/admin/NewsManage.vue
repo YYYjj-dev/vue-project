@@ -10,9 +10,9 @@
       <input type="text" v-model="searchQuery" placeholder="搜索新闻标题...">
       <select v-model="searchType" class="search-select">
         <option value="">所有类型</option>
-        <option value="公司新闻">公司新闻</option>
-        <option value="行业动态">行业动态</option>
-        <option value="政策法规">政策法规</option>
+        <option value="健康饮食">健康饮食</option>
+        <option value="科学认知">科学认知</option>
+        <option value="食品安全">食品安全</option>
       </select>
       <button class="search-btn" @click="handleSearch">搜索</button>
     </div>
@@ -24,7 +24,7 @@
           <tr>
             <th>ID</th>
             <th>标题</th>
-            <th>类型</th>
+            <th>资讯类型</th>
             <th>发布日期</th>
             <th>操作</th>
           </tr>
@@ -48,17 +48,17 @@
     <div v-if="showDialog" class="dialog-overlay">
       <div class="dialog">
         <h3>{{ isEditing ? '编辑新闻' : '添加新闻' }}</h3>
-        <form @submit.prevent="handleSubmit">
+        <form @submit.prevent="handleSubmit" enctype="multipart/form-data">
           <div class="form-group">
             <label>标题：</label>
             <input type="text" v-model="formData.title" required>
           </div>
           <div class="form-group">
-            <label>类型：</label>
+            <label>资讯类型：</label>
             <select v-model="formData.type" required>
-              <option value="食品安全">食品安全</option>
               <option value="健康饮食">健康饮食</option>
-              <option value="科学认知">政策法规</option>
+              <option value="科学认知">科学认知</option>
+              <option value="食品安全">食品安全</option>
             </select>
           </div>
           <div class="form-group">
@@ -66,8 +66,15 @@
             <input type="date" v-model="formData.date" required>
           </div>
           <div class="form-group">
-            <label>内容：</label>
+            <label>资讯内容：</label>
             <textarea v-model="formData.content" required rows="6"></textarea>
+          </div>
+          <div class="form-group">
+            <label>新闻图片：</label>
+            <input type="file" @change="handleImageUpload" accept="image/*">
+            <div v-if="imagePreview" class="image-preview">
+              <img :src="imagePreview" alt="图片预览">
+            </div>
           </div>
           <div class="dialog-buttons">
             <button type="submit" class="submit-btn">提交</button>
@@ -82,7 +89,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import request from '../../utils/request'
-import '../../../src/style/admin-common.css'
 
 // 数据状态
 const newsList = ref([])
@@ -90,12 +96,14 @@ const searchQuery = ref('')
 const searchType = ref('')
 const showDialog = ref(false)
 const isEditing = ref(false)
+const imagePreview = ref('')
 const formData = ref({
   id: '',
   title: '',
+  content: '',
   type: '',
   date: '',
-  content: ''
+  img: ''
 })
 
 // 获取数据
@@ -105,22 +113,21 @@ const fetchData = async () => {
     console.log('API返回的原始数据：', response)
     
     if (response.data) {
-      // 如果data直接就是数组
+      if (response.data.code === 404) {
+        newsList.value = []
+        console.error('获取数据失败：', response.data)
+        return
+      }
+      
       if (Array.isArray(response.data)) {
         newsList.value = response.data
-      } 
-      // 如果data是对象，且包含data属性
-      else if (response.data.data && Array.isArray(response.data.data)) {
+      } else if (response.data.data && Array.isArray(response.data.data)) {
         newsList.value = response.data.data
-      } 
-      // 如果data是单个对象，转换为数组
-      else if (typeof response.data === 'object') {
+      } else if (typeof response.data === 'object') {
         newsList.value = [response.data]
-      }
-      else {
+      } else {
         newsList.value = []
       }
-      console.log('处理后的数据列表：', newsList.value)
     } else {
       console.error('API返回数据格式不正确：', response)
       newsList.value = []
@@ -134,10 +141,33 @@ const fetchData = async () => {
 // 搜索
 const handleSearch = async () => {
   try {
-    if (searchQuery.value) {
-      const response = await request.get(`info/findNewsByTitle?title=${searchQuery.value}`)
+    const params = {}
+    if (searchQuery.value) params.title = searchQuery.value
+    if (searchType.value) params.type = searchType.value
+    
+    if (Object.keys(params).length > 0) {
+      const response = await request.get('info/findNews', { params })
+      console.log('搜索返回的原始数据：', response)
+      
       if (response.data) {
-        newsList.value = Array.isArray(response.data) ? response.data : [response.data]
+        if (response.data.code === 404) {
+          newsList.value = []
+          return
+        }
+        
+        // 处理返回的数据结构
+        if (Array.isArray(response.data)) {
+          newsList.value = response.data
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          newsList.value = response.data.data
+        } else if (typeof response.data === 'object' && !response.data.code) {
+          // 如果返回单个对象且不是错误响应
+          newsList.value = [response.data]
+        } else {
+          newsList.value = []
+        }
+      } else {
+        newsList.value = []
       }
     } else {
       await fetchData()
@@ -145,6 +175,7 @@ const handleSearch = async () => {
   } catch (error) {
     console.error('搜索失败：', error)
     alert('搜索失败')
+    newsList.value = []
   }
 }
 
@@ -154,10 +185,12 @@ const showAddDialog = () => {
   formData.value = {
     id: '',
     title: '',
+    content: '',
     type: '',
-    date: '',
-    content: ''
+    date: new Date().toISOString().split('T')[0],
+    img: ''
   }
+  imagePreview.value = ''
   showDialog.value = true
 }
 
@@ -168,12 +201,18 @@ const handleEdit = async (item) => {
     console.log('获取到的新闻详情：', response)
     
     if (response.data) {
+      if (response.data.code === 404) {
+        alert('获取新闻详情失败')
+        return
+      }
+      
       isEditing.value = true
       const newsData = response.data.data || response.data
       formData.value = { 
         ...newsData,
         date: newsData.date ? newsData.date.split('T')[0] : ''
       }
+      imagePreview.value = newsData.img ? `http://localhost:8080/image/${newsData.img}` : ''
       showDialog.value = true
     }
   } catch (error) {
@@ -187,7 +226,7 @@ const handleDelete = async (id) => {
   if (confirm('确定要删除这条新闻吗？')) {
     try {
       await request.get(`info/deleteNews?id=${id}`)
-      alert('删除成功')
+      alert('删��成功')
       fetchData()
     } catch (error) {
       console.error('删除失败：', error)
@@ -196,26 +235,51 @@ const handleDelete = async (id) => {
   }
 }
 
+// 处理图片上传
+const handleImageUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imagePreview.value = e.target.result
+    }
+    reader.readAsDataURL(file)
+    formData.value.imageFile = file
+  }
+}
+
 // 提交表单
 const handleSubmit = async () => {
   try {
-    const submitData = {
-      id: formData.value.id,
-      title: formData.value.title,
-      type: formData.value.type,
-      content: formData.value.content,
-      date: formData.value.date || new Date().toISOString().split('T')[0]
+    const formDataToSend = new FormData()
+    
+    // 添加基本字段
+    formDataToSend.append('title', formData.value.title)
+    formDataToSend.append('content', formData.value.content)
+    formDataToSend.append('type', formData.value.type)
+    formDataToSend.append('date', formData.value.date)
+    
+    if (isEditing.value) {
+      formDataToSend.append('id', formData.value.id)
+      // 如果是编辑模式且没有新上传的图片，则传入原图片路径
+      if (!formData.value.imageFile && formData.value.img) {
+        formDataToSend.append('img', formData.value.img)
+      }
     }
     
-    console.log('提交的数据：', submitData)
+    // 添加新上传的图片文件
+    if (formData.value.imageFile) {
+      formDataToSend.append('file', formData.value.imageFile)
+    }
+    
+    console.log('提交的数据：', Object.fromEntries(formDataToSend))
 
     if (isEditing.value) {
-      const response = await request.post('info/updateNews', submitData)
+      const response = await request.post('info/updateNews', formDataToSend)
       console.log('更新响应：', response)
       alert('修改成功')
     } else {
-      delete submitData.id
-      const response = await request.post('info/addNews', submitData)
+      const response = await request.post('info/addNews', formDataToSend)
       console.log('添加响应：', response)
       alert('添加成功')
     }
@@ -233,10 +297,12 @@ const closeDialog = () => {
   formData.value = {
     id: '',
     title: '',
+    content: '',
     type: '',
     date: '',
-    content: ''
+    img: ''
   }
+  imagePreview.value = ''
 }
 
 onMounted(async () => {
@@ -257,7 +323,21 @@ onMounted(async () => {
 }
 
 .dialog {
-  max-height: 80vh;
+  max-height: 90vh;
   overflow-y: auto;
+}
+
+.image-preview {
+  margin-top: 10px;
+  max-width: 200px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 </style>

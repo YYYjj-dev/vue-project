@@ -160,9 +160,9 @@ public class BaseDao {
             Object value = entry.getValue();
 
             // 根据不同类型拼接SQL
-            if (value instanceof String && ((String) value).isEmpty()) {
+            if (value instanceof String && !((String) value).isEmpty()) {
                 sql.append(" AND ").append(field).append(" LIKE '%").append(value).append("%'");
-            } else if (value instanceof Integer && ((Integer) value).describeConstable().isEmpty()) {
+            } else if (value instanceof Integer && ((Integer) value).describeConstable().isPresent()) {
                 sql.append(" AND ").append(field).append(" = ").append(value);
             }
             // 其他类型处理...

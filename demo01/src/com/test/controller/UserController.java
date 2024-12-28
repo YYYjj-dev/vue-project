@@ -13,9 +13,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("all")
 
@@ -61,14 +62,10 @@ public class UserController extends BaseController {
      *更改用户个人信息
      */
     protected void updateUser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         User user = ImgUtil.updateUser(req);
         User loginUser = userService.findByUsername(user.getUsername());
         Result result = Result.build(null,ResultCodeEnum.UPDATE_FAILED);
-
-        if(!(user.getPassword().equals(loginUser.getPassword()))) {
-            result = Result.build(null,ResultCodeEnum.PASSWORD_ERROR);
-        }
-
         int rows = userService.updateUser(user);
         if(rows >0){
             result = Result.ok(rows);
@@ -97,6 +94,9 @@ public class UserController extends BaseController {
 
     }
 
+    /**
+     *删除用户
+     */
     protected void deleteUser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String username = req.getParameter("username");
         int rows = userService.deleteUser(username);
@@ -166,9 +166,48 @@ public class UserController extends BaseController {
      *查找所有的用户
      */
     protected void findAllUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String username = req.getParameter("username");
         List<User> userList = userService.findAllUser();
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(!userList.isEmpty()){
+            result=Result.ok(userList);
+        }
+        WebUtil.writeJson(resp,result);
     }
 
+    protected void findUser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("id", req.getParameter("id"));
+        queryParams.put("type", req.getParameter("type"));
+        queryParams.put("username", req.getParameter("username"));
+        queryParams.put("gender", req.getParameter("gender"));
+        List<User> userList = userService.findUser(queryParams);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(userList.isEmpty()){
+            result=Result.ok(userList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void findUserById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer uid = Integer.valueOf(req.getParameter("uid"));
+        User userInfo = userService.findUserById(uid);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(null!=userInfo){
+            result=Result.ok(userInfo);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void addUser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User user = ImgUtil.updateUser(req);
+        int rows = userService.addUser(user);
+        Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
+        if(rows >0){
+            result = Result.ok(rows);
+        }else {
+            result = Result.build(null,ResultCodeEnum.USERNAME_USED);
+        }
+        WebUtil.writeJson(resp,result);
+    }
 }
 

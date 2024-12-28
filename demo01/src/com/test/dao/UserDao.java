@@ -4,6 +4,7 @@ import com.test.pojo.Merchant;
 import com.test.pojo.User;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserDao {
 
@@ -24,4 +25,8 @@ public interface UserDao {
     int updatePassword(String newPassword);
 
     int deleteUser(String username);
+
+    List<User> findUser(Map<String, Object> queryParams);
+
+    User findUserById(Integer uid);
 }

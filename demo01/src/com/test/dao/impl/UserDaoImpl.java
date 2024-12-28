@@ -5,6 +5,7 @@ import com.test.pojo.Merchant;
 import com.test.pojo.User;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class UserDaoImpl extends BaseDao implements UserDao {
@@ -47,8 +48,8 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 
     @Override
     public int updateUser(User user) {
-        String sql = "update user set gender = ?,img = ? where id = ?";
-        return baseUpdate(sql,user.getGender(),user.getImg(),user.getId());
+        String sql = "update user set gender = ?,type = ?,img = ? where id = ?";
+        return baseUpdate(sql,user.getGender(),user.getType(),user.getImg(),user.getId());
     }
 
     @Override
@@ -61,5 +62,18 @@ public class UserDaoImpl extends BaseDao implements UserDao {
     public int deleteUser(String username) {
         String sql = "delete from user where username = ?";
         return baseUpdate(sql,username);
+    }
+
+    @Override
+    public List<User> findUser(Map<String, Object> queryParams) {
+        String sql = buildQuery(queryParams,"*","user");
+        return baseQuery(User.class, sql);
+    }
+
+    @Override
+    public User findUserById(Integer uid) {
+        String sql = "select * from user where id = ?";
+        List<User> userList = baseQuery(User.class,sql,uid);
+        return userList.isEmpty() ? null : userList.get(0);
     }
 }

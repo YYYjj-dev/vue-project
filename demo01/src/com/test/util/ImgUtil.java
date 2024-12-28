@@ -212,6 +212,8 @@ public class ImgUtil {
                             user.setGender(fileItem.getString(charset));
                         }else if("img".equals(fileItem.getFieldName())) {
                             user.setImg(fileItem.getString(charset));
+                        }else if("type".equals(fileItem.getFieldName())) {
+                            user.setType(fileItem.getString(charset));
                         }
                     }
                 }else {

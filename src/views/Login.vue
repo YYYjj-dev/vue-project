@@ -28,7 +28,8 @@ import { defineUser } from '../store/userStore'
 const router = useRouter()
 let loginUser = reactive({
     username: '',
-    password: ''
+    password: '',
+    type:''
 })
 let userStore = defineUser()
 

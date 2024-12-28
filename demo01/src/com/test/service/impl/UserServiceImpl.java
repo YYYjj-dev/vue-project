@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class UserServiceImpl implements UserService {
@@ -60,5 +61,19 @@ public class UserServiceImpl implements UserService {
         return userDao.deleteUser(username);
     }
 
+    @Override
+    public List<User> findUser(Map<String, Object> queryParams) {
+        return userDao.findUser(queryParams);
+    }
+
+    @Override
+    public int addUser(User user) {
+        return userDao.addUser(user);
+    }
+
+    @Override
+    public User findUserById(Integer uid) {
+        return userDao.findUserById(uid);
+    }
 
 }
