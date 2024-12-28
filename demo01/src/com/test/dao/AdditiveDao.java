@@ -18,4 +18,6 @@ public interface AdditiveDao {
     int deleteAdditive(Integer id);
 
     List<Additive> findAdditiveByName(String name);
+
+    List<Additive> findAdditiveByNature(String nature);
 }

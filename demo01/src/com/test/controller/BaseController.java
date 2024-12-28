@@ -9,10 +9,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 
+@SuppressWarnings("all")
 
-/**
- * BaseController在此层为所有controller父类，子类只需实现方法即可
- */
+//controller层所有Servlet的父类，通过Java反射合并Servlet
 public class BaseController extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String requestURI = req.getRequestURI();

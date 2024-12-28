@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("all")
 @WebServlet("/additive/*")
 public class AdditiveController extends BaseController {
     private AdditiveService additiveService = new AdditiveServiceImpl();
@@ -35,17 +36,16 @@ public class AdditiveController extends BaseController {
     protected void findAllAdditives(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Additive> itemList = additiveService.findAllAdditive();
         Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
-        if(itemList.size()>0){
+        if(!itemList.isEmpty()){
             result = Result.ok(itemList);
         }
         WebUtil.writeJson(resp,result);
     }
 
     /**
-     *按ID查找添加剂，失败返回业务码404
+     *按id查找添加剂，失败返回业务码404
      */
     protected void findAdditiveById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         Integer id = Integer.parseInt(req.getParameter("id"));
         Additive additiveInfo = additiveService.findAdditiveById(id);
         Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
@@ -55,13 +55,22 @@ public class AdditiveController extends BaseController {
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *按name模糊查找添加剂，失败返回业务码404
+     */
     protected void findAdditiveByName(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String name = req.getParameter("name");
         List<Additive> itemList = additiveService.findAdditiveByName(name);
-        Result result = Result.ok(itemList);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if(!itemList.isEmpty()){
+            result = Result.ok(itemList);
+        }
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *增加添加剂，传入添加剂对象，失败返回业务码401
+     */
     protected void addAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Additive additive = ImgUtil.updateAdditive(req);
         int rows = additiveService.addAdditive(additive);
@@ -72,29 +81,55 @@ public class AdditiveController extends BaseController {
         WebUtil.writeJson(resp,result);
     }
 
-
+    /**
+     *根据种类typename查找添加剂,失败返回业务码404
+     */
     protected void findAdditiveByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String typeName = req.getParameter("typename");
         List<Additive> itemList = additiveService.findAdditiveByType(typeName);
-        Result result = Result.ok(itemList);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if(!itemList.isEmpty()){
+            result = Result.ok(itemList);
+        }
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *按nature查找添加剂，传入nature，属性为"天然"或"人工"失败返回404
+     */
+    protected void findAdditiveByNature(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String nature = req.getParameter("nature");
+        List<Additive> additiveInfo = additiveService.findAdditiveByNature(nature);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if (additiveInfo != null) {
+            result = Result.ok(additiveInfo);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     *修改添加剂，传入添加剂对象，失败返回业务码403
+     */
     protected void updateAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Additive additive = ImgUtil.updateAdditive(req);
         int rows = additiveService.updateAdditive(additive);
+        Result result = Result.build(null, ResultCodeEnum.UPDATE_USER_FAILED);
         if (rows > 0) {
-            Result result = Result.ok(rows);
-            WebUtil.writeJson(resp, result);
+            result = Result.ok(rows);
         }
+        WebUtil.writeJson(resp, result);
     }
 
+    /**
+     *根据id删除添加剂，失败返回业务码402
+     */
     protected void deleteAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         int rows = additiveService.deleteAdditive(id);
+        Result result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
         if (rows > 0) {
-            Result result = Result.ok(rows);
-            WebUtil.writeJson(resp,result);
+            result = Result.ok(rows);
         }
+        WebUtil.writeJson(resp,result);
     }
 }

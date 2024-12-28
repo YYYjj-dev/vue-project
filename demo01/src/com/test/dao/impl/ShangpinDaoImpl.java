@@ -2,8 +2,11 @@ package com.test.dao.impl;
 
 import com.test.dao.BaseDao;
 import com.test.dao.ShangpinDao;
+import com.test.pojo.Score;
 import com.test.pojo.Shangpin;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
@@ -73,4 +76,19 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
         return shangpinList;
     }
 
+    @Override
+    public int addScore(Score score) {
+        String sql = "insert score values(?,?)";
+        return baseUpdate(sql,score.getShangpinId(),score.getScore());
+    }
+
+    @Override
+    public String findScoreBySid(Integer sid) {
+        String sql = "select avg(score) from score where shangpin_id = ?";
+        Double score = baseQueryObject(Double.class, sql, sid);
+        BigDecimal bd = new BigDecimal(score);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.toString();
+
+    }
 }

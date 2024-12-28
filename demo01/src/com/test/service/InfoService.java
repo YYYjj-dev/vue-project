@@ -1,9 +1,7 @@
 package com.test.service;
 
-import com.test.pojo.Cases;
-import com.test.pojo.Comment;
-import com.test.pojo.News;
-import com.test.pojo.Regulation;
+import com.test.pojo.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -56,4 +54,14 @@ public interface InfoService {
     List<Comment> findCommentByUid(Integer id);
 
     List<News> findNewsByType(String type);
+
+    int addFeedback(Feedback feedback);
+
+    List<Feedback> findFeedbackById(Integer id);
+
+    int deleteFeedback(Integer id);
+
+    int addCarousel(Image img);
+
+    int deleteCarousel(Integer id);
 }

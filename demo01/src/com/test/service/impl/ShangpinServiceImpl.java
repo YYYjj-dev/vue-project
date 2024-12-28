@@ -2,6 +2,7 @@ package com.test.service.impl;
 
 import com.test.dao.ShangpinDao;
 import com.test.dao.impl.ShangpinDaoImpl;
+import com.test.pojo.Score;
 import com.test.pojo.Shangpin;
 import com.test.service.ShangpinService;
 
@@ -48,6 +49,16 @@ public class ShangpinServiceImpl implements ShangpinService {
     @Override
     public List<Shangpin> findShangpinByMid(Integer mid) {
         return shangpinDao.findShangpinByMid(mid);
+    }
+
+    @Override
+    public int addScore(Score score) {
+        return shangpinDao.addScore(score);
+    }
+
+    @Override
+    public String findScoreBySid(Integer sid) {
+        return shangpinDao.findScoreBySid(sid);
     }
 
     @Override

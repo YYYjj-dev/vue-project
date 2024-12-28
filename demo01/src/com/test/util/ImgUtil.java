@@ -95,8 +95,6 @@ public class ImgUtil {
     public static Shangpin updateShangpin(HttpServletRequest req) throws ServletException, IOException {
         //todo 做一个判断 furn为空就不处理
         Shangpin shangpin = new Shangpin();
-            JakartaServletFileUpload servletFileUpload =
-                    new JakartaServletFileUpload(diskFileItemFactory);
             try {
                 List<FileItem> list = servletFileUpload.parseRequest(req);
                 for (FileItem fileItem : list) {
@@ -134,8 +132,6 @@ public class ImgUtil {
 
     public static News updateNews(HttpServletRequest req) throws ServletException, IOException {
         News news = new News();
-        JakartaServletFileUpload servletFileUpload =
-                    new JakartaServletFileUpload(diskFileItemFactory);
             try {
                 List<FileItem> list = servletFileUpload.parseRequest(req);
                 for (FileItem fileItem : list) {
@@ -166,8 +162,6 @@ public class ImgUtil {
 
     public static User updateUser(HttpServletRequest req) throws ServletException, IOException {
         User user = new User();
-        JakartaServletFileUpload servletFileUpload =
-                new JakartaServletFileUpload(diskFileItemFactory);
         try {
             List<FileItem> list = servletFileUpload.parseRequest(req);
             for (FileItem fileItem : list) {
@@ -194,6 +188,28 @@ public class ImgUtil {
             e.printStackTrace();
         }
         return user;
+    }
+
+    public static Image updateImage(HttpServletRequest req) throws ServletException, IOException {
+        Image image = new Image();
+        try {
+            List<FileItem> list = servletFileUpload.parseRequest(req);
+            for (FileItem fileItem : list) {
+                if (fileItem.isFormField()) {
+                    if (!(fileItem.getString()).equals("")){
+                        if ("part".equals(fileItem.getFieldName())) {
+                            image.setPart(fileItem.getString(charset));
+                        }
+                    }
+                }else {
+                    String name = saveImage(fileItem, req);
+                    image.setPath(name);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return image;
     }
 
     private static String saveImage(FileItem fileItem, HttpServletRequest req) throws Exception {

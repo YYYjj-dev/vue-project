@@ -18,4 +18,6 @@ public interface AdditiveService {
     int updateAdditive(Additive additive);
 
     int deleteAdditive(Integer id);
+
+    List<Additive> findAdditiveByNature(String nature);
 }

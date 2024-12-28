@@ -5,7 +5,7 @@ public class Image {
 
   private Integer id;
   private String path;
-  private String page;
+  private String part;
 
 
   public Integer getId() {
@@ -16,7 +16,6 @@ public class Image {
     this.id = id;
   }
 
-
   public String getPath() {
     return path;
   }
@@ -25,13 +24,11 @@ public class Image {
     this.path = path;
   }
 
-
-  public String getPage() {
-    return page;
+  public String getPart() {
+    return part;
   }
 
-  public void setPage(String page) {
-    this.page = page;
+  public void setPart(String part) {
+    this.part = part;
   }
-
 }

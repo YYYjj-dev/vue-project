@@ -3,6 +3,7 @@ package com.test.controller;
 
 import com.test.common.Result;
 import com.test.common.ResultCodeEnum;
+import com.test.pojo.Score;
 import com.test.pojo.Shangpin;
 import com.test.service.ShangpinService;
 import com.test.service.impl.ShangpinServiceImpl;
@@ -116,6 +117,30 @@ public class ShangpinController extends BaseController{
         Result result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
         if (rows > 0) {
             result = Result.ok(rows);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void addScore(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Score score = WebUtil.readJson(req,Score.class);
+        int rows = shangpinService.addScore(score);
+        Result result = Result.build(null, ResultCodeEnum.ADDITION_FAILED);
+        if (rows > 0) {
+            result = Result.ok(rows);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     *根据商品sid，以String形式返回商品评分（平均值）
+     */
+    protected void findScoreBySid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        Integer sid = Integer.parseInt(req.getParameter("sid"));
+        String score = shangpinService.findScoreBySid(sid);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if (score != null) {
+            result = Result.ok(score);
         }
         WebUtil.writeJson(resp,result);
     }

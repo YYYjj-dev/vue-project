@@ -30,6 +30,13 @@ public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
     }
 
     @Override
+    public List<Additive> findAdditiveByNature(String nature) {
+        String sql = "select id,typename,name,description,usestandardInternal,usestandardInternational,analysis,imgpath,nature from additive where nature = ?";
+        List<Additive> additives = baseQuery(Additive.class, sql, nature);
+        return additives;
+    }
+
+    @Override
     public int addAdditive(Additive addAdditive) {
         String sql = "insert into additive values(DEFAULT,?,?,?,?,?,?,?,?)";
         return baseUpdate(sql, addAdditive.getTypename(),

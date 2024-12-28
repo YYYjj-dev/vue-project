@@ -1,19 +1,11 @@
 package com.test.service.impl;
 
 
-import com.test.dao.CasesDao;
-import com.test.dao.CommentDao;
-import com.test.dao.NewsDao;
-import com.test.dao.RegulationDao;
-import com.test.dao.impl.CasesDaoImpl;
-import com.test.dao.impl.CommentDaoImpl;
-import com.test.dao.impl.NewsDaoImpl;
-import com.test.dao.impl.RegulationDaoImpl;
-import com.test.pojo.Cases;
-import com.test.pojo.Comment;
-import com.test.pojo.News;
-import com.test.pojo.Regulation;
+import com.test.dao.*;
+import com.test.dao.impl.*;
+import com.test.pojo.*;
 import com.test.service.InfoService;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -22,6 +14,8 @@ public class InfoServiceImpl implements InfoService {
     private CasesDao casesDao = new CasesDaoImpl();
     private CommentDao commentDao = new CommentDaoImpl();
     private RegulationDao regulationDao = new RegulationDaoImpl();
+    private FeedbackDao feedbackDao = new FeedbackImpl();
+    private ImageDao imageDao = new ImageDaoImpl();
 
     @Override
     public int addNews(News news) {
@@ -47,6 +41,32 @@ public class InfoServiceImpl implements InfoService {
     public List<News> findNewsByType(String type) {
         return newsDao.findNewsByType(type);
     }
+
+    @Override
+    public int addFeedback(Feedback feedback) {
+        return feedbackDao.addFeedback(feedback);
+    }
+
+    @Override
+    public List<Feedback> findFeedbackById(Integer id) {
+        return feedbackDao.findFeedbackById(id);
+    }
+
+    @Override
+    public int deleteFeedback(Integer id) {
+        return feedbackDao.deleteFeedback(id);
+    }
+
+    @Override
+    public int addCarousel(Image image) {
+        return imageDao.addCarousel(image);
+    }
+
+    @Override
+    public int deleteCarousel(Integer id) {
+        return imageDao.deleteCarousel(id);
+    }
+
 
     @Override
     public Cases findCasesById(Integer id) {

@@ -44,4 +44,9 @@ public class AdditiveServiceImpl implements AdditiveService {
     public int deleteAdditive(Integer id) {
         return additiveDao.deleteAdditive(id);
     }
+
+    @Override
+    public List<Additive> findAdditiveByNature(String nature) {
+        return additiveDao.findAdditiveByNature(nature);
+    }
 }

@@ -94,7 +94,7 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 添加收藏
+     * 添加收藏,传入店铺mid和用户uid
      */
     protected void addCollect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Integer uid = Integer.valueOf(req.getParameter("uid"));
@@ -105,7 +105,7 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 展示收藏
+     * 展示收藏,传入用户uid
      */
     protected void findCollect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Integer uid = Integer.valueOf(req.getParameter("uid"));

@@ -14,42 +14,71 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+
+/**
+ * 该Servlet处理信息相关
+ */
 @SuppressWarnings("all")
 @WebServlet("/info/*")
 public class InfoController extends BaseController{
     private InfoService infoService = new InfoServiceImpl();
 
-    //新闻相关
+    //资讯相关
 
+    /**
+     *查找所有资讯，返回资讯集合，失败返回业务码404
+     */
     protected void findAllNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<News> itemList = infoService.findAllNews();
-        Result result = Result.ok(itemList);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(itemList.size()>0){
+            result=Result.ok(itemList);
+        }
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *通过资讯id查找资讯，返回单个资讯，失败返回业务码404
+     */
     protected void findNewsById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         News newsInfo = infoService.findNewsById(id);
-        Result result = Result.ok(newsInfo);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(newsInfo!=null){
+            result=Result.ok(newsInfo);
+        }
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *根据资讯type查找资讯，返回资讯集合，失败返回业务码404
+     */
     protected void findNewsByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String type = req.getParameter("type");
         List<News> newsList = infoService.findNewsByType(type);
-        Result result = Result.ok(newsList);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(newsList.size()>0){
+            result=Result.ok(newsList);
+        }
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *根据资讯id删除资讯，失败返回业务码402
+     */
     protected void deleteNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         int rows = infoService.DeleteNews(id);
+        Result result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
         if (rows > 0) {
-            Result result = Result.ok(rows);
+            result=Result.ok(rows);
             WebUtil.writeJson(resp,result);
         }
     }
 
+    /**
+     *增加单个资讯，传入单个资讯对象，失败返回业务码401
+     */
     protected void addNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         News news = ImgUtil.updateNews(req);
         int rows = infoService.addNews(news);
@@ -60,6 +89,9 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *修改资讯，传入单个资讯对象，失败返回业务码403
+     */
     protected void updateNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         News news = ImgUtil.updateNews(req);
         int rows = infoService.updateNews(news);
@@ -70,26 +102,45 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *通过资讯title，模糊查询资讯，失败返回404
+     */
     protected void findNewsByTitle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String title = req.getParameter("title");
         List<News> itemList = infoService.findNewsByTitle(title);
-        Result result = Result.ok(itemList);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(itemList.size()>0){
+            result=Result.ok(itemList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+
+
+     //案例相关业务
+
+    /**
+     *查找所有案例，返回案例集合，失败返回业务码404
+     */
+    protected void findAllCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<Cases> itemList = infoService.findAllCases();
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(itemList.size()>0){
+            result=Result.ok(itemList);
+        }
         WebUtil.writeJson(resp,result);
     }
 
     /**
-     *案例相关业务
+     *根据id查找案例，返回单个案例对象，失败返回业务码404
      */
-    protected void findAllCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<Cases> itemList = infoService.findAllCases();
-        Result result = Result.ok(itemList);
-        WebUtil.writeJson(resp,result);
-    }
-
     protected void findCasesById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         Cases casesInfo = infoService.findCasesById(id);
-        Result result = Result.ok(casesInfo);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(casesInfo!=null){
+            result=Result.ok(casesInfo);
+        }
         WebUtil.writeJson(resp,result);
     }
 
@@ -218,4 +269,57 @@ public class InfoController extends BaseController{
         List<Comment> commentList=infoService.findCommentByUid(id);
     }
 
+
+    //反馈相关
+
+    protected void addFeedback(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Feedback feedback = WebUtil.readJson(req,Feedback.class);
+        int rows = infoService.addFeedback(feedback);
+        Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
+        if (rows > 0) {
+            result = Result.ok(rows);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void findFeedbackById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        List<Feedback> feedbackList = infoService.findFeedbackById(id);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if (feedbackList != null) {
+            result = Result.ok(feedbackList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void deleteFeedback(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        int rows = infoService.deleteFeedback(id);
+        Result result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
+        if (rows > 0) {
+            result = Result.ok(rows);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    //轮播图相关
+    protected void addCarousel(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Image image = ImgUtil.updateImage(req);
+        int rows = infoService.addCarousel(image);
+        Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
+        if (rows > 0) {
+            result = Result.ok(rows);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void deleteCarousel(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        int rows = infoService.deleteCarousel(id);
+        Result result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
+        if (rows > 0) {
+            result = Result.ok(rows);
+        }
+        WebUtil.writeJson(resp,result);
+    }
 }
