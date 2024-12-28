@@ -14,6 +14,11 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao = new UserDaoImpl();
 
     @Override
+    public int regist(User user) {
+        return userDao.addUser(user);
+    }
+
+    @Override
     public User findByUsername(String username) {
         return userDao.getUserByUsername(username);
     }
@@ -29,22 +34,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int normalRegist(User user) {
-        return userDao.addNormal(user);
+    public List<User> foundUserByType(String type) {
+        return userDao.foundUserByType(type);
     }
 
     @Override
-    public int merchantRegist(User user) {
-        return userDao.addMerchant(user);
+    public List<User> findAllUser() {
+        return userDao.findAllUser();
     }
 
-    @Override
-    public int updateNormal(User user) {
-        return userDao.updateNormal(user);
-    }
 
-    @Override
-    public int updateMerchant(User user) {
-        return userDao.updateMerchant(user);
-    }
 }

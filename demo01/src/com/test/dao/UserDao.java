@@ -7,17 +7,16 @@ import java.util.List;
 
 public interface UserDao {
 
+    int addUser(User user);
+
     User getUserByUsername(String username);
 
     int addCollect(Integer uid, Integer sid);
 
     List<Merchant> findCollect(Integer uid);
 
-    int addNormal(User user);
+    List<User> foundUserByType(String type);
 
-    int addMerchant(User user);
+    List<User> findAllUser();
 
-    int updateNormal(User user);
-
-    int updateMerchant(User user);
 }

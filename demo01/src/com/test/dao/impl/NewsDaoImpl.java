@@ -37,13 +37,13 @@ public class NewsDaoImpl extends BaseDao implements NewsDao {
 
     @Override
     public int addNews(News news) {
-        String sql = "insert into news(title,content,date,type) values(?,?,?,?)";
-        return baseUpdate(sql, news.getTitle(), news.getContent(), news.getDate(),news.getType());
+        String sql = "insert into news(title,content,date,type,img) values(?,?,?,?)";
+        return baseUpdate(sql, news.getTitle(), news.getContent(), news.getDate(),news.getType(),news.getImg());
     }
 
     @Override
     public int updateNews(News news) {
-        String sql = "update news set title=?,content=?,date=? where id=?";
-        return baseUpdate(sql, news.getTitle(), news.getContent(), news.getDate(),news.getId());
+        String sql = "update news set title=?,content=?,date=?,type=?,img=? where id=?";
+        return baseUpdate(sql, news.getTitle(), news.getContent(), news.getDate(),news.getType(),news.getImg(),news.getId());
     }
 }

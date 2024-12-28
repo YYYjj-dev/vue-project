@@ -39,6 +39,9 @@ public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
     @Override
     public int addAdditive(Additive addAdditive) {
         String sql = "insert into additive values(DEFAULT,?,?,?,?,?,?,?,?)";
+        if(addAdditive.getImgpath() == null||addAdditive.getImgpath().equals("")){
+            addAdditive.setImgpath("additiveDefault.png");
+        }
         return baseUpdate(sql, addAdditive.getTypename(),
                 addAdditive.getName(), addAdditive.getDescription(),
                 addAdditive.getUsestandardInternal(), addAdditive.getUsestandardInternational(),
@@ -59,6 +62,7 @@ public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
     }
 
     public int updateAdditive(Additive additive) {
+
         String sql = "update additive set typename =?, name =?, description =?, usestandardInternal =?, usestandardInternational =?, analysis =?, imgpath =?,nature=? where id =?";
         return baseUpdate(sql, additive.getTypename(), additive.getName(),
                 additive.getDescription(), additive.getUsestandardInternal(),

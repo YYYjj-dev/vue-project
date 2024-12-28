@@ -7,17 +7,16 @@ import java.util.List;
 
 public interface UserService {
 
+    int regist(User user);
+
     User findByUsername(String username);
 
     int addCollect(Integer uid, Integer sid);
 
     List<Merchant> findCollect(Integer uid);
 
-    int normalRegist(User user);
+    List<User> foundUserByType(String type);
 
-    int merchantRegist(User user);
+    List<User> findAllUser();
 
-    int updateNormal(User user);
-
-    int updateMerchant(User user);
 }

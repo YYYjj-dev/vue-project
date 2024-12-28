@@ -45,7 +45,9 @@ public class ImgUtil {
                         additive.setAnalysis(fileItem.getString(charset));
                     } else if ("nature".equals(fileItem.getFieldName())) {
                         additive.setNature(fileItem.getString(charset));
-                    } else if ("id".equals(fileItem.getFieldName())) {
+                    } else if("imgpath".equals(fileItem.getFieldName())) {
+                        additive.setImgpath(fileItem.getString(charset));
+                    }else if ("id".equals(fileItem.getFieldName())) {
                         if (!(fileItem.getString()).equals("")) {
                             additive.setId(Integer.parseInt(fileItem.getString()));
                         }
@@ -76,6 +78,8 @@ public class ImgUtil {
                         cases.setGrouptype(fileItem.getString(charset));
                     } else if ("date".equals(fileItem.getFieldName())) {
                         cases.setDate(fileItem.getString(charset));
+                    } else if("imgpath".equals(fileItem.getFieldName())) {
+                        cases.setImgpath(fileItem.getString(charset));
                     } else if ("id".equals(fileItem.getFieldName())) {
                         if (!(fileItem.getString()).equals("")) {
                             cases.setId(Integer.parseInt(fileItem.getString()));
@@ -113,6 +117,8 @@ public class ImgUtil {
                             shangpin.setNum(Integer.parseInt(fileItem.getString()));
                         } else if ("price".equals(fileItem.getFieldName())) {
                             shangpin.setPrice(Double.parseDouble(fileItem.getString(charset)));
+                        } else if("imgpath".equals(fileItem.getFieldName())) {
+                            shangpin.setImgpath(fileItem.getString(charset));
                         } else if ("id".equals(fileItem.getFieldName())) {
                             if (!(fileItem.getString()).equals("")) {
                                 shangpin.setId(Integer.parseInt(fileItem.getString()));
@@ -144,7 +150,10 @@ public class ImgUtil {
                             news.setType(fileItem.getString(charset));
                         } else if ("date".equals(fileItem.getFieldName())) {
                             news.setDate(fileItem.getString(charset));
-                        } else if ("id".equals(fileItem.getFieldName())) {
+                        }else if("img".equals(fileItem.getFieldName())) {
+                            news.setImg(fileItem.getString(charset));
+                        }
+                        else if ("id".equals(fileItem.getFieldName())) {
                             if (!(fileItem.getString()).equals("")) {
                                 news.setId(Integer.parseInt(fileItem.getString()));
                             }
@@ -175,7 +184,10 @@ public class ImgUtil {
                             user.setName(fileItem.getString(charset));
                         } else if ("sex".equals(fileItem.getFieldName())) {
                             user.setSex(fileItem.getString(charset));
-                        } else if ("id".equals(fileItem.getFieldName())) {
+                        }else if("ima".equals(fileItem.getFieldName())) {
+                            user.setImg(fileItem.getString(charset));
+                        }
+                        else if ("id".equals(fileItem.getFieldName())) {
                             user.setId(Integer.parseInt(fileItem.getString(charset)));
                         }
                     }
@@ -199,6 +211,8 @@ public class ImgUtil {
                     if (!(fileItem.getString()).equals("")){
                         if ("part".equals(fileItem.getFieldName())) {
                             image.setPart(fileItem.getString(charset));
+                        }else if("path".equals(fileItem.getFieldName())) {
+                            image.setPath(fileItem.getString(charset));
                         }
                     }
                 }else {

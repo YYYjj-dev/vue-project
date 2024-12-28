@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("all")
+
 @WebServlet("/shangpin/*")
 public class ShangpinController extends BaseController{
 
@@ -36,7 +38,6 @@ public class ShangpinController extends BaseController{
         }
         WebUtil.writeJson(resp,result);
     }
-
 
     /**
      *查找所有商品，失败返回业务码404
@@ -69,7 +70,6 @@ public class ShangpinController extends BaseController{
         }
         WebUtil.writeJson(resp,result);
     }
-
 
     protected void findShangpinByGroup(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String group = req.getParameter("group");

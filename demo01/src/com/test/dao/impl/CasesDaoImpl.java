@@ -33,7 +33,7 @@ public class CasesDaoImpl extends BaseDao implements CasesDao {
     }
     // 增
     public int addCases(Cases cases) {
-        String sql = "insert into cases values (DEFAULT, ?, ?, ?, ?)";
+        String sql = "insert into cases values (DEFAULT, ?, ?, ?, ?,?)";
         Object[] args = {cases.getTitle(), cases.getContent(), cases.getImgpath(), cases.getGrouptype(), cases.getDate()};
         return baseUpdate(sql, args);
     }

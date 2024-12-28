@@ -7,9 +7,7 @@ public class User {
   private String type;
   private String username;
   private String password;
-  private String sex;
-  private String name;
-  private String description;
+  private String gender;
   private String img;
 
   public String getImg() {
@@ -20,32 +18,16 @@ public class User {
     this.img = img;
   }
 
-  public String getSex() {
-    return sex;
-  }
-
-  public void setSex(String sex) {
-    this.sex = sex;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
   public Integer getId() {
     return id;
+  }
+
+  public String getGender() {
+    return gender;
+  }
+
+  public void setGender(String gender) {
+    this.gender = gender;
   }
 
   public void setId(Integer id) {
