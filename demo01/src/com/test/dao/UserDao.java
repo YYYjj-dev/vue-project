@@ -19,4 +19,9 @@ public interface UserDao {
 
     List<User> findAllUser();
 
+    int updateUser(User user);
+
+    int updatePassword(String newPassword);
+
+    int deleteUser(String username);
 }

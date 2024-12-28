@@ -45,4 +45,21 @@ public class UserDaoImpl extends BaseDao implements UserDao {
         return baseQuery(User.class,sql);
     }
 
+    @Override
+    public int updateUser(User user) {
+        String sql = "update user set gender = ?,img = ? where id = ?";
+        return baseUpdate(sql,user.getGender(),user.getImg(),user.getId());
+    }
+
+    @Override
+    public int updatePassword(String newPassword) {
+        String sql = "update user set password = ? where id = ?";
+        return baseUpdate(sql,newPassword);
+    }
+
+    @Override
+    public int deleteUser(String username) {
+        String sql = "delete from user where username = ?";
+        return baseUpdate(sql,username);
+    }
 }

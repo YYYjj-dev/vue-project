@@ -2,6 +2,8 @@ package com.test.service;
 
 import com.test.pojo.Merchant;
 import com.test.pojo.User;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -19,4 +21,9 @@ public interface UserService {
 
     List<User> findAllUser();
 
+    int updateUser(User user);
+
+    int updatePassword(String newPassword);
+
+    int deleteUser(String username);
 }

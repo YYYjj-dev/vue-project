@@ -40,7 +40,7 @@ public class MerchantDaoImpl extends BaseDao implements MerchantDao {
     }
 
     @Override
-    public int deleteMerchant(String id) {
+    public int deleteMerchant(Integer id) {
         String sql = "delete from merchant where id = ?";
         return baseUpdate(sql,id);
     }

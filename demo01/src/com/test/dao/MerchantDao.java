@@ -15,5 +15,5 @@ public interface MerchantDao {
 
     int updateMerchant(Merchant merchant);
 
-    int deleteMerchant(String id);
+    int deleteMerchant(Integer id);
 }

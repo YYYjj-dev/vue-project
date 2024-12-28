@@ -7,7 +7,9 @@ import com.test.pojo.Merchant;
 import com.test.pojo.User;
 import com.test.service.UserService;
 import com.test.service.impl.UserServiceImpl;
+import com.test.util.ImgUtil;
 import com.test.util.WebUtil;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +29,7 @@ public class UserController extends BaseController {
      * 注册业务
      */
     protected void regist(HttpServletRequest req, HttpServletResponse resp)throws Exception {
-        User user = WebUtil.readJson(req,User.class);
+        User user = ImgUtil.updateUser(req);
         int rows = userService.regist(user);
         Result result =Result.ok(null);
         if(rows < 1){
@@ -41,17 +43,67 @@ public class UserController extends BaseController {
      */
     protected void login(HttpServletRequest req, HttpServletResponse resp){
 
-        User User = WebUtil.readJson(req,User.class);
-        User loginUser = userService.findByUsername(User.getUsername());
+        User user = WebUtil.readJson(req,User.class);
+        User loginUser = userService.findByUsername(user.getUsername());
         Result result =null;
 
         if(null==loginUser){
             result = Result.build(null,ResultCodeEnum.USERNAME_ERROR);
-        } else if(!(User.getPassword().equals(loginUser.getPassword()))) {
+        } else if(!(user.getPassword().equals(loginUser.getPassword()))) {
             result = Result.build(null,ResultCodeEnum.PASSWORD_ERROR);
         }else{
             loginUser.setPassword("");
             result = Result.ok(loginUser);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     *更改用户个人信息
+     */
+    protected void updateUser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User user = ImgUtil.updateUser(req);
+        User loginUser = userService.findByUsername(user.getUsername());
+        Result result = Result.build(null,ResultCodeEnum.UPDATE_FAILED);
+
+        if(!(user.getPassword().equals(loginUser.getPassword()))) {
+            result = Result.build(null,ResultCodeEnum.PASSWORD_ERROR);
+        }
+
+        int rows = userService.updateUser(user);
+        if(rows >0){
+            result = Result.ok(rows);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     *修改用户密码，需要传入username,oldPassword和newPassword
+     */
+    protected void updatePassword(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String username = req.getParameter("username");
+        String oldPassword = req.getParameter("oldPassword");
+        String newPassword = req.getParameter("newPassword");
+        Result result = Result.build(null,ResultCodeEnum.UPDATE_FAILED);
+        User loginUser = userService.findByUsername(username);
+        if(!(oldPassword.equals(loginUser.getPassword()))){
+            result = Result.build(null,ResultCodeEnum.PASSWORD_ERROR);
+        }else {
+            int rows = userService.updatePassword(newPassword);
+            if(rows >0){
+                result = Result.ok(rows);
+            }
+        }
+        WebUtil.writeJson(resp,result);
+
+    }
+
+    protected void deleteUser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String username = req.getParameter("username");
+        int rows = userService.deleteUser(username);
+        Result result =Result.build(null,ResultCodeEnum.DELETION_FAILED);
+        if(rows >0){
+            result = Result.ok(rows);
         }
         WebUtil.writeJson(resp,result);
     }

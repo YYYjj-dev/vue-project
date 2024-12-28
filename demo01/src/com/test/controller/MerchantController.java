@@ -6,13 +6,17 @@ import com.test.common.ResultCodeEnum;
 import com.test.pojo.Merchant;
 import com.test.service.MerchantService;
 import com.test.service.impl.MerchantServiceImpl;
+import com.test.util.ImgUtil;
 import com.test.util.WebUtil;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
+
+@SuppressWarnings("all")
 
 @WebServlet("/merchant/*")
 public class MerchantController extends BaseController{
@@ -61,8 +65,8 @@ public class MerchantController extends BaseController{
     /**
      *添加商家，传入商家对象
      */
-    protected void addMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Merchant merchant = new Merchant();
+    protected void addMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        Merchant merchant = ImgUtil.updateMerchant(req);
         int rows = merchantService.addMerchant(merchant);
         Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
         if(rows>0){
@@ -74,8 +78,8 @@ public class MerchantController extends BaseController{
     /**
      *修改商家，传入商家对象
      */
-    protected void updateMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Merchant merchant = new Merchant();
+    protected void updateMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        Merchant merchant = ImgUtil.updateMerchant(req);
         int rows = merchantService.updateMerchant(merchant);
         Result result = Result.build(null,ResultCodeEnum.UPDATE_FAILED);
         if(rows>0){
@@ -90,7 +94,7 @@ public class MerchantController extends BaseController{
      */
     protected void deleteMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int id = Integer.valueOf(req.getParameter("id"));
-        int rows = merchantService.deleteMerchant("id");
+        int rows = merchantService.deleteMerchant(id);
         Result result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
         if(rows>0){
             result=Result.ok(rows);
@@ -98,6 +102,7 @@ public class MerchantController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
-    //根据商家id查找商品在shangpinController
+    //根据商家id查找商品或订单均在shangpinController
+
 
 }

@@ -169,39 +169,6 @@ public class ImgUtil {
         return news;
     }
 
-    public static User updateUser(HttpServletRequest req) throws ServletException, IOException {
-        User user = new User();
-        try {
-            List<FileItem> list = servletFileUpload.parseRequest(req);
-            for (FileItem fileItem : list) {
-                if (fileItem.isFormField()) {
-                    if (!(fileItem.getString()).equals("")){
-                        if ("password".equals(fileItem.getFieldName())) {
-                            user.setPassword(fileItem.getString(charset));
-                        } else if ("description".equals(fileItem.getFieldName())) {
-                            user.setDescription(fileItem.getString(charset));
-                        } else if ("name".equals(fileItem.getFieldName())) {
-                            user.setName(fileItem.getString(charset));
-                        } else if ("sex".equals(fileItem.getFieldName())) {
-                            user.setSex(fileItem.getString(charset));
-                        }else if("ima".equals(fileItem.getFieldName())) {
-                            user.setImg(fileItem.getString(charset));
-                        }
-                        else if ("id".equals(fileItem.getFieldName())) {
-                            user.setId(Integer.parseInt(fileItem.getString(charset)));
-                        }
-                    }
-                }else {
-                    String name = saveImage(fileItem, req);
-                    user.setImg(name);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return user;
-    }
-
     public static Image updateImage(HttpServletRequest req) throws ServletException, IOException {
         Image image = new Image();
         try {
@@ -224,6 +191,71 @@ public class ImgUtil {
             e.printStackTrace();
         }
         return image;
+    }
+
+    public static User updateUser(HttpServletRequest req) throws ServletException, IOException {
+        User user = new User();
+        try {
+            List<FileItem> list = servletFileUpload.parseRequest(req);
+            for (FileItem fileItem : list) {
+                if (fileItem.isFormField()) {
+                    if (!(fileItem.getString()).equals("")){
+                        if ("id".equals(fileItem.getFieldName())) {
+                            if (!(fileItem.getString()).equals("")) {
+                                user.setId(Integer.parseInt(fileItem.getString()));
+                            }
+                        }else if("username".equals(fileItem.getFieldName())) {
+                            user.setUsername(fileItem.getString(charset));
+                        }else if("password".equals(fileItem.getFieldName())) {
+                            user.setPassword(fileItem.getString(charset));
+                        }else if("gender".equals(fileItem.getFieldName())) {
+                            user.setGender(fileItem.getString(charset));
+                        }else if("img".equals(fileItem.getFieldName())) {
+                            user.setImg(fileItem.getString(charset));
+                        }
+                    }
+                }else {
+                    String name = saveImage(fileItem, req);
+                    user.setImg(name);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+    public static Merchant updateMerchant(HttpServletRequest req) throws ServletException, IOException {
+        Merchant merchant = new Merchant();
+        try {
+            List<FileItem> list = servletFileUpload.parseRequest(req);
+            for (FileItem fileItem : list) {
+                if (fileItem.isFormField()) {
+                    if (!(fileItem.getString()).equals("")){
+                        if ("id".equals(fileItem.getFieldName())) {
+                            if (!(fileItem.getString()).equals("")) {
+                                merchant.setId(Integer.parseInt(fileItem.getString()));
+                            }
+                        }else if("username".equals(fileItem.getFieldName())) {
+                            merchant.setUsername(fileItem.getString(charset));
+                        }else if("name".equals(fileItem.getFieldName())) {
+                            merchant.setName(fileItem.getString(charset));
+                        }else if("description".equals(fileItem.getFieldName())) {
+                            merchant.setDescription(fileItem.getString(charset));
+                        }else if("logo".equals(fileItem.getFieldName())) {
+                            merchant.setLogo(fileItem.getString(charset));
+                        }else if("type".equals(fileItem.getFieldName())) {
+                            merchant.setType(fileItem.getString(charset));
+                        }
+                    }
+                }else {
+                    String name = saveImage(fileItem, req);
+                    merchant.setLogo(name);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return merchant;
     }
 
     private static String saveImage(FileItem fileItem, HttpServletRequest req) throws Exception {

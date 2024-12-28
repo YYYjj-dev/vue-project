@@ -50,7 +50,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
 
     @Override
     public List<Shangpin> findShangpinByName(String name) {
-        String sql = "select id,store_id storeId,`group`,type,name,description,standard,price,score,num,imgpath from shangpin where title like ?";
+        String sql = "select id,store_id storeId,`group`,type,name,description,standard,price,score,num,imgpath from shangpin where name like ?";
         Object[] args = {"%" + name + "%"};
         return baseQuery(Shangpin.class, sql, args);
     }

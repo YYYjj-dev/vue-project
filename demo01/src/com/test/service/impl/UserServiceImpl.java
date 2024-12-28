@@ -5,6 +5,8 @@ import com.test.dao.impl.UserDaoImpl;
 import com.test.pojo.Merchant;
 import com.test.pojo.User;
 import com.test.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -41,6 +43,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAllUser() {
         return userDao.findAllUser();
+    }
+
+    @Override
+    public int updateUser(User user) {
+        return userDao.updateUser(user);
+    }
+
+    @Override
+    public int updatePassword(String newPassword) {
+        return userDao.updatePassword(newPassword);
+    }
+
+    @Override
+    public int deleteUser(String username) {
+        return userDao.deleteUser(username);
     }
 
 

@@ -16,5 +16,5 @@ public interface MerchantService {
 
     int updateMerchant(Merchant merchant);
 
-    int deleteMerchant(String id);
+    int deleteMerchant(Integer id);
 }

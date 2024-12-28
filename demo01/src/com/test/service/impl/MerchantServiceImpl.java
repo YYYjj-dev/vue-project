@@ -36,7 +36,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public int deleteMerchant(String id) {
+    public int deleteMerchant(Integer id) {
         return merchantDao.deleteMerchant(id);
     }
 
