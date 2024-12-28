@@ -9,7 +9,8 @@ public enum ResultCodeEnum {
     USERNAME_ERROR(501,"usernameError"),
     PASSWORD_ERROR(503,"passwordError"),
     NOT_LOGIN(504,"notLogin"),
-    USERNAME_USED(505,"userNameUsed")
+    USERNAME_USED(505,"userNameUsed"),
+    UPDATE_USER_FAILED(506,"updateUserFailed"),
     ;
 
     private Integer code;

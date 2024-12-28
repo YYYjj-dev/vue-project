@@ -2,8 +2,11 @@ package com.test.service.impl;
 
 import com.test.dao.UserDao;
 import com.test.dao.impl.UserDaoImpl;
+import com.test.pojo.Merchant;
 import com.test.pojo.User;
 import com.test.service.UserService;
+
+import java.util.List;
 
 
 public class UserServiceImpl implements UserService {
@@ -11,15 +14,8 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao = new UserDaoImpl();
 
     @Override
-    public int regist(User user) {
-        int rows = userDao.addUser(user);
-        return rows;
-    }
-
-    @Override
     public User findByUsername(String username) {
-        User user =userDao.getUserByUsername(username);
-        return user;
+        return userDao.getUserByUsername(username);
     }
 
     @Override
@@ -28,7 +24,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int findCollect(Integer uid) {
+    public List<Merchant> findCollect(Integer uid) {
         return userDao.findCollect(uid);
+    }
+
+    @Override
+    public int normalRegist(User user) {
+        return userDao.addNormal(user);
+    }
+
+    @Override
+    public int merchantRegist(User user) {
+        return userDao.addMerchant(user);
+    }
+
+    @Override
+    public int updateNormal(User user) {
+        return userDao.updateNormal(user);
+    }
+
+    @Override
+    public int updateMerchant(User user) {
+        return userDao.updateMerchant(user);
     }
 }

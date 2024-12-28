@@ -42,6 +42,20 @@ public class OrderController extends BaseController {
         Result result = Result.ok(rows);
         WebUtil.writeJson(resp,result);
     }
+
+    protected  void deliverOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer oid = Integer.parseInt(req.getParameter("oid"));
+        int rows = orderService.deliverOrder(oid);
+        Result result = Result.ok(rows);
+        WebUtil.writeJson(resp,result);
+    }
+    protected void completeOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer oid = Integer.parseInt(req.getParameter("oid"));
+        int rows = orderService.completeOrder(oid);
+        Result result = Result.ok(rows);
+        WebUtil.writeJson(resp,result);
+    }
+
     protected void findOrderByUid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int uid = Integer.parseInt(req.getParameter("uid"));
         List<Order> orderList = orderService.findOrderByUid(uid);
@@ -55,9 +69,6 @@ public class OrderController extends BaseController {
         WebUtil.writeJson(resp,result);
     }
 
-    protected void findOrderByDate(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-    }
 
     /**
      *根据商家id返回订单

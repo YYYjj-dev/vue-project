@@ -5,7 +5,7 @@ public class Shangpin {
 
   private Integer id;
   private Integer storeId;
-  private String gruop;
+  private String group;
   private String type;
   private String name;
   private String description;
@@ -49,12 +49,12 @@ public class Shangpin {
   }
 
 
-  public String getGruop() {
-    return gruop;
+  public String getGroup() {
+    return group;
   }
 
-  public void setGruop(String gruop) {
-    this.gruop = gruop;
+  public void setGroup(String group) {
+    this.group = group;
   }
 
 

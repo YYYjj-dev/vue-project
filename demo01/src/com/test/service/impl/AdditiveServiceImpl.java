@@ -27,7 +27,7 @@ public class AdditiveServiceImpl implements AdditiveService {
 
     @Override
     public List<Additive> findAdditiveByName(String name) {
-        return null;
+        return additiveDao.findAdditiveByName(name);
     }
 
     @Override

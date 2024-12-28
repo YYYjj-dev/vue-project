@@ -1,7 +1,7 @@
 package com.test.pojo;
 
 
-public class Normaluser extends User {
+public class Normaluser {
 
   private Integer id;
   private String username;

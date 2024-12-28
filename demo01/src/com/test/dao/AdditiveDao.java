@@ -16,4 +16,6 @@ public interface AdditiveDao {
     int updateAdditive(Additive additive);
 
     int deleteAdditive(Integer id);
+
+    List<Additive> findAdditiveByName(String name);
 }

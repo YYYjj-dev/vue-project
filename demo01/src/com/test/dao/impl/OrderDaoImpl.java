@@ -56,4 +56,17 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
         List<Order> orderList = baseQuery(Order.class,sql,oid);
         return orderList.isEmpty() ? null : orderList.get(0);
     }
+
+    @Override
+    public int deliverOrder(Integer oid) {
+        String sql = "update `order` set status = '已发货' where order_id =?";
+        return baseUpdate(sql,oid);
+    }
+
+    @Override
+    public int completeOrder(Integer oid) {
+        String sql = "update `order` set status = '已收货' where order_id =?";
+        return baseUpdate(sql,oid);
+    }
+
 }

@@ -10,8 +10,6 @@ import java.util.List;
 public class ShangpinServiceImpl implements ShangpinService {
     private ShangpinDao shangpinDao=new ShangpinDaoImpl();
 
-
-
     @Override
     public List<Shangpin> findAllShangpin() {
         return shangpinDao.findAllShangpin();
@@ -45,6 +43,11 @@ public class ShangpinServiceImpl implements ShangpinService {
     @Override
     public List<Shangpin> findShangpinByType(String type) {
         return shangpinDao.findShangpinByType(type);
+    }
+
+    @Override
+    public List<Shangpin> findShangpinByMid(Integer mid) {
+        return shangpinDao.findShangpinByMid(mid);
     }
 
     @Override

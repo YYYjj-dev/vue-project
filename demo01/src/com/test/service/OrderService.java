@@ -16,4 +16,8 @@ public interface OrderService {
     List<Order> findOrderByUid(int uid);
 
     Order findOrderById(int oid);
+
+    int deliverOrder(Integer oid);
+
+    int completeOrder(Integer oid);
 }

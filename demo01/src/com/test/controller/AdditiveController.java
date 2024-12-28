@@ -74,7 +74,7 @@ public class AdditiveController extends BaseController {
 
 
     protected void findAdditiveByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String typeName = req.getParameter("typeName");
+        String typeName = req.getParameter("typename");
         List<Additive> itemList = additiveService.findAdditiveByType(typeName);
         Result result = Result.ok(itemList);
         WebUtil.writeJson(resp,result);

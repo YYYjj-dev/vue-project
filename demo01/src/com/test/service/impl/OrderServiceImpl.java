@@ -39,4 +39,14 @@ public class OrderServiceImpl implements OrderService {
     public Order findOrderById(int oid) {
         return orderDao.findOrderById(oid);
     }
+
+    @Override
+    public int deliverOrder(Integer oid) {
+        return orderDao.deliverOrder(oid);
+    }
+
+    @Override
+    public int completeOrder(Integer oid) {
+        return orderDao.completeOrder(oid);
+    }
 }

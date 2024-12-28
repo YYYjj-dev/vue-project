@@ -11,7 +11,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
     public int addShangpin(Shangpin shangpin) {
         String sql = "insert into shangpin (id,store_id,`group`,type,name,description,standard,price,score,num,imgpath) " +
                 "values(DEFAULT,?,?,?,?,?,?,?,?,0,?)";
-        return baseUpdate(sql, shangpin.getStoreId(), shangpin.getGruop(),shangpin.getType() ,shangpin.getName(), shangpin.getDescription(),shangpin.getStandard(),shangpin.getPrice(),shangpin.getScore(),shangpin.getImgpath());
+        return baseUpdate(sql, shangpin.getStoreId(), shangpin.getGroup(),shangpin.getType() ,shangpin.getName(), shangpin.getDescription(),shangpin.getStandard(),shangpin.getPrice(),shangpin.getScore(),shangpin.getImgpath());
     }
 
     @Override
@@ -22,7 +22,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
 
     @Override
     public List<Shangpin> findShangpinByType(String type) {
-        String sql = "select id,store_id storeId,`group`,type,name,description,standard,price,score,num,imgpath where type = ?";
+        String sql = "select id,store_id storeId,`group`,type,name,description,standard,price,score,num,imgpath from shangpin where type = ?";
         return baseQuery(Shangpin.class, sql, type);
     }
 
@@ -32,7 +32,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
                 UPDATE shangpin
                 SET `group` = ?,type=?,name=?,description=?,standard=?,price=?,imgpath=?
                 WHERE id=?;""";
-        return baseUpdate(sql, shangpin.getGruop(), shangpin.getType(), shangpin.getName(), shangpin.getDescription(), shangpin.getStandard(), shangpin.getPrice(), shangpin.getImgpath(), shangpin.getId());
+        return baseUpdate(sql, shangpin.getGroup(), shangpin.getType(), shangpin.getName(), shangpin.getDescription(), shangpin.getStandard(), shangpin.getPrice(), shangpin.getImgpath(), shangpin.getId());
     }
 
     @Override
@@ -67,9 +67,9 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
     }
 
 
-    public List<Shangpin> findShangpinByStoreId(String storeId) {
+    public List<Shangpin> findShangpinByMid(Integer Mid) {
         String sql = "select id,store_id storeId,`group`,type,name,description,standard,price,score,num,imgpath from shangpin where store_id = ?";
-        List<Shangpin> shangpinList = baseQuery(Shangpin.class, sql, storeId);
+        List<Shangpin> shangpinList = baseQuery(Shangpin.class, sql, Mid);
         return shangpinList;
     }
 

@@ -20,4 +20,6 @@ public interface ShangpinService {
     List<Shangpin> findShangpinByName(String name);
 
     List<Shangpin> findShangpinByType(String type);
+
+    List<Shangpin> findShangpinByMid(Integer mid);
 }

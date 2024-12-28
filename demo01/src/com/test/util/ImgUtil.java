@@ -1,9 +1,6 @@
 package com.test.util;
 
-import com.test.pojo.Additive;
-import com.test.pojo.Cases;
-import com.test.pojo.News;
-import com.test.pojo.Shangpin;
+import com.test.pojo.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,14 +23,10 @@ public class ImgUtil {
     private static DiskFileItemFactory diskFileItemFactory = builder.get();
     private static JakartaServletFileUpload servletFileUpload = new JakartaServletFileUpload(diskFileItemFactory);
 
-    private static Shangpin shangpin = new Shangpin();
-    private static Additive additive = new Additive();
-    private static Cases cases = new Cases();
-    private static News news = new News();
-
     private static Charset charset = Charset.forName("UTF-8");
 
     public static Additive updateAdditive(HttpServletRequest req) throws ServletException, IOException {
+        Additive additive = new Additive();
         try {
             List<FileItem> list = servletFileUpload.parseRequest(req);
             for (FileItem fileItem : list) {
@@ -70,6 +63,7 @@ public class ImgUtil {
 
     public static Cases updateCases(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //todo 做一个判断 furn为空就不处理
+        Cases cases = new Cases();
         try {
             List<FileItem> list = servletFileUpload.parseRequest(req);
             for (FileItem fileItem : list) {
@@ -100,6 +94,7 @@ public class ImgUtil {
 
     public static Shangpin updateShangpin(HttpServletRequest req) throws ServletException, IOException {
         //todo 做一个判断 furn为空就不处理
+        Shangpin shangpin = new Shangpin();
             JakartaServletFileUpload servletFileUpload =
                     new JakartaServletFileUpload(diskFileItemFactory);
             try {
@@ -109,7 +104,7 @@ public class ImgUtil {
                         if ("StoreId".equals(fileItem.getFieldName())) {
                             shangpin.setStoreId(Integer.parseInt(fileItem.getString()));
                         } else if ("group".equals(fileItem.getFieldName())) {
-                            shangpin.setGruop(fileItem.getString(charset));
+                            shangpin.setGroup(fileItem.getString(charset));
                         } else if ("type".equals(fileItem.getFieldName())) {
                             shangpin.setType(fileItem.getString(charset));
                         } else if ("description".equals(fileItem.getFieldName())) {
@@ -138,7 +133,8 @@ public class ImgUtil {
     }
 
     public static News updateNews(HttpServletRequest req) throws ServletException, IOException {
-            JakartaServletFileUpload servletFileUpload =
+        News news = new News();
+        JakartaServletFileUpload servletFileUpload =
                     new JakartaServletFileUpload(diskFileItemFactory);
             try {
                 List<FileItem> list = servletFileUpload.parseRequest(req);
@@ -166,6 +162,38 @@ public class ImgUtil {
                 e.printStackTrace();
             }
         return news;
+    }
+
+    public static User updateUser(HttpServletRequest req) throws ServletException, IOException {
+        User user = new User();
+        JakartaServletFileUpload servletFileUpload =
+                new JakartaServletFileUpload(diskFileItemFactory);
+        try {
+            List<FileItem> list = servletFileUpload.parseRequest(req);
+            for (FileItem fileItem : list) {
+                if (fileItem.isFormField()) {
+                    if (!(fileItem.getString()).equals("")){
+                        if ("password".equals(fileItem.getFieldName())) {
+                            user.setPassword(fileItem.getString(charset));
+                        } else if ("description".equals(fileItem.getFieldName())) {
+                            user.setDescription(fileItem.getString(charset));
+                        } else if ("name".equals(fileItem.getFieldName())) {
+                            user.setName(fileItem.getString(charset));
+                        } else if ("sex".equals(fileItem.getFieldName())) {
+                            user.setSex(fileItem.getString(charset));
+                        } else if ("id".equals(fileItem.getFieldName())) {
+                            user.setId(Integer.parseInt(fileItem.getString(charset)));
+                        }
+                    }
+                }else {
+                    String name = saveImage(fileItem, req);
+                    user.setImg(name);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return user;
     }
 
     private static String saveImage(FileItem fileItem, HttpServletRequest req) throws Exception {
