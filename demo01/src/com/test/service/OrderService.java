@@ -20,4 +20,13 @@ public interface OrderService {
     int deliverOrder(Integer oid);
 
     int completeOrder(Integer oid);
+
+    String findMUsernameByOid(Integer oid);
+
+    Integer getMidByUsername(String username);
+
+    List<Order> getOrderByMUsername(String username);
+
+    String getMUsernameByOid(Integer oid);
 }
+

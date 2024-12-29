@@ -7,7 +7,15 @@ public class Reply {
   private Integer commentId;
   private String content;
   private String date;
+  private String username;
 
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
 
   public Integer getId() {
     return id;

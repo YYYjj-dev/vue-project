@@ -29,7 +29,6 @@ const router = useRouter()
 let loginUser = reactive({
     username: '',
     password: '',
-    type:''
 })
 let userStore = defineUser()
 
@@ -42,7 +41,8 @@ async function Login() {
 
         if (response.data.code === 200) {
             // 使用store的action来设置用户信息
-            userStore.setUserInfo(response.data.data.username, response.data.data.token)
+            console.log(response.data)
+            userStore.setUserInfo(response.data.data.username, response.data.data.token ,response.data.data.type)
             router.push('/')
         } else {
             // 处理登录失败

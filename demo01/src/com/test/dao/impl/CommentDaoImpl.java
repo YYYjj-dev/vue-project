@@ -3,22 +3,29 @@ package com.test.dao.impl;
 import com.test.dao.BaseDao;
 import com.test.dao.CommentDao;
 import com.test.pojo.Comment;
+import com.test.pojo.CommentList;
 
 import java.util.List;
 
 public class CommentDaoImpl extends BaseDao implements CommentDao {
-    public List<Comment> findNewsCommentById(Integer commentId) {
-        String sql = "select user_id userId,content,date from comment where news_id=?";
-        return baseQuery(Comment.class, sql, commentId);
+    public List<CommentList> findNewsCommentById(Integer commentId) {
+        String sql = "select id,user_id userId,content,date,img,type " +
+                "from comment,user " +
+                "where news_id=? and user_id=user.id";
+        return baseQuery(CommentList.class, sql, commentId);
     }
-    public List<Comment> findShangpinCommentById(Integer commentId) {
-        String sql = "select user_id userId,content,date from comment where shangpin_id=?";
-        return baseQuery(Comment.class, sql, commentId);
+    public List<CommentList> findShangpinCommentById(Integer commentId) {
+        String sql = "select id,user_id userId,content,date img,type" +
+                "from comment,user" +
+                "where shangpin_id=? and user_id=user.id";
+        return baseQuery(CommentList.class, sql, commentId);
     }
     @Override
-    public List<Comment> findCasesCommentById(Integer commentId) {
-        String sql = "select user_id userId,content,date from comment where cases_id=?";
-        return baseQuery(Comment.class, sql, commentId);
+    public List<CommentList> findCasesCommentById(Integer commentId) {
+        String sql = "select id,user_id userId,content,date,img,type " +
+                "from comment,user " +
+                "where cases_id=? and user_id=user.id";
+        return baseQuery(CommentList.class, sql, commentId);
     }
 
     @Override
@@ -38,6 +45,13 @@ public class CommentDaoImpl extends BaseDao implements CommentDao {
     public List<Comment> findCommentByUid(Integer id) {
         String sql = "select user_id userId,shangpin_id shangpinId,cases_id caseId,news_id news_Id,content,date from comment where user_id=?";
         return baseQuery(Comment.class, sql, id);
+    }
+
+    @Override
+    public Comment getCommentById(Integer id) {
+        String sql = "select user_id userId,content,date from comment where id=?";
+        List<Comment> commentList = baseQuery(Comment.class, sql, id);
+        return !commentList.isEmpty() ? commentList.get(0) : null;
     }
 
     @Override

@@ -11,6 +11,7 @@ public enum ResultCodeEnum {
     NOT_LOGIN(504,"notLogin"),
     USERNAME_USED(505,"userNameUsed"),
     UPDATE_USER_FAILED(506,"updateUserFailed"),
+    USERTYPE_ERROR(507,"userTypeError"),
     ;
 
     private Integer code;

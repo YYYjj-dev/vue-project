@@ -6,6 +6,7 @@ import com.test.pojo.*;
 import com.test.service.InfoService;
 import com.test.service.impl.InfoServiceImpl;
 import com.test.util.ImgUtil;
+import com.test.util.JwtTokenUtils;
 import com.test.util.WebUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -66,16 +67,22 @@ public class InfoController extends BaseController{
     }
 
     /**
-     *根据资讯id删除资讯，失败返回业务码402
+     *根据资讯id删除资讯，传入管理员用户token，失败返回业务码402
      */
     protected void deleteNews(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        int rows = infoService.DeleteNews(id);
-        Result result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
-        if (rows > 0) {
-            result=Result.ok(rows);
-            WebUtil.writeJson(resp,result);
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        Result result = Result.build(null,ResultCodeEnum.USERTYPE_ERROR);
+        if(user!=null&&user.getType().equals("admin")){
+            Integer id = Integer.parseInt(req.getParameter("id"));
+            int rows = infoService.DeleteNews(id);
+            if (rows > 0) {
+                result=Result.ok(rows);
+            }else {
+
+            }
         }
+        WebUtil.writeJson(resp,result);
     }
 
     /**
@@ -264,10 +271,10 @@ public class InfoController extends BaseController{
     //评论相关
 
     /**
-     * 返回评论
+     * 返回评论列表，属性有id,userId,content,date,img,用户种类:type
      */
     protected void showComment(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        List<Comment> commentList=null;
+        List<CommentList> commentList=null;
         Integer commentId = Integer.valueOf(req.getParameter("commentId"));
         String commentType = req.getParameter("commentType");
         if(commentType.equals("news")){
@@ -278,41 +285,142 @@ public class InfoController extends BaseController{
             commentList = infoService.findCasesCommentById(commentId);
         }
         Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
-        if(commentList==null || commentList.size()==0){
+        if(commentList!=null || commentList.size()!=0){
             result = Result.ok(commentList);
         }
         WebUtil.writeJson(resp,result);
     }
 
     /**
-      添加评论
+     * 添加评论, 传入用户token 评论类型：news,case,shangpin,评论内容:content，当前信息页的id,评论日期:date
      */
     protected void addComment(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer uid = Integer.parseInt(req.getParameter("uid"));
-        String content = req.getParameter("content");
-        String commentType = req.getParameter("commentType");
-        Integer cid = Integer.valueOf(req.getParameter("cid"));
-        String date = req.getParameter("date");
-        int rows = infoService.addComment(uid,cid,content,commentType,date);
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
         Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
-        if(rows>0){
-            result = Result.ok(rows);
+        int rows = 0;
+        if(user!=null){
+            Integer uid = user.getId();
+            String content = req.getParameter("content");
+            String commentType = req.getParameter("commentType");
+            Integer cid = Integer.valueOf(req.getParameter("cid"));
+            String date = req.getParameter("date");
+            rows = infoService.addComment(uid,cid,content,commentType,date);
+            if(rows>0){
+                result = Result.ok(rows);
+            }
+        }else {
+            result = Result.build(null,ResultCodeEnum.USERNAME_ERROR);
         }
+        WebUtil.writeJson(resp,result);
+
     }
 
+    /**
+     *删除评论，传入用户token
+     */
     protected void deleteComment(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
         Integer id = Integer.parseInt(req.getParameter("id"));
-        int rows = infoService.deleteComment(id);
+        Result result = Result.build(null, ResultCodeEnum.USERNAME_ERROR);
+        int rows = 0;
+        if(user.getId()== infoService.getCommentById(id).getUserId()||user.getType().equals("admin")){
+            rows = infoService.deleteComment(id);
+            if(rows>0){
+                result = Result.ok(rows);
+            }
+        }else{
+            result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
+        }
+        WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *按用户id查找评论，传入token
+     */
     protected void findCommentByUid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer id = Integer.parseInt(req.getParameter("id"));
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        Integer id = user.getId();
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
         List<Comment> commentList=infoService.findCommentByUid(id);
+        if(commentList!=null || commentList.size()!=0){
+            result = Result.ok(commentList);
+        }
+        WebUtil.writeJson(resp,result);
     }
 
 
+    //回复相关
+
+
+    /**
+     *添加回复，传入用户token
+     */
+    protected void addReply(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        Reply reply = WebUtil.readJson(req,Reply.class);
+        Result result = Result.build(null,ResultCodeEnum.USERNAME_ERROR);
+        int rows = 0;
+        if(user!=null&&user.getUsername().equals(reply.getUsername())){
+            rows = infoService.addReply(reply);
+            if(rows>0){
+                result = Result.ok(rows);
+            }else {
+                result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
+            }
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+
+    protected void showReply(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<Reply> replyList= infoService.showReply();
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(replyList!=null || replyList.size()!=0){
+            result = Result.ok(replyList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     *传入用户token，回复id:id
+     */
+    protected void deleteReply(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        Result result = Result.build(null,ResultCodeEnum.USERNAME_ERROR);
+        int rows = 0;
+        if(user!=null&&user.getUsername().equals(infoService.getUsernameByRid(id))){
+            rows = infoService.deleteReply(id);
+            if(rows>0){
+                result = Result.ok(rows);
+            }
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     *根据uid查找用户回复，传入用户token
+     */
+    protected void findReplyByUid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        List<Reply> replyList = infoService.findReplyByUid(user.getId());
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if(replyList!=null || replyList.size()!=0){
+            result = Result.ok(replyList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
     //反馈相关
 
+    /**
+     *添加反馈
+     */
     protected void addFeedback(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Feedback feedback = WebUtil.readJson(req,Feedback.class);
         int rows = infoService.addFeedback(feedback);

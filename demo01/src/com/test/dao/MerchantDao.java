@@ -1,7 +1,10 @@
 package com.test.dao;
 
 import com.test.pojo.Merchant;
+import com.test.pojo.News;
+
 import java.util.List;
+import java.util.Map;
 
 public interface MerchantDao {
 
@@ -16,4 +19,7 @@ public interface MerchantDao {
     int updateMerchant(Merchant merchant);
 
     int deleteMerchant(Integer id);
+
+    List<Merchant> findMerchant(Map<String, Object> queryParams);
 }
+

@@ -24,7 +24,7 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
 
     @Override
     public int deleteOrder(Integer oid) {
-        String sql = "delete from `order` where id =?";
+        String sql = "delete from `order` where id =? and status = '已完成'";
         return baseUpdate(sql,oid);
     }
 
@@ -74,4 +74,31 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
         return baseUpdate(sql,oid);
     }
 
+    @Override
+    public String findMUsernameByOid(Integer oid) {
+        String sql = "select merchant.username from order,shangpin,merchant where order.shangpinId = shangpin.id and shangpin.store_id=merchant.id = ?";
+        return baseQueryObject(String.class,sql,oid);
+    }
+
+    @Override
+    public Integer getMidByUsername(String username) {
+        String sql = "select merchant.id from `order`,shangpin,merchant where username =? and order.shangpinId = shangpin.id and shangpin.store_id=merchant.id = ?";
+        return baseQueryObject(Integer.class,sql,username);
+    }
+
+    @Override
+    public List<Order> getOrderByMUsername(String username) {
+        String sql = "select `order`.id,date,user_id userId,sub,quantity,shangpinId,status " +
+                "from `order`,shangpin,merchant " +
+                "where username = ? and `order`.shangpinId =shangpin.id and shangpin.store_id=merchant.id";
+        return baseQuery(Order.class,sql,username);
+    }
+
+    @Override
+    public String getMUsernameByOid(Integer oid) {
+        String sql = "select username " +
+                "from `order`,shangpin,merchant" +
+                " where order_id =? and `order`.shangpinId = shangpin.id and shangpin.store_id=merchant.id";
+        return baseQueryObject(String.class,sql,oid);
+    }
 }

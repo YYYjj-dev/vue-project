@@ -49,4 +49,24 @@ public class OrderServiceImpl implements OrderService {
     public int completeOrder(Integer oid) {
         return orderDao.completeOrder(oid);
     }
+
+    @Override
+    public String findMUsernameByOid(Integer oid) {
+        return orderDao.findMUsernameByOid(oid);
+    }
+
+    @Override
+    public Integer getMidByUsername(String username) {
+        return orderDao.getMidByUsername(username);
+    }
+
+    @Override
+    public List<Order> getOrderByMUsername(String username) {
+        return orderDao.getOrderByMUsername(username);
+    }
+
+    @Override
+    public String getMUsernameByOid(Integer oid) {
+        return orderDao.getMUsernameByOid(oid);
+    }
 }

@@ -4,9 +4,12 @@ package com.test.controller;
 import com.test.common.Result;
 import com.test.common.ResultCodeEnum;
 import com.test.pojo.Merchant;
+import com.test.pojo.News;
+import com.test.pojo.User;
 import com.test.service.MerchantService;
 import com.test.service.impl.MerchantServiceImpl;
 import com.test.util.ImgUtil;
+import com.test.util.JwtTokenUtils;
 import com.test.util.WebUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,7 +17,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("all")
 
@@ -24,14 +29,20 @@ public class MerchantController extends BaseController{
     private MerchantService merchantService = new MerchantServiceImpl();
 
     /**
-     *根据用户名返回对应的商家
+     *根据用户名返回对应的商家,传入商家用户token
      */
     protected void findMerchantByUsername(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String username = req.getParameter("username");
-        Merchant merchant = merchantService.findMerchantByUsername(username);
-        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
-        if(null!=merchant){
-            result=Result.ok(merchant);
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        Result result = Result.build(null, ResultCodeEnum.USERTYPE_ERROR);
+        if(user.getType().equals("merchant")||user.getType().equals("admin")){
+            String username = user.getUsername();
+            Merchant merchant = merchantService.findMerchantByUsername(username);
+            if(null!=merchant){
+                result = Result.ok(merchant);
+            }else{
+                result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+            }
         }
         WebUtil.writeJson(resp,result);
     }
@@ -61,45 +72,79 @@ public class MerchantController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
-
     /**
-     *添加商家，传入商家对象
+     *添加商家，传入商家对象和商家用户token
      */
     protected void addMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        Merchant merchant = ImgUtil.updateMerchant(req);
-        int rows = merchantService.addMerchant(merchant);
-        Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
-        if(rows>0){
-            result=Result.ok(rows);
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        Result result = Result.build(null,ResultCodeEnum.USERTYPE_ERROR);
+        if(user!=null&&user.getType().equals("merchant")||user.getType().equals("admin")){
+            Merchant merchant = ImgUtil.updateMerchant(req);
+            int rows = merchantService.addMerchant(merchant);
+            if(rows>0){
+                result=Result.ok(rows);
+            }else{
+                result=Result.build(null,ResultCodeEnum.ADDITION_FAILED);
+            }
         }
         WebUtil.writeJson(resp,result);
     }
 
     /**
-     *修改商家，传入商家对象
+     *修改商家，传入商家对象和商家用户token
      */
     protected void updateMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        Merchant merchant = ImgUtil.updateMerchant(req);
-        int rows = merchantService.updateMerchant(merchant);
-        Result result = Result.build(null,ResultCodeEnum.UPDATE_FAILED);
-        if(rows>0){
-            result=Result.ok(rows);
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        Result result = Result.build(null,ResultCodeEnum.USERTYPE_ERROR);
+        if(user!=null&&user.getType().equals("merchant")||user.getType().equals("admin")){
+            Merchant merchant = merchantService.findMerchantByUsername(user.getUsername());
+            if(null!=merchant||merchant.getUsername().equals(user.getUsername())){
+                Merchant updateMer = ImgUtil.updateMerchant(req);
+                int rows = merchantService.updateMerchant(updateMer);
+                if(rows>0){
+                    result=Result.ok(rows);
+                }else {
+                    result=Result.build(null,ResultCodeEnum.UPDATE_FAILED);
+                }
+            }
+        }
+
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     *删除商家，传入商家id和商家用户token
+     */
+    protected void deleteMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String token = req.getParameter("token");
+        User user = JwtTokenUtils.checkToken(token);
+        Result result = Result.build(null,ResultCodeEnum.USERTYPE_ERROR);
+        if(user!=null&&user.getType().equals("merchant")||user.getType().equals("admin")){
+            Merchant merchant = merchantService.findMerchantByUsername(user.getUsername());
+            if(null!=merchant||merchant.getUsername().equals(user.getUsername())){
+                int id = Integer.valueOf(req.getParameter("id"));
+                int rows = merchantService.deleteMerchant(id);
+                if(rows>0){
+                    result=Result.ok(rows);
+                }else {
+                    result=Result.build(null,ResultCodeEnum.DELETION_FAILED);
+                }
+            }
         }
         WebUtil.writeJson(resp,result);
     }
 
-
     /**
-     *删除商家，传入商家id
+     *多条件查询merchant，可传入name，type
      */
-    protected void deleteMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        int id = Integer.valueOf(req.getParameter("id"));
-        int rows = merchantService.deleteMerchant(id);
-        Result result = Result.build(null,ResultCodeEnum.DELETION_FAILED);
-        if(rows>0){
-            result=Result.ok(rows);
-        }
-        WebUtil.writeJson(resp,result);
+    protected void findMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("name", req.getParameter("title"));
+        queryParams.put("type", req.getParameter("type"));
+        List<Merchant> newsList = merchantService.findMerchant(queryParams);
+
     }
 
     //根据商家id查找商品或订单均在shangpinController

@@ -1,7 +1,6 @@
 package com.test.service;
 
 import com.test.pojo.*;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -23,11 +22,11 @@ public interface InfoService {
 
     Regulation findRegulationById(Integer id);
 
-    List<Comment> findNewsCommentById(Integer commentId);
+    List<CommentList> findNewsCommentById(Integer commentId);
 
     int addComment(Integer id,Integer cid, String content, String commentType, String date);
 
-    List<Comment> findShangpinCommentById(Integer commentId);
+    List<CommentList> findShangpinCommentById(Integer commentId);
 
 
     List<Cases> findCasesByType(String type);
@@ -48,7 +47,7 @@ public interface InfoService {
 
     int deleteCases(Integer id);
 
-    List<Comment> findCasesCommentById(Integer commentId);
+    List<CommentList> findCasesCommentById(Integer commentId);
 
     int deleteComment(Integer id);
 
@@ -71,4 +70,16 @@ public interface InfoService {
     List<Cases> findCases(Map<String, Object> queryParams);
 
     List<Regulation> findRegularByTitle(String title);
+
+    Comment getCommentById(Integer id);
+
+    int addReply(Reply reply);
+
+    List<Reply> showReply();
+
+    String getUsernameByRid(Integer id);
+
+    int deleteReply(Integer id);
+
+    List<Reply> findReplyByUid(Integer id);
 }

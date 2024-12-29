@@ -3,8 +3,10 @@ package com.test.dao.impl;
 import com.test.dao.BaseDao;
 import com.test.dao.MerchantDao;
 import com.test.pojo.Merchant;
+import com.test.pojo.News;
 
 import java.util.List;
+import java.util.Map;
 
 public class MerchantDaoImpl extends BaseDao implements MerchantDao {
 
@@ -43,5 +45,11 @@ public class MerchantDaoImpl extends BaseDao implements MerchantDao {
     public int deleteMerchant(Integer id) {
         String sql = "delete from merchant where id = ?";
         return baseUpdate(sql,id);
+    }
+
+    @Override
+    public List<Merchant> findMerchant(Map<String, Object> queryParams) {
+        String sql = buildQuery(queryParams,"*","merchant");
+        return baseQuery(Merchant.class,sql);
     }
 }

@@ -1,12 +1,10 @@
 package com.test.service.impl;
 
 
-import com.test.common.Result;
 import com.test.dao.*;
 import com.test.dao.impl.*;
 import com.test.pojo.*;
 import com.test.service.InfoService;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +16,7 @@ public class InfoServiceImpl implements InfoService {
     private RegulationDao regulationDao = new RegulationDaoImpl();
     private FeedbackDao feedbackDao = new FeedbackImpl();
     private ImageDao imageDao = new ImageDaoImpl();
+    private ReplyDao replyDao = new ReplyDaoImpl();
 
     @Override
     public int addNews(News news) {
@@ -84,6 +83,35 @@ public class InfoServiceImpl implements InfoService {
         return regulationDao.findRegularByTitle(title);
     }
 
+    @Override
+    public Comment getCommentById(Integer id) {
+        return commentDao.getCommentById(id);
+    }
+
+    @Override
+    public int addReply(Reply reply) {
+        return replyDao.addReply(reply);
+    }
+
+    @Override
+    public List<Reply> showReply() {
+        return replyDao.showReply();
+    }
+
+    @Override
+    public String getUsernameByRid(Integer id) {
+        return replyDao.getUsernameByRid(id);
+    }
+
+    @Override
+    public int deleteReply(Integer id) {
+        return replyDao.deleteReply(id);
+    }
+
+    @Override
+    public List<Reply> findReplyByUid(Integer id) {
+        return replyDao.findReplyByUid(id);
+    }
 
     @Override
     public Cases findCasesById(Integer id) {
@@ -126,7 +154,7 @@ public class InfoServiceImpl implements InfoService {
     }
 
     @Override
-    public  List<Comment> findNewsCommentById(Integer commentId) {
+    public List<CommentList> findNewsCommentById(Integer commentId) {
         return commentDao.findNewsCommentById(commentId);
     }
     @Override
@@ -135,7 +163,7 @@ public class InfoServiceImpl implements InfoService {
     }
 
 
-    public List<Comment> findShangpinCommentById(Integer commentId) {
+    public List<CommentList> findShangpinCommentById(Integer commentId) {
         return commentDao.findShangpinCommentById(commentId);
    }
 
@@ -160,7 +188,7 @@ public class InfoServiceImpl implements InfoService {
     }
 
     @Override
-    public List<Comment> findCasesCommentById(Integer commentId) {
+    public List<CommentList> findCasesCommentById(Integer commentId) {
         return commentDao.findCasesCommentById(commentId);
     }
 
