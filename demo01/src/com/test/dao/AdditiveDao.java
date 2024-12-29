@@ -3,6 +3,7 @@ package com.test.dao;
 import com.test.pojo.Additive;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AdditiveDao {
     public List<Additive> findAllAdditive();
@@ -20,4 +21,7 @@ public interface AdditiveDao {
     List<Additive> findAdditiveByName(String name);
 
     List<Additive> findAdditiveByNature(String nature);
+
+    List<Additive> findAdditive(Map<String, Object> queryParams);
+
 }

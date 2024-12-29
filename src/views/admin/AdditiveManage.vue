@@ -15,8 +15,13 @@
         <option value="甜味剂">甜味剂</option>
         <option value="着色剂">着色剂</option>
         <option value="增稠剂">增稠剂</option>
-        <option value="膨松剂">膨松剂</option>
         <option value="香料与香精">香料与香精</option>
+        <option value="膨松剂">膨松剂</option>
+      </select>
+      <select v-model="searchNature" class="search-select">
+        <option value="">所有来源</option>
+        <option value="天然">天然</option>
+        <option value="人工">人工</option>
       </select>
       <button class="search-btn" @click="handleSearch">搜索</button>
     </div>
@@ -119,6 +124,7 @@ import request from '../../utils/request'
 const additivesList = ref([])
 const searchQuery = ref('')
 const searchType = ref('')
+const searchNature = ref('')
 const showDialog = ref(false)
 const isEditing = ref(false)
 const imagePreview = ref('')
@@ -163,10 +169,27 @@ const fetchData = async () => {
 // 搜索
 const handleSearch = async () => {
   try {
-    if (searchType.value) {
-      const response = await request.get(`additive/findAdditiveByType?type=${searchType.value}`)
+    const params = {}
+    if (searchQuery.value) params.name = searchQuery.value
+    if (searchType.value) params.type = searchType.value
+    if (searchNature.value) params.nature = searchNature.value
+    
+    if (Object.keys(params).length > 0) {
+      const response = await request.get('additive/findAdditive', { params })
+      console.log('搜索返回的原始数据：', response)
+      
       if (response.data) {
-        additivesList.value = Array.isArray(response.data) ? response.data : [response.data]
+        if (Array.isArray(response.data)) {
+          additivesList.value = response.data
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          additivesList.value = response.data.data
+        } else if (typeof response.data === 'object' && !response.data.code) {
+          additivesList.value = [response.data]
+        } else {
+          additivesList.value = []
+        }
+      } else {
+        additivesList.value = []
       }
     } else {
       await fetchData()
@@ -174,6 +197,7 @@ const handleSearch = async () => {
   } catch (error) {
     console.error('搜索失败：', error)
     alert('搜索失败')
+    additivesList.value = []
   }
 }
 

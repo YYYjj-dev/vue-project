@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("all")
@@ -64,6 +66,22 @@ public class AdditiveController extends BaseController {
         Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
         if(!itemList.isEmpty()){
             result = Result.ok(itemList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
+     *按条件查找添加剂，可传入name,type,nature
+     */
+    protected void findAdditive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("name", req.getParameter("name"));
+        queryParams.put("typename", req.getParameter("type"));
+        queryParams.put("nature", req.getParameter("nature"));
+        List<Additive> additiveList = additiveService.findAdditive(queryParams);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if (additiveList != null) {
+            result = Result.ok(additiveList);
         }
         WebUtil.writeJson(resp,result);
     }

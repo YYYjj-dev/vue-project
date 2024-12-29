@@ -6,6 +6,7 @@ import com.test.pojo.Additive;
 import com.test.service.AdditiveService;
 
 import java.util.List;
+import java.util.Map;
 
 public class AdditiveServiceImpl implements AdditiveService {
     private AdditiveDao additiveDao = new AdditiveDaoImpl();
@@ -48,5 +49,10 @@ public class AdditiveServiceImpl implements AdditiveService {
     @Override
     public List<Additive> findAdditiveByNature(String nature) {
         return additiveDao.findAdditiveByNature(nature);
+    }
+
+    @Override
+    public List<Additive> findAdditive(Map<String, Object> queryParams) {
+        return additiveDao.findAdditive(queryParams);
     }
 }

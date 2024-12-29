@@ -3,6 +3,7 @@ package com.test.service;
 import com.test.pojo.Additive;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AdditiveService {
     List<Additive> findAllAdditive();
@@ -20,4 +21,9 @@ public interface AdditiveService {
     int deleteAdditive(Integer id);
 
     List<Additive> findAdditiveByNature(String nature);
+
+    List<Additive> findAdditive(Map<String, Object> queryParams);
+
+    ;
+
 }

@@ -5,6 +5,7 @@ import com.test.dao.BaseDao;
 import com.test.pojo.Additive;
 
 import java.util.List;
+import java.util.Map;
 
 public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
 
@@ -33,6 +34,13 @@ public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
     public List<Additive> findAdditiveByNature(String nature) {
         String sql = "select id,typename,name,description,usestandardInternal,usestandardInternational,analysis,imgpath,nature from additive where nature = ?";
         List<Additive> additives = baseQuery(Additive.class, sql, nature);
+        return additives;
+    }
+
+    @Override
+    public List<Additive> findAdditive(Map<String, Object> queryParams) {
+        String sql = buildQuery(queryParams,"*","additive");
+        List<Additive> additives = baseQuery(Additive.class, sql);
         return additives;
     }
 

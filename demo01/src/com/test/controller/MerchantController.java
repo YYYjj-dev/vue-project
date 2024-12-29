@@ -141,10 +141,9 @@ public class MerchantController extends BaseController{
      */
     protected void findMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("name", req.getParameter("title"));
+        queryParams.put("name", req.getParameter("name"));
         queryParams.put("type", req.getParameter("type"));
         List<Merchant> newsList = merchantService.findMerchant(queryParams);
-
     }
 
     //根据商家id查找商品或订单均在shangpinController
