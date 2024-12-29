@@ -5,6 +5,7 @@ import com.test.common.Result;
 import com.test.common.ResultCodeEnum;
 import com.test.pojo.Merchant;
 import com.test.pojo.News;
+import com.test.pojo.TokenInfo;
 import com.test.pojo.User;
 import com.test.service.MerchantService;
 import com.test.service.impl.MerchantServiceImpl;
@@ -33,6 +34,9 @@ public class MerchantController extends BaseController{
      */
     protected void findMerchantByUsername(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String token = req.getParameter("token");
+        if(token != null) {
+            token = WebUtil.readJson(req,String.class);
+        }
         User user = JwtTokenUtils.checkToken(token);
         Result result = Result.build(null, ResultCodeEnum.USERTYPE_ERROR);
         if(user.getType().equals("merchant")||user.getType().equals("admin")){
@@ -73,14 +77,15 @@ public class MerchantController extends BaseController{
     }
 
     /**
-     *添加商家，传入商家对象和商家用户token
+     *添加商家，传入商家用户token,商家对象(除logo外所有属性，添加时不带logo）
      */
     protected void addMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        String token = req.getParameter("token");
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
         User user = JwtTokenUtils.checkToken(token);
         Result result = Result.build(null,ResultCodeEnum.USERTYPE_ERROR);
         if(user!=null&&user.getType().equals("merchant")||user.getType().equals("admin")){
-            Merchant merchant = ImgUtil.updateMerchant(req);
+            Merchant merchant = tokenInfo.getMerchantInfo();
             int rows = merchantService.addMerchant(merchant);
             if(rows>0){
                 result=Result.ok(rows);
@@ -92,38 +97,33 @@ public class MerchantController extends BaseController{
     }
 
     /**
-     *修改商家，传入商家对象和商家用户token
+     *修改商家，传入商家对象
      */
     protected void updateMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        String token = req.getParameter("token");
-        User user = JwtTokenUtils.checkToken(token);
+        Merchant merchant = ImgUtil.updateMerchant(req);
         Result result = Result.build(null,ResultCodeEnum.USERTYPE_ERROR);
-        if(user!=null&&user.getType().equals("merchant")||user.getType().equals("admin")){
-            Merchant merchant = merchantService.findMerchantByUsername(user.getUsername());
-            if(null!=merchant||merchant.getUsername().equals(user.getUsername())){
-                Merchant updateMer = ImgUtil.updateMerchant(req);
-                int rows = merchantService.updateMerchant(updateMer);
+            if(null!=merchant){
+                int rows = merchantService.updateMerchant(merchant);
                 if(rows>0){
                     result=Result.ok(rows);
                 }else {
                     result=Result.build(null,ResultCodeEnum.UPDATE_FAILED);
                 }
             }
-        }
-
         WebUtil.writeJson(resp,result);
     }
 
     /**
-     *删除商家，传入商家id和商家用户token
+     *删除商家，传入商家对象（只包含id即可）和商家用户token
      */
     protected void deleteMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String token = req.getParameter("token");
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
         User user = JwtTokenUtils.checkToken(token);
         Result result = Result.build(null,ResultCodeEnum.USERTYPE_ERROR);
-        if(user!=null&&user.getType().equals("merchant")||user.getType().equals("admin")){
+        if(user!=null&&(user.getType().equals("merchant")||user.getType().equals("admin"))){
             Merchant merchant = merchantService.findMerchantByUsername(user.getUsername());
-            if(null!=merchant||merchant.getUsername().equals(user.getUsername())){
+            if(null!=merchant){
                 int id = Integer.valueOf(req.getParameter("id"));
                 int rows = merchantService.deleteMerchant(id);
                 if(rows>0){

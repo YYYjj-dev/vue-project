@@ -114,6 +114,21 @@ public class InfoServiceImpl implements InfoService {
     }
 
     @Override
+    public int addShangpinComment(Comment comment) {
+        return commentDao.addShangpinComment(comment);
+    }
+
+    @Override
+    public int addNewsComment(Comment comment) {
+        return commentDao.addNewsComment(comment);
+    }
+
+    @Override
+    public int addCasesComment(Comment comment) {
+        return commentDao.addCasesComment(comment);
+    }
+
+    @Override
     public Cases findCasesById(Integer id) {
         return casesDao.findCasesById(id);
     }

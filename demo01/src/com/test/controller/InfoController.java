@@ -292,20 +292,30 @@ public class InfoController extends BaseController{
     }
 
     /**
-     * 添加评论, 传入用户token 评论类型：news,case,shangpin,评论内容:content，当前信息页的id,评论日期:date
+     * 添加评论, 传入用户token ,一个封装的评论对象:userId, (shangpinId,newsId,caseId)其中之一，content,date
      */
     protected void addComment(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String token = req.getParameter("token");
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
+        Comment comment = tokenInfo.getCommentInfo();
         User user = JwtTokenUtils.checkToken(token);
         Result result = Result.build(null,ResultCodeEnum.ADDITION_FAILED);
         int rows = 0;
         if(user!=null){
-            Integer uid = user.getId();
-            String content = req.getParameter("content");
-            String commentType = req.getParameter("commentType");
-            Integer cid = Integer.valueOf(req.getParameter("cid"));
-            String date = req.getParameter("date");
-            rows = infoService.addComment(uid,cid,content,commentType,date);
+            comment.setUserId(user.getId());
+            String content = comment.getContent();
+            Integer sid = comment.getShangpinId();
+            Integer nid = comment.getNewsId();
+            Integer cid = comment.getCaseId();
+            String date = comment.getDate();
+           if(sid != null){
+               rows = infoService.addShangpinComment(comment);
+           }else if(nid != null){
+               rows = infoService.addNewsComment(comment);
+           }else if(cid != null){
+               rows = infoService.addCasesComment(comment);
+           }
+
             if(rows>0){
                 result = Result.ok(rows);
             }
@@ -313,16 +323,17 @@ public class InfoController extends BaseController{
             result = Result.build(null,ResultCodeEnum.USERNAME_ERROR);
         }
         WebUtil.writeJson(resp,result);
-
     }
 
     /**
-     *删除评论，传入用户token
+     *删除评论，传入用户token，评论对象（只包含id即可）
      */
     protected void deleteComment(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String token = req.getParameter("token");
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
         User user = JwtTokenUtils.checkToken(token);
-        Integer id = Integer.parseInt(req.getParameter("id"));
+        Comment comment = tokenInfo.getCommentInfo();
+        Integer id = comment.getId();
         Result result = Result.build(null, ResultCodeEnum.USERNAME_ERROR);
         int rows = 0;
         if(user.getId()== infoService.getCommentById(id).getUserId()||user.getType().equals("admin")){
@@ -341,6 +352,9 @@ public class InfoController extends BaseController{
      */
     protected void findCommentByUid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String token = req.getParameter("token");
+        if(token==null){
+            token = WebUtil.readJson(req,String.class);
+        }
         User user = JwtTokenUtils.checkToken(token);
         Integer id = user.getId();
         Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
@@ -356,12 +370,13 @@ public class InfoController extends BaseController{
 
 
     /**
-     *添加回复，传入用户token
+     *添加回复，传入用户token,reply对象
      */
     protected void addReply(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String token = req.getParameter("token");
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
         User user = JwtTokenUtils.checkToken(token);
-        Reply reply = WebUtil.readJson(req,Reply.class);
+        Reply reply = tokenInfo.getReplyInfo();
         Result result = Result.build(null,ResultCodeEnum.USERNAME_ERROR);
         int rows = 0;
         if(user!=null&&user.getUsername().equals(reply.getUsername())){
@@ -386,12 +401,14 @@ public class InfoController extends BaseController{
     }
 
     /**
-     *传入用户token，回复id:id
+     *删除回复，传入用户token，reply对象(只包含id)
      */
     protected void deleteReply(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        String token = req.getParameter("token");
+
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
         User user = JwtTokenUtils.checkToken(token);
+        Integer id = tokenInfo.getReplyInfo().getId();
         Result result = Result.build(null,ResultCodeEnum.USERNAME_ERROR);
         int rows = 0;
         if(user!=null&&user.getUsername().equals(infoService.getUsernameByRid(id))){
@@ -408,6 +425,9 @@ public class InfoController extends BaseController{
      */
     protected void findReplyByUid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String token = req.getParameter("token");
+        if(token==null){
+            token = WebUtil.readJson(req,String.class);
+        }
         User user = JwtTokenUtils.checkToken(token);
         List<Reply> replyList = infoService.findReplyByUid(user.getId());
         Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);

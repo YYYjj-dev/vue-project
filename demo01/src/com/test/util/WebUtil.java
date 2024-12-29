@@ -2,6 +2,7 @@ package com.test.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.common.Result;
+import com.test.pojo.TokenInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -63,5 +64,23 @@ public class WebUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    public static TokenInfo readTokenJson(HttpServletRequest request){
+        TokenInfo t =null;
+        BufferedReader reader = null;
+        try {
+            reader = request.getReader();
+            StringBuffer buffer =new StringBuffer();
+            String line =null;
+            while((line = reader.readLine())!= null){
+                buffer.append(line);
+            }
+            t= objectMapper.readValue(buffer.toString(),TokenInfo.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return t;
     }
 }

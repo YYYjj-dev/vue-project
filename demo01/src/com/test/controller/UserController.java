@@ -31,7 +31,7 @@ public class UserController extends BaseController {
      * 注册业务
      */
     protected void regist(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        User user = ImgUtil.updateUser(req);
+        User user = WebUtil.readJson(req,User.class);
         int rows = userService.regist(user);
         Result result = Result.ok(null);
         if (rows < 1) {
@@ -69,21 +69,18 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 更改用户个人信息，传入用户token
+     * 更改用户个人信息，传入用户
      */
     protected void updateUser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String token = req.getParameter("token");
-        User operatingUser = JwtTokenUtils.checkToken(token);
         User user = ImgUtil.updateUser(req);
-        if (operatingUser.getUsername().equals(user.getUsername()) || operatingUser.getType().equals("admin")) {
-            User loginUser = userService.findByUsername(user.getUsername());
-            Result result = Result.build(null, ResultCodeEnum.UPDATE_FAILED);
-            int rows = userService.updateUser(user);
-            if (rows > 0) {
-                result = Result.ok(rows);
-            }
-            WebUtil.writeJson(resp, result);
+        User loginUser = userService.findByUsername(user.getUsername());
+        Result result = Result.build(null, ResultCodeEnum.UPDATE_FAILED);
+        int rows = userService.updateUser(user);
+        if (rows > 0) {
+            result = Result.ok(rows);
         }
+        WebUtil.writeJson(resp, result);
+
     }
 
     /**

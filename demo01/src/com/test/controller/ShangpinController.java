@@ -122,7 +122,7 @@ public class ShangpinController extends BaseController{
     }
 
     /**
-     *添加评分,传入token和score对象
+     *添加评分,传入score对象
      */
     protected void addScore(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Score score = WebUtil.readJson(req,Score.class);

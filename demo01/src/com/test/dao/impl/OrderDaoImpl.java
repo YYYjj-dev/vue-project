@@ -10,16 +10,13 @@ import java.util.List;
 public class OrderDaoImpl extends BaseDao implements OrderDao {
 
     @Override
-    public int orderShangpin(Integer sid, Integer uid, Integer num,String date) {
+    public int orderShangpin(Order order) {
         String sql1="select price from shangpin where id=?";
-
-        double price=(Double)baseQuery(Double.class,sql1,sid).get(0);
-        double sub = num *price;
+        double price=(Double)baseQuery(Double.class,sql1,order.getShangpinId()).get(0);
+        double sub = order.getQuantity() *price;
         System.out.println(sub);
-
-        String sql2="insert into `order` values(DEFAULT,?,?,?,?,?,?)";
-        Object[] params={date,uid,sub,num,sid,"未支付"};
-        return baseUpdate(sql2, params);
+        String sql2="insert into `order` values(DEFAULT,?,?,?,?,?,'未支付')";
+        return baseUpdate(sql2, order.getDate(),order.getUserId(),sub,order.getQuantity(),order.getShangpinId());
     }
 
     @Override

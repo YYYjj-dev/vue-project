@@ -11,6 +11,17 @@ public class Comment {
   private String date;
   private Integer caseId;
 
+  //非数据库数据，处理业务使用
+  private String commentType;
+
+  public String getCommentType() {
+    return commentType;
+  }
+
+  public void setCommentType(String commentType) {
+    this.commentType = commentType;
+  }
+
   public Integer getCaseId() {
     return caseId;
   }

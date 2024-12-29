@@ -20,4 +20,10 @@ public interface CommentDao {
     List<Comment> findCommentByUid(Integer id);
 
     Comment getCommentById(Integer id);
+
+    int addShangpinComment(Comment comment);
+
+    int addNewsComment(Comment comment);
+
+    int addCasesComment(Comment comment);
 }

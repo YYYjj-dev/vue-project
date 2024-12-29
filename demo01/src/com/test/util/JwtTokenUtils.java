@@ -45,7 +45,10 @@ public class JwtTokenUtils {
         //自定义有效载荷部分
         claims.put("id", user.getId());
         claims.put("username", user.getUsername());
+        claims.put("password", user.getPassword());
         claims.put("type", user.getType());
+        claims.put("img", user.getImg());
+        claims.put("gender", user.getGender());
 
         return Jwts.builder()
                 //发证人
@@ -71,9 +74,9 @@ public class JwtTokenUtils {
      */
     public static User checkToken(String token) {
         //解析token后，从有效载荷取出值
-        Integer id = Integer.parseInt((String) getClaimsFromToken(token).get("id"));
+        Integer id = (Integer) getClaimsFromToken(token).get("id");
         String type = (String) getClaimsFromToken(token).get("type");
-        String username = (String) getClaimsFromToken(token).get("account");
+        String username = (String) getClaimsFromToken(token).get("username");
         String password = (String) getClaimsFromToken(token).get("password");
         String img = (String) getClaimsFromToken(token).get("img");
         String gender = (String) getClaimsFromToken(token).get("gender");

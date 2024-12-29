@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface OrderDao {
     //用户下单
-    int orderShangpin(Integer sid, Integer uid, Integer num, String date);
 
     int deleteOrder(Integer oid);
 
@@ -29,4 +28,6 @@ public interface OrderDao {
     List<Order> getOrderByMUsername(String username);
 
     String getMUsernameByOid(Integer oid);
+
+    int orderShangpin(Order orderInfo);
 }

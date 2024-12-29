@@ -30,7 +30,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
     @Override
     public List<Shangpin> findShangpinByType(String type) {
         String sql = "select id,store_id storeId,`group`,type,name,description,standard,price,num,imgpath " +
-                "from shangpin,score" +
+                "from shangpin " +
                 "where type = ?";
         List<Shangpin> shangpinList= baseQuery(Shangpin.class, sql, type);
         for (Shangpin shangpin : shangpinList) {
@@ -99,7 +99,7 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
 
     public List<Shangpin> findShangpinByMid(Integer Mid) {
         String sql = "select id,store_id storeId,`group`,type,name,description,standard,price,num,imgpath " +
-                "from shangpin" +
+                "from shangpin " +
                 "where store_id = ?";
         List<Shangpin> shangpinList = baseQuery(Shangpin.class, sql, Mid);
         for (Shangpin shangpin : shangpinList) {
@@ -117,7 +117,11 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
     @Override
     public String findScoreBySid(Integer sid) {
         String sql = "select Round(avg(score),2) score from score where shangpin_id = ?";
-        return baseQueryObject(Double.class, sql, sid).toString();
-
+        Double score = baseQueryObject(Double.class, sql, sid);
+        String scoreStr =null;
+        if (score != null) {
+            scoreStr = score.toString();
+        }
+        return scoreStr;
     }
 }

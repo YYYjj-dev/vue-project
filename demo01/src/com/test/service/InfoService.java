@@ -82,4 +82,10 @@ public interface InfoService {
     int deleteReply(Integer id);
 
     List<Reply> findReplyByUid(Integer id);
+
+    int addShangpinComment(Comment comment);
+
+    int addNewsComment(Comment comment);
+
+    int addCasesComment(Comment comment);
 }

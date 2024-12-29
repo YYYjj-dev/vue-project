@@ -12,6 +12,15 @@ public class CommentList {
     private Integer caseId;
     private String img;
     private String type;
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getType() {
         return type;

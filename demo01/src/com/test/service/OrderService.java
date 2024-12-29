@@ -5,7 +5,6 @@ import com.test.pojo.Order;
 import java.util.List;
 
 public interface OrderService {
-    int orderShangpin(Integer sid, Integer uid, Integer num, String date);
 
     int deleteOrder(Integer oid);
 
@@ -28,5 +27,7 @@ public interface OrderService {
     List<Order> getOrderByMUsername(String username);
 
     String getMUsernameByOid(Integer oid);
+
+    int orderShangpin(Order orderInfo);
 }
 
