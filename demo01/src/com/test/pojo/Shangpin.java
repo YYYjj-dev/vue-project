@@ -11,7 +11,7 @@ public class Shangpin {
   private String description;
   private String standard;
   private Double price;
-  private Double score;
+  private String score;
   private Integer num;
   private String imgpath;
 
@@ -19,7 +19,11 @@ public class Shangpin {
     this.price = price;
   }
 
-  public void setScore(Double score) {
+  public String getScore() {
+    return score;
+  }
+
+  public void setScore(String score) {
     this.score = score;
   }
 
@@ -103,13 +107,6 @@ public class Shangpin {
   }
 
 
-  public double getScore() {
-    return score;
-  }
-
-  public void setScore(double score) {
-    this.score = score;
-  }
 
 
   public Integer getNum() {

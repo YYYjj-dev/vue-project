@@ -121,6 +121,9 @@ public class ShangpinController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *添加评分,传入token和score对象
+     */
     protected void addScore(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Score score = WebUtil.readJson(req,Score.class);
         int rows = shangpinService.addScore(score);
@@ -133,6 +136,7 @@ public class ShangpinController extends BaseController{
 
     /**
      *根据商品sid，以String形式返回商品评分（平均值）
+     * (查询商品时不需要额外调用此方法，查询商品的方法会返回评分)
      */
     protected void findScoreBySid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
@@ -144,4 +148,5 @@ public class ShangpinController extends BaseController{
         }
         WebUtil.writeJson(resp,result);
     }
+
 }
