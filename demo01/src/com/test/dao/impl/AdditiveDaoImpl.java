@@ -45,6 +45,12 @@ public class AdditiveDaoImpl extends BaseDao implements AdditiveDao {
     }
 
     @Override
+    public Integer getAdditiveNum() {
+        String sql = "select count(*) from additive";
+        return baseQueryObject(Integer.class, sql);
+    }
+
+    @Override
     public int addAdditive(Additive addAdditive) {
         String sql = "insert into additive values(DEFAULT,?,?,?,?,?,?,?,?)";
         if(addAdditive.getImgpath() == null||addAdditive.getImgpath().equals("")){

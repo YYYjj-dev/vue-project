@@ -69,4 +69,9 @@ public class OrderServiceImpl implements OrderService {
     public int orderShangpin(Order orderInfo) {
         return orderDao.orderShangpin(orderInfo);
     }
+
+    @Override
+    public int purchase(Order orderInfo) {
+        return orderDao.purchase(orderInfo);
+    }
 }

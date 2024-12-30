@@ -24,6 +24,6 @@ public interface AdditiveService {
 
     List<Additive> findAdditive(Map<String, Object> queryParams);
 
-    ;
+    Integer getAdditiveNum();
 
 }

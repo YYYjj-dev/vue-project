@@ -39,41 +39,46 @@ public class OrderController extends BaseController {
         Result result = Result.ok(rows);
         WebUtil.writeJson(resp,result);
     }
-    //todo
+
     /**
      *删除订单，传入用户token,订单id
      */
     protected void deleteOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String token = req.getParameter("token");
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
         User user = JwtTokenUtils.checkToken(token);
-        Integer oid = Integer.parseInt(req.getParameter("oid"));
+        Integer oid = tokenInfo.getId();
         String username = orderService.findMUsernameByOid(oid);
         Result result = Result.build(null, ResultCodeEnum.DELETION_FAILED);
-        if (user.getUsername().equals(username)) {
-            int rows = orderService.deleteOrder(oid);
-            result = Result.ok(rows);
-        }
+        int rows = orderService.deleteOrder(oid);
+        result = Result.ok(rows);
         WebUtil.writeJson(resp,result);
     }
-    //todo
+
     /**
-     *支付订单，传入买家用户token，商品集合orderList(购物车或直接购买)
+     *直接购买，创建已支付订单，传入用户token，订单对象：date，商品id：shangpinId，购买数量quantity
+     */
+    protected void purchase(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
+        User user = JwtTokenUtils.checkToken(token);
+        Order orderInfo = tokenInfo.getOrderInfo();
+        orderInfo.setUserId(user.getId());
+        // 调用服务层方法完成下单操作
+        int rows = orderService.purchase(orderInfo);
+        Result result = Result.ok(rows);
+        WebUtil.writeJson(resp,result);
+    }
+    /**
+     *支付订单，传入买家用户token，商品id集合oidList(购物车或直接购买)
      */
     protected void payOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         TokenInfo tokenInfo = WebUtil.readTokenJson(req);
         String token = tokenInfo.getToken();
         User user = JwtTokenUtils.checkToken(token);
-        Integer uid = user.getId();
-        List<Integer> oidList = WebUtil.readSetByJson(req,Integer.class);
+        List<Integer> oidList = tokenInfo.getOidList();
         Result result = Result.build(null,ResultCodeEnum.UPDATE_FAILED);
         int rows = 0;
-        for (Integer oid : oidList) {
-           Order order = orderService.findOrderById(oid);
-           if(order != null&& !Objects.equals(order.getUserId(), uid)) {
-               oidList = null;
-               break;
-           }
-        }
         if (oidList != null) {
             rows = orderService.payOrder(oidList);
             if (rows > 0) {
@@ -82,16 +87,17 @@ public class OrderController extends BaseController {
         }
         WebUtil.writeJson(resp,result);
     }
-    //todo
+
     /**
      *发货，传入商家用户token,订单id
      */
     protected void deliverOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String token = req.getParameter("token");
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
         User user = JwtTokenUtils.checkToken(token);
+        Integer oid = tokenInfo.getId();
         Result result = Result.build(null,ResultCodeEnum.USERTYPE_ERROR);
         if(user.getType().equals("merchant")||user.getType().equals("admin")) {
-            Integer oid = Integer.parseInt(req.getParameter("oid"));
             String username = orderService.getMUsernameByOid(oid);
             int rows = 0;
             if (user.getUsername().equals(username)) {
@@ -103,26 +109,29 @@ public class OrderController extends BaseController {
         }
         WebUtil.writeJson(resp,result);
     }
-    //todo
+
     /**
      *收货，传入买家用户token
      */
     protected void completeOrder(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer oid = Integer.parseInt(req.getParameter("oid"));
-        int rows = orderService.completeOrder(oid);
-        Result result = Result.ok(rows);
-        WebUtil.writeJson(resp,result);
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
+        User user = JwtTokenUtils.checkToken(token);
+        Integer oid = tokenInfo.getId();
+        if( user.getType().equals("merchant")||user.getType().equals("admin")) {
+            int rows = orderService.completeOrder(oid);
+            Result result = Result.ok(rows);
+            WebUtil.writeJson(resp,result);
+        }
     }
 
     /**
      *根据买家uid查找发送的订单，传入token
      */
     protected void findOrderByUid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String token = req.getParameter("token");
-        if(token == null)
-        {
-            token = WebUtil.readJson(req,String.class);
-        }
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
+
         User user = JwtTokenUtils.checkToken(token);
         Integer uid = user.getId();
         Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
@@ -132,7 +141,7 @@ public class OrderController extends BaseController {
         }
         WebUtil.writeJson(resp,result);
     }
-    //todo
+
     /**
      *根据oid返回订单
      */

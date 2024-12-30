@@ -1,0 +1,17 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "demo01/web/WEB-INF/lib/commons-beanutils-1.8.0.jar",
+        "demo01/web/WEB-INF/lib/commons-fileupload2-core-2.0.0-M2.jar",
+        "demo01/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet6-2.0.0-M2.jar",
+        "demo01/web/WEB-INF/lib/commons-io-2.15.1.jar",
+        "demo01/web/WEB-INF/lib/druid-1.2.21.jar",
+        "demo01/web/WEB-INF/lib/jackson-annotations-2.13.2.jar",
+        "demo01/web/WEB-INF/lib/jackson-core-2.13.2.jar",
+        "demo01/web/WEB-INF/lib/jackson-databind-2.13.2.jar",
+        "demo01/web/WEB-INF/lib/jjwt-api-0.11.5.jar",
+        "demo01/web/WEB-INF/lib/jjwt-impl-0.11.5.jar",
+        "demo01/web/WEB-INF/lib/jjwt-jackson-0.11.5.jar",
+        "demo01/web/WEB-INF/lib/mysql-connector-j-9.1.0.jar"
+    ]
+}

@@ -55,4 +55,9 @@ public class AdditiveServiceImpl implements AdditiveService {
     public List<Additive> findAdditive(Map<String, Object> queryParams) {
         return additiveDao.findAdditive(queryParams);
     }
+
+    @Override
+    public Integer getAdditiveNum() {
+        return additiveDao.getAdditiveNum();
+    }
 }

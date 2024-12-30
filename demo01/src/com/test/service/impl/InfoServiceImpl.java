@@ -17,6 +17,7 @@ public class InfoServiceImpl implements InfoService {
     private FeedbackDao feedbackDao = new FeedbackImpl();
     private ImageDao imageDao = new ImageDaoImpl();
     private ReplyDao replyDao = new ReplyDaoImpl();
+    private NumDao numDao = new NumDaoImpl();
 
     @Override
     public int addNews(News news) {
@@ -136,6 +137,11 @@ public class InfoServiceImpl implements InfoService {
     @Override
     public List<Feedback> findAllFeedback() {
         return feedbackDao.findAllFeedback();
+    }
+
+    @Override
+    public Map<String,Integer> getAllNum() {
+        return numDao.getAllNum();
     }
 
     @Override

@@ -24,4 +24,5 @@ public interface AdditiveDao {
 
     List<Additive> findAdditive(Map<String, Object> queryParams);
 
+    Integer getAdditiveNum();
 }

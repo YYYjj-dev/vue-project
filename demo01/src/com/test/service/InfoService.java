@@ -92,4 +92,6 @@ public interface InfoService {
     List<Feedback> findFeedbackByType(String type);
 
     List<Feedback> findAllFeedback();
+
+    Map<String,Integer> getAllNum();
 }

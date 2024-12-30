@@ -4,12 +4,14 @@ import com.test.pojo.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * 签发token
+ */
 public class JwtTokenUtils {
 
     //用于签名的私钥
@@ -24,9 +26,8 @@ public class JwtTokenUtils {
 
     /**
      * 生成Token
-     *
      * @param user
-     * @return
+     * @return token
      */
     public static String createToken(User user, int expireTimeType) {
         //过期时间

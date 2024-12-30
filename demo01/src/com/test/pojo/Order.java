@@ -9,13 +9,13 @@ public class Order {
   private Double sub;
   private Integer quantity;
   private Integer shangpinId;
-  private Shangpin status;
+  private String status;
 
-  public Shangpin getStatus() {
+  public String getStatus() {
     return status;
   }
 
-  public void setStatus(Shangpin status) {
+  public void setStatus(String status) {
     this.status = status;
   }
 

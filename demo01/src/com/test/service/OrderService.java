@@ -29,5 +29,7 @@ public interface OrderService {
     String getMUsernameByOid(Integer oid);
 
     int orderShangpin(Order orderInfo);
+
+    int purchase(Order orderInfo);
 }
 

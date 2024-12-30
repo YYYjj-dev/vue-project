@@ -44,12 +44,10 @@ public class UserController extends BaseController {
      * 登录业务
      */
     protected void login(HttpServletRequest req, HttpServletResponse resp) {
-
         User user = WebUtil.readJson(req, User.class);
         User loginUser = userService.findByUsername(user.getUsername());
         Map respMap = new HashMap();
         Result result = null;
-
         if (null == loginUser) {
             result = Result.build(null, ResultCodeEnum.USERNAME_ERROR);
         } else if (!(user.getPassword().equals(loginUser.getPassword()))) {

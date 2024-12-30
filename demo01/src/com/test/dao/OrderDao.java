@@ -30,4 +30,6 @@ public interface OrderDao {
     String getMUsernameByOid(Integer oid);
 
     int orderShangpin(Order orderInfo);
+
+    int purchase(Order orderInfo);
 }

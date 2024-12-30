@@ -150,4 +150,11 @@ public class AdditiveController extends BaseController {
         }
         WebUtil.writeJson(resp,result);
     }
+
+    protected void getAdditiveNum(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer num = additiveService.getAdditiveNum();
+        Result result = Result.ok(num);
+        WebUtil.writeJson(resp,result);
+    }
+
 }

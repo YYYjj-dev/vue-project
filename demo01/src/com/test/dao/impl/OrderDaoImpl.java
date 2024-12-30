@@ -12,7 +12,7 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
     @Override
     public int orderShangpin(Order order) {
         String sql1="select price from shangpin where id=?";
-        double price=(Double)baseQuery(Double.class,sql1,order.getShangpinId()).get(0);
+        double price=baseQueryObject(Double.class,sql1,order.getShangpinId());
         double sub = order.getQuantity() *price;
         System.out.println(sub);
         String sql2="insert into `order` values(DEFAULT,?,?,?,?,?,'未支付')";
@@ -20,8 +20,18 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
     }
 
     @Override
+    public int purchase(Order order) {
+        String sql1="select price from shangpin where id=?";
+        double price=baseQueryObject(Double.class,sql1,order.getShangpinId());
+        double sub = order.getQuantity() *price;
+        System.out.println(sub);
+        String sql2="insert into `order` values(DEFAULT,?,?,?,?,?,'已支付')";
+        return baseUpdate(sql2, order.getDate(),order.getUserId(),sub,order.getQuantity(),order.getShangpinId());
+    }
+
+    @Override
     public int deleteOrder(Integer oid) {
-        String sql = "delete from `order` where id =? and status = '已完成'";
+        String sql = "delete from `order` where id =? and (status = '已完成' or status = '未支付') ";
         return baseUpdate(sql,oid);
     }
 
@@ -29,7 +39,7 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
     public int payOrder(List<Integer> oid) {
         int rows = 0;
         for(Integer id:oid){
-            String sql = "update `order` set status = '已支付' where order_id =?";
+            String sql = "update `order` set status = '已支付' where id =?";
             baseUpdate(sql, id);
             rows++;
         }
@@ -61,19 +71,19 @@ public class OrderDaoImpl extends BaseDao implements OrderDao {
 
     @Override
     public int deliverOrder(Integer oid) {
-        String sql = "update `order` set status = '已发货' where order_id =?";
+        String sql = "update `order` set status = '已发货' where id =?";
         return baseUpdate(sql,oid);
     }
 
     @Override
     public int completeOrder(Integer oid) {
-        String sql = "update `order` set status = '已收货' where order_id =?";
+        String sql = "update `order` set status = '已收货' where id =?";
         return baseUpdate(sql,oid);
     }
 
     @Override
     public String findMUsernameByOid(Integer oid) {
-        String sql = "select merchant.username from order,shangpin,merchant where order.shangpinId = shangpin.id and shangpin.store_id=merchant.id = ?";
+        String sql = "select merchant.username from `order`,shangpin,merchant where `order`.shangpinId = shangpin.id and shangpin.store_id=merchant.id = ?";
         return baseQueryObject(String.class,sql,oid);
     }
 

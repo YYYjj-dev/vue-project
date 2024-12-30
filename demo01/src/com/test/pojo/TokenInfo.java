@@ -1,6 +1,8 @@
 package com.test.pojo;
 
 
+import java.util.List;
+
 /**
  * 处理前端传回的带有token的数据
  */
@@ -13,6 +15,24 @@ public class TokenInfo {
     private Score scoreInfo;
     private Feedback feedbackInfo;
     private Shangpin shangpinInfo;
+    private Integer id;
+    private List<Integer> oidList;
+
+    public List<Integer> getOidList() {
+        return oidList;
+    }
+
+    public void setOidList(List<Integer> oidList) {
+        this.oidList = oidList;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Feedback getFeedbackInfo() {
         return feedbackInfo;

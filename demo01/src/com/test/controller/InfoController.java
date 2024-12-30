@@ -140,6 +140,7 @@ public class InfoController extends BaseController{
     }
 
 
+
      //案例相关业务
 
     /**
@@ -510,5 +511,13 @@ public class InfoController extends BaseController{
             result = Result.ok(rows);
         }
         WebUtil.writeJson(resp,result);
+    }
+
+    protected void getAllNum(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+       Map<String,Integer> newsNum = infoService.getAllNum();
+       Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+
+       WebUtil.writeJson(resp,result);
+
     }
 }
