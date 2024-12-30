@@ -47,4 +47,14 @@ public class MerchantServiceImpl implements MerchantService {
         return merchantDao.findMerchant(queryParams);
     }
 
+    @Override
+    public Merchant findMerchantById(Integer id) {
+        return merchantDao.findMerchantById(id);
+    }
+
+    @Override
+    public Merchant findMerchantBySid(Integer id) {
+        return merchantDao.findMerchantBySid(id);
+    }
+
 }

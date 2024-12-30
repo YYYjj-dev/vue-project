@@ -152,7 +152,7 @@ public class BaseDao {
         // 返回的是影响数据库记录数
         return rows;
     }
-    public String buildQuery(Map<String, Object> queryParams,String column,String table) {
+    public String buildQuery(Map<String, Object> queryParams,String column,String table,String ...args) {
         StringBuilder sql = new StringBuilder("SELECT "+column+" FROM " + table + " WHERE 1=1");
 
         for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
@@ -167,6 +167,10 @@ public class BaseDao {
             }
             // 其他类型处理...
         }
+        for (int i = 0; i < args.length; i++) {
+            sql.append(" AND ").append(args[i]);
+        }
+
         return sql.toString();
     }
 

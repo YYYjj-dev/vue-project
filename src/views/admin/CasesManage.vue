@@ -133,10 +133,26 @@ const fetchData = async () => {
 // 搜索
 const handleSearch = async () => {
   try {
-    if (searchType.value) {
-      const response = await request.get(`info/findCasesByType?type=${searchType.value}`)
+    const params = {}
+    if (searchQuery.value) params.title = searchQuery.value
+    if (searchType.value) params.grouptype = searchType.value
+    
+    if (Object.keys(params).length > 0) {
+      const response = await request.get('info/findCases', { params })
+      console.log('搜索返回的原始数据：', response)
+      
       if (response.data) {
-        casesList.value = Array.isArray(response.data) ? response.data : [response.data]
+        if (Array.isArray(response.data)) {
+          casesList.value = response.data
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          casesList.value = response.data.data
+        } else if (typeof response.data === 'object') {
+          casesList.value = [response.data]
+        } else {
+          casesList.value = []
+        }
+      } else {
+        casesList.value = []
       }
     } else {
       await fetchData()
@@ -144,6 +160,7 @@ const handleSearch = async () => {
   } catch (error) {
     console.error('搜索失败：', error)
     alert('搜索失败')
+    casesList.value = []
   }
 }
 

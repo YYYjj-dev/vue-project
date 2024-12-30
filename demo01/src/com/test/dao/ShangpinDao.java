@@ -4,6 +4,7 @@ import com.test.pojo.Score;
 import com.test.pojo.Shangpin;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ShangpinDao {
 
@@ -28,4 +29,6 @@ public interface ShangpinDao {
     int addScore(Score score);
 
     String findScoreBySid(Integer sid);
+
+    List<Shangpin> findShangpin(Map<String, Object> queryParams);
 }

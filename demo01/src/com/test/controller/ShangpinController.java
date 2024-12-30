@@ -149,4 +149,21 @@ public class ShangpinController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+    /**
+     *多条件查询商品，可传入对应群体group，商品类型type，商品名name，商家名merchantName
+     */
+    protected void findShangpin(HttpServletRequest req, HttpServletResponse resp) throws Exception{
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("`group`", req.getParameter("group"));
+        queryParams.put("shangpin.type", req.getParameter("type"));
+        queryParams.put("name", req.getParameter("name"));
+        queryParams.put("merchant.name", req.getParameter("merchantName"));
+        List<Shangpin> shangpinList = shangpinService.findShangpin(queryParams);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if (!shangpinList.isEmpty()) {
+            result = Result.ok(shangpinList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
 }

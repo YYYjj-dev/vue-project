@@ -8,6 +8,7 @@ import com.test.pojo.Shangpin;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 
 public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
     @Override
@@ -123,5 +124,15 @@ public class ShangpinDaoImpl extends BaseDao implements ShangpinDao {
             scoreStr = score.toString();
         }
         return scoreStr;
+    }
+
+    @Override
+    public List<Shangpin> findShangpin(Map<String, Object> queryParams) {
+        String sql = buildQuery(queryParams,"shangpin.id,store_id storeId,`group`,shangpin.type,shangpin.name,shangpin.description,standard,price,num,imgpath,merchant.name merchantName","shangpin,merchant","store_id = merchant.id");
+        List<Shangpin> shangpinList = baseQuery(Shangpin.class, sql);
+        for (Shangpin shangpin : shangpinList) {
+            shangpin.setScore(findScoreBySid(shangpin.getId()));
+        }
+        return shangpinList;
     }
 }

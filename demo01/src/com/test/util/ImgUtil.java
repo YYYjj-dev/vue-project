@@ -103,8 +103,10 @@ public class ImgUtil {
                 List<FileItem> list = servletFileUpload.parseRequest(req);
                 for (FileItem fileItem : list) {
                     if (fileItem.isFormField()) {
-                        if ("StoreId".equals(fileItem.getFieldName())) {
+                        if ("storeId".equals(fileItem.getFieldName())) {
                             shangpin.setStoreId(Integer.parseInt(fileItem.getString()));
+                        } else if ("name".equals(fileItem.getFieldName())) {
+                            shangpin.setName(fileItem.getString(charset));
                         } else if ("group".equals(fileItem.getFieldName())) {
                             shangpin.setGroup(fileItem.getString(charset));
                         } else if ("type".equals(fileItem.getFieldName())) {

@@ -7,19 +7,23 @@
 
     <!-- 搜索栏 -->
     <div class="search-bar">
-      <input type="text" v-model="searchQuery" placeholder="搜索商品名称/编号...">
-      <select v-model="searchCategory" class="search-select">
-        <option value="">所有分类</option>
-        <option value="食品添加剂">食品添加剂</option>
-        <option value="化妆品原料">化妆品原料</option>
-        <option value="医药辅料">医药辅料</option>
-        <option value="工业原料">工业原料</option>
+      <input type="text" v-model="searchQuery" placeholder="搜索商品名称...">
+      <select v-model="searchType" class="search-select">
+        <option value="">所有种类</option>
+        <option value="饮料">饮料</option>
+        <option value="果蔬">果蔬</option>
+        <option value="肉类">肉类</option>
+        <option value="营养品">营养品</option>
+        <option value="其他">其他</option>
       </select>
-      <select v-model="searchStatus" class="search-select">
-        <option value="">所有状态</option>
-        <option value="on">在售</option>
-        <option value="off">下架</option>
+      <select v-model="searchGroup" class="search-select">
+        <option value="">所有群体</option>
+        <option value="老年">老年</option>
+        <option value="婴幼儿">婴幼儿</option>
+        <option value="儿童">儿童</option>
+        <option value="其他">其他</option>
       </select>
+      <input type="text" v-model="searchMerchant" placeholder="商家名称...">
       <button class="search-btn" @click="handleSearch">搜索</button>
     </div>
 
@@ -28,53 +32,34 @@
       <table>
         <thead>
           <tr>
-            <th>商品编号</th>
+            <th>商品ID</th>
             <th>商品名称</th>
-            <th>分类</th>
+            <th>商品种类</th>
+            <th>对应群体</th>
             <th>价格(元)</th>
             <th>库存</th>
-            <th>销量</th>
-            <th>状态</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in productsList" :key="item.id">
-            <td>{{ item.productCode }}</td>
+            <td>{{ item.id }}</td>
             <td>{{ item.name }}</td>
-            <td>{{ item.category }}</td>
+            <td>{{ item.type }}</td>
+            <td>{{ item.group }}</td>
             <td>{{ item.price }}</td>
             <td>
-              <span :class="['stock-tag', getStockLevel(item.stock)]">
-                {{ item.stock }}
+              <span :class="['stock-tag', getStockLevel(item.num)]">
+                {{ item.num }}
               </span>
             </td>
-            <td>{{ item.sales }}</td>
-            <td>
-              <span :class="['status-tag', item.status === 'on' ? 'on-sale' : 'off-sale']">
-                {{ item.status === 'on' ? '在售' : '已下架' }}
-              </span>
-            </td>
-            <td>
+            <td class="operation-group">
               <button class="edit-btn" @click="handleEdit(item)">编辑</button>
-              <button 
-                :class="['toggle-btn', item.status === 'on' ? 'off-btn' : 'on-btn']"
-                @click="handleToggleStatus(item)">
-                {{ item.status === 'on' ? '下架' : '上架' }}
-              </button>
-              <button class="stock-btn" @click="showStockDialog(item)">库存</button>
               <button class="delete-btn" @click="handleDelete(item.id)">删除</button>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- 分页 -->
-    <div class="pagination">
-      <button :disabled="currentPage === 1" @click="handlePageChange(currentPage - 1)">上一页</button>
-      <span>第 {{ currentPage }} 页</span>
-      <button :disabled="currentPage === totalPages" @click="handlePageChange(currentPage + 1)">下一页</button>
     </div>
 
     <!-- 添加/编辑商品对话框 -->
@@ -87,86 +72,54 @@
             <input type="text" v-model="formData.name" required>
           </div>
           <div class="form-group">
-            <label>商品编号：</label>
-            <input type="text" v-model="formData.productCode" required>
+            <label>商品种类：</label>
+            <select v-model="formData.type" required>
+              <option value="饮料">饮料</option>
+              <option value="果蔬">果蔬</option>
+              <option value="肉类">肉类</option>
+              <option value="营养品">营养品</option>
+              <option value="其他">其他</option>
+            </select>
           </div>
           <div class="form-group">
-            <label>分类：</label>
-            <select v-model="formData.category" required>
-              <option value="食品添加剂">食品添加剂</option>
-              <option value="化妆品原料">化妆品原料</option>
-              <option value="医药辅料">医药辅料</option>
-              <option value="工业原料">工业原料</option>
+            <label>对应群体：</label>
+            <select v-model="formData.group" required>
+              <option value="老年">老年</option>
+              <option value="婴幼儿">婴幼儿</option>
+              <option value="儿童">儿童</option>
+              <option value="其他">其他</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label>商家ID：</label>
+            <input type="text" v-model="formData.storeId" required>
           </div>
           <div class="form-group">
             <label>价格(元)：</label>
             <input type="number" v-model="formData.price" min="0" step="0.01" required>
           </div>
           <div class="form-group">
-            <label>初始库存：</label>
-            <input type="number" v-model="formData.stock" min="0" required>
+            <label>库存数量：</label>
+            <input type="number" v-model="formData.num" min="0" required>
           </div>
           <div class="form-group">
             <label>规格：</label>
-            <input type="text" v-model="formData.specification" required>
-          </div>
-          <div class="form-group">
-            <label>商品图片：</label>
-            <div class="image-upload">
-              <input type="file" @change="handleImageUpload" accept="image/*" multiple>
-              <div class="image-preview-list" v-if="formData.images && formData.images.length">
-                <div v-for="(image, index) in formData.images" :key="index" class="image-preview-item">
-                  <img :src="image" :alt="'商品图片' + (index + 1)">
-                  <button type="button" class="remove-image" @click="removeImage(index)">×</button>
-                </div>
-              </div>
-            </div>
+            <input type="text" v-model="formData.standard" required>
           </div>
           <div class="form-group">
             <label>商品描述：</label>
             <textarea v-model="formData.description" rows="4" required></textarea>
           </div>
           <div class="form-group">
-            <label>注意事项：</label>
-            <textarea v-model="formData.notes" rows="3"></textarea>
+            <label>商品图片：</label>
+            <input type="file" @change="handleImageUpload" accept="image/*">
+            <div v-if="imagePreview" class="image-preview">
+              <img :src="imagePreview" alt="商品图片预览">
+            </div>
           </div>
           <div class="dialog-buttons">
             <button type="submit" class="submit-btn">提交</button>
             <button type="button" class="cancel-btn" @click="closeDialog">取消</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- 库存管理对话框 -->
-    <div v-if="showStockDialog" class="dialog-overlay">
-      <div class="dialog stock-dialog">
-        <h3>库存管理</h3>
-        <div class="stock-info">
-          <p>当前库存：{{ selectedProduct.stock }}</p>
-          <p>商品名称：{{ selectedProduct.name }}</p>
-          <p>商品编号：{{ selectedProduct.productCode }}</p>
-        </div>
-        <form @submit.prevent="handleStockSubmit">
-          <div class="form-group">
-            <label>操作类型：</label>
-            <select v-model="stockForm.type" required>
-              <option value="in">入库</option>
-              <option value="out">出库</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>数量：</label>
-            <input type="number" v-model="stockForm.amount" min="1" required>
-          </div>
-          <div class="form-group">
-            <label>备注：</label>
-            <textarea v-model="stockForm.remarks" rows="2"></textarea>
-          </div>
-          <div class="dialog-buttons">
-            <button type="submit" class="submit-btn">确认</button>
-            <button type="button" class="cancel-btn" @click="closeStockDialog">取消</button>
           </div>
         </form>
       </div>
@@ -180,195 +133,221 @@ import request from '../../utils/request'
 
 // 数据状态
 const productsList = ref([])
-const currentPage = ref(1)
-const totalPages = ref(1)
 const searchQuery = ref('')
-const searchCategory = ref('')
-const searchStatus = ref('')
+const searchType = ref('')
+const searchGroup = ref('')
+const searchMerchant = ref('')
 const showDialog = ref(false)
-const showStockDialog = ref(false)
 const isEditing = ref(false)
-const selectedProduct = ref({})
+const imagePreview = ref('')
 const formData = ref({
+  id: '',
+  storeId: '',
   name: '',
-  productCode: '',
-  category: '',
-  price: '',
-  stock: 0,
-  specification: '',
+  type: '',
+  group: '',
   description: '',
-  notes: '',
-  images: []
-})
-const stockForm = ref({
-  type: 'in',
-  amount: 1,
-  remarks: ''
+  standard: '',
+  price: '',
+  num: 0,
+  imgpath: ''
 })
 
 // 获取库存等级
-const getStockLevel = (stock) => {
-  if (stock <= 0) return 'no-stock'
-  if (stock < 10) return 'low-stock'
-  if (stock < 50) return 'medium-stock'
+const getStockLevel = (num) => {
+  if (num <= 0) return 'no-stock'
+  if (num < 10) return 'low-stock'
+  if (num < 50) return 'medium-stock'
   return 'high-stock'
 }
 
 // 获取数据
 const fetchData = async () => {
   try {
-    const { data } = await request.get('product/findAll', {
-      params: {
-        page: currentPage.value,
-        query: searchQuery.value,
-        category: searchCategory.value,
-        status: searchStatus.value
+    const response = await request.get('shangpin/findAllShangpin')
+    console.log('API返回的原始数据：', response)
+    
+    if (response.data) {
+      if (response.data.code === 404) {
+        productsList.value = []
+        console.error('获取数据失败：', response.data)
+        return
       }
-    })
-    productsList.value = data.data
-    totalPages.value = data.totalPages || 1
+      
+      if (Array.isArray(response.data)) {
+        productsList.value = response.data
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        productsList.value = response.data.data
+      } else if (typeof response.data === 'object') {
+        productsList.value = [response.data]
+      } else {
+        productsList.value = []
+      }
+    } else {
+      console.error('API返回数据格式不正确：', response)
+      productsList.value = []
+    }
   } catch (error) {
     console.error('获取数据失败：', error)
+    productsList.value = []
   }
 }
 
 // 搜索
-const handleSearch = () => {
-  currentPage.value = 1
-  fetchData()
-}
-
-// 分页
-const handlePageChange = (page) => {
-  currentPage.value = page
-  fetchData()
+const handleSearch = async () => {
+  try {
+    const params = {}
+    if (searchQuery.value) params.name = searchQuery.value
+    if (searchType.value) params.type = searchType.value
+    if (searchGroup.value) params.group = searchGroup.value
+    if (searchMerchant.value) params.merchantName = searchMerchant.value
+    
+    if (Object.keys(params).length > 0) {
+      const response = await request.get('shangpin/findShangpin', { params })
+      console.log('搜索返回的原始数据：', response)
+      
+      if (response.data) {
+        if (response.data.code === 404) {
+          productsList.value = []
+          return
+        }
+        
+        if (Array.isArray(response.data)) {
+          productsList.value = response.data
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          productsList.value = response.data.data
+        } else if (typeof response.data === 'object' && !response.data.code) {
+          productsList.value = [response.data]
+        } else {
+          productsList.value = []
+        }
+      } else {
+        productsList.value = []
+      }
+    } else {
+      await fetchData()
+    }
+  } catch (error) {
+    console.error('搜索失败：', error)
+    alert('搜索失败')
+    productsList.value = []
+  }
 }
 
 // 显示添加对话框
 const showAddDialog = () => {
   isEditing.value = false
   formData.value = {
+    id: '',
+    storeId: '',
     name: '',
-    productCode: '',
-    category: '',
-    price: '',
-    stock: 0,
-    specification: '',
+    type: '',
+    group: '',
     description: '',
-    notes: '',
-    images: []
+    standard: '',
+    price: '',
+    num: 0,
+    imgpath: ''
   }
+  imagePreview.value = ''
   showDialog.value = true
 }
 
 // 编辑
-const handleEdit = (item) => {
-  isEditing.value = true
-  formData.value = { ...item }
-  showDialog.value = true
-}
-
-// 切换商��状态
-const handleToggleStatus = async (item) => {
-  const action = item.status === 'on' ? 'off' : 'on'
-  const confirmMessage = `确定要${action === 'on' ? '上架' : '下架'}该商品吗？`
-  
-  if (confirm(confirmMessage)) {
-    try {
-      await request.put(`product/${action}/${item.id}`)
-      fetchData()
-    } catch (error) {
-      console.error(`${action}失败：`, error)
-    }
-  }
-}
-
-// 显示库存管理对话框
-const showStockDialog2 = (item) => {
-  selectedProduct.value = item
-  stockForm.value = {
-    type: 'in',
-    amount: 1,
-    remarks: ''
-  }
-  showStockDialog.value = true
-}
-
-// 处理库存变更
-const handleStockSubmit = async () => {
+const handleEdit = async (item) => {
   try {
-    await request.post('product/stock/change', {
-      productId: selectedProduct.value.id,
-      type: stockForm.value.type,
-      amount: stockForm.value.amount,
-      remarks: stockForm.value.remarks
-    })
-    closeStockDialog()
-    fetchData()
+    const response = await request.get(`shangpin/findShangpinById?id=${item.id}`)
+    console.log('获取到的商品详情：', response)
+    
+    if (response.data) {
+      if (response.data.code === 404) {
+        alert('获取商品详情失败')
+        return
+      }
+      
+      isEditing.value = true
+      const productData = response.data.data || response.data
+      formData.value = { ...productData }
+      imagePreview.value = productData.imgpath ? `http://localhost:8080/image/${productData.imgpath}` : ''
+      showDialog.value = true
+    }
   } catch (error) {
-    console.error('库存操作失败：', error)
+    console.error('获取商品详情失败：', error)
+    alert('获取商品详情失败')
   }
 }
 
 // 删除
 const handleDelete = async (id) => {
-  if (confirm('确定要删除该商品吗？此操作不可恢复！')) {
+  if (confirm('确定要删除这个商品吗？')) {
     try {
-      await request.delete(`product/delete/${id}`)
+      await request.get(`shangpin/deleteShangpinById?id=${id}`)
+      alert('删除成功')
       fetchData()
     } catch (error) {
       console.error('删除失败：', error)
+      alert('删除失败')
     }
   }
 }
 
 // 处理图片上传
 const handleImageUpload = (event) => {
-  const files = event.target.files
-  if (files) {
-    Array.from(files).forEach(file => {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        formData.value.images.push(e.target.result)
-      }
-      reader.readAsDataURL(file)
-    })
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imagePreview.value = e.target.result
+    }
+    reader.readAsDataURL(file)
+    formData.value.imageFile = file
   }
-}
-
-// 移除图片
-const removeImage = (index) => {
-  formData.value.images.splice(index, 1)
 }
 
 // 提交表单
 const handleSubmit = async () => {
   try {
     const formDataToSend = new FormData()
-    for (const key in formData.value) {
-      if (key === 'images') {
-        formData.value.images.forEach(async (image, index) => {
-          if (image.startsWith('data:')) {
-            const blob = await fetch(image).then(r => r.blob())
-            formDataToSend.append(`images[${index}]`, blob)
-          } else {
-            formDataToSend.append(`images[${index}]`, image)
-          }
-        })
-      } else if (formData.value[key] !== null) {
-        formDataToSend.append(key, formData.value[key])
+    
+    // 添加基本字段
+    formDataToSend.append('name', formData.value.name)
+    formDataToSend.append('type', formData.value.type)
+    formDataToSend.append('group', formData.value.group)
+    formDataToSend.append('storeId', formData.value.storeId)
+    formDataToSend.append('description', formData.value.description)
+    formDataToSend.append('standard', formData.value.standard)
+    formDataToSend.append('price', formData.value.price)
+    formDataToSend.append('num', formData.value.num)
+    
+    if (isEditing.value) {
+      formDataToSend.append('id', formData.value.id)
+      // 如果是编辑模式且没有新上传的图片，则传入原图片路径
+      if (!formData.value.imageFile && formData.value.imgpath) {
+        formDataToSend.append('imgpath', formData.value.imgpath)
       }
     }
+    
+    // 添加新上传的图片文件
+    if (formData.value.imageFile) {
+      formDataToSend.append('file', formData.value.imageFile)
+    }
+    
+    console.log('提交的数据：', Object.fromEntries(formDataToSend))
 
     if (isEditing.value) {
-      await request.put(`product/update/${formData.value.id}`, formDataToSend)
+      const response = await request.post('shangpin/updateShangpin', formDataToSend)
+      console.log('更新响应：', response)
+      alert('修改成功')
     } else {
-      await request.post('product/add', formDataToSend)
+      const response = await request.post('shangpin/addShangpin', formDataToSend)
+      console.log('添加响应：', response)
+      alert('添加成功')
     }
     closeDialog()
-    fetchData()
+    await fetchData()
   } catch (error) {
     console.error('提交失败：', error)
+    alert('操作失败，请重试')
   }
 }
 
@@ -376,40 +355,54 @@ const handleSubmit = async () => {
 const closeDialog = () => {
   showDialog.value = false
   formData.value = {
+    id: '',
+    storeId: '',
     name: '',
-    productCode: '',
-    category: '',
-    price: '',
-    stock: 0,
-    specification: '',
+    type: '',
+    group: '',
     description: '',
-    notes: '',
-    images: []
+    standard: '',
+    price: '',
+    num: 0,
+    imgpath: ''
   }
+  imagePreview.value = ''
 }
 
-// 关闭库存对话框
-const closeStockDialog = () => {
-  showStockDialog.value = false
-  stockForm.value = {
-    type: 'in',
-    amount: 1,
-    remarks: ''
-  }
-}
-
-onMounted(() => {
-  fetchData()
+onMounted(async () => {
+  await fetchData()
 })
 </script>
 
 <style scoped>
-/* 复用基础样式 */
+@import '../../../src/style/admin-common.css';
+
 .manage-container {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  min-height: 500px;
+}
+
+.operation-group {
+  display: flex;
+  gap: 8px;
+}
+
+.dialog {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.image-preview {
+  margin-top: 10px;
+  max-width: 200px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* 库存标签样式 */
@@ -437,192 +430,5 @@ onMounted(() => {
 .stock-tag.high-stock {
   background-color: #ecf5ff;
   color: #409eff;
-}
-
-/* 状态标签样式 */
-.status-tag {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.status-tag.on-sale {
-  background-color: #f0f9eb;
-  color: #67c23a;
-}
-
-.status-tag.off-sale {
-  background-color: #f4f4f5;
-  color: #909399;
-}
-
-/* 按钮样式 */
-.edit-btn, .toggle-btn, .stock-btn, .delete-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 5px;
-  font-size: 12px;
-}
-
-.edit-btn {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.on-btn {
-  background-color: #67c23a;
-  color: white;
-}
-
-.off-btn {
-  background-color: #909399;
-  color: white;
-}
-
-.stock-btn {
-  background-color: #409eff;
-  color: white;
-}
-
-.delete-btn {
-  background-color: #dc3545;
-  color: white;
-}
-
-/* 图片上传样式 */
-.image-upload {
-  margin-top: 10px;
-}
-
-.image-preview-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.image-preview-item {
-  position: relative;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.image-preview-item img {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
-  display: block;
-}
-
-.remove-image {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-/* 库存对话框样式 */
-.stock-dialog {
-  width: 400px;
-}
-
-.stock-info {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.stock-info p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-
-/* 表单样式 */
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.form-group textarea {
-  resize: vertical;
-}
-
-/* 搜索栏样式 */
-.search-bar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-bar input,
-.search-select {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.search-bar input {
-  flex: 1;
-}
-
-.search-select {
-  width: 120px;
-}
-
-/* 对话框样式 */
-.dialog {
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* 分页样式 */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.pagination button {
-  padding: 8px 15px;
-  border: 1px solid #ddd;
-  background-color: white;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.pagination button:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
 }
 </style> 

@@ -52,6 +52,29 @@ public class MerchantController extends BaseController{
     }
 
     /**
+     *根据id返回商家
+     */
+    protected void findMerchantById(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        Merchant merchantInfo = merchantService.findMerchantById(id);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if(null!=merchantInfo){
+            result = Result.ok(merchantInfo);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void findMerchantBySid(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Integer id = Integer.parseInt(req.getParameter("sid"));
+        Merchant merchantInfo = merchantService.findMerchantBySid(id);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if(null!=merchantInfo){
+            result = Result.ok(merchantInfo);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    /**
      *返回所有商家
      */
     protected void findAllMerchants(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -143,7 +166,12 @@ public class MerchantController extends BaseController{
         Map<String, Object> queryParams = new HashMap<>();
         queryParams.put("name", req.getParameter("name"));
         queryParams.put("type", req.getParameter("type"));
-        List<Merchant> newsList = merchantService.findMerchant(queryParams);
+        List<Merchant> merchantList = merchantService.findMerchant(queryParams);
+        Result result = Result.build(null, ResultCodeEnum.NOT_FOUND);
+        if(null!=merchantList){
+            result=Result.ok(merchantList);
+        }
+        WebUtil.writeJson(resp,result);
     }
 
     //根据商家id查找商品或订单均在shangpinController

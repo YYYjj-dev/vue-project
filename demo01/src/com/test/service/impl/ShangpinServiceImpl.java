@@ -7,6 +7,7 @@ import com.test.pojo.Shangpin;
 import com.test.service.ShangpinService;
 
 import java.util.List;
+import java.util.Map;
 
 public class ShangpinServiceImpl implements ShangpinService {
     private ShangpinDao shangpinDao=new ShangpinDaoImpl();
@@ -59,6 +60,11 @@ public class ShangpinServiceImpl implements ShangpinService {
     @Override
     public String findScoreBySid(Integer sid) {
         return shangpinDao.findScoreBySid(sid);
+    }
+
+    @Override
+    public List<Shangpin> findShangpin(Map<String, Object> queryParams) {
+        return shangpinDao.findShangpin(queryParams);
     }
 
     @Override

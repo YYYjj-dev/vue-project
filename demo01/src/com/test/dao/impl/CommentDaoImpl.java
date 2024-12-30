@@ -24,7 +24,7 @@ public class CommentDaoImpl extends BaseDao implements CommentDao {
     public List<CommentList> findCasesCommentById(Integer commentId) {
         String sql = "select comment.id,username,user_id userId,content,date,img,type " +
                 "from comment,user " +
-                "where cases_id=? and user_id=user.id";
+                "where case_id=? and user_id=user.id";
         return baseQuery(CommentList.class, sql, commentId);
     }
 

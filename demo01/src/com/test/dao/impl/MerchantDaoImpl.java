@@ -52,4 +52,18 @@ public class MerchantDaoImpl extends BaseDao implements MerchantDao {
         String sql = buildQuery(queryParams,"*","merchant");
         return baseQuery(Merchant.class,sql);
     }
+
+    @Override
+    public Merchant findMerchantById(Integer id) {
+        String sql = "select * from merchant where id = ?";
+        List<Merchant> merchant = baseQuery(Merchant.class,sql,id);
+        return merchant.isEmpty() ? null : merchant.get(0);
+    }
+
+    @Override
+    public Merchant findMerchantBySid(Integer id) {
+        String sql = "select merchant.id,username,merchant.name,merchant.description,logo,merchant.type from merchant,shangpin where store_id = merchant.id and shangpin.id = ?";
+        List<Merchant> merchant = baseQuery(Merchant.class,sql,id);
+        return merchant.isEmpty() ? null : merchant.get(0);
+    }
 }

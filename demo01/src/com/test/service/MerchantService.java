@@ -21,4 +21,8 @@ public interface MerchantService {
     int deleteMerchant(Integer id);
 
     List<Merchant> findMerchant(Map<String, Object> queryParams);
+
+    Merchant findMerchantById(Integer id);
+
+    Merchant findMerchantBySid(Integer id);
 }

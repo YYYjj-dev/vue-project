@@ -15,6 +15,16 @@ public class Shangpin {
   private Integer num;
   private String imgpath;
 
+  private String merchantName;
+
+  public String getMerchantName() {
+    return merchantName;
+  }
+
+  public void setMerchantName(String merchantName) {
+    this.merchantName = merchantName;
+  }
+
   public void setPrice(Double price) {
     this.price = price;
   }
