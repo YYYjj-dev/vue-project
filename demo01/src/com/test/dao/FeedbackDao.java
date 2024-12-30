@@ -11,4 +11,9 @@ public interface FeedbackDao {
     List<Feedback> findFeedbackById(Integer id);
 
     int deleteFeedback(Integer id);
+
+    List<Feedback> findFeedbackByType(String type);
+
+    List<Feedback> findAllFeedback();
+
 }

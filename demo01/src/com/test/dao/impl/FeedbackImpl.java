@@ -26,4 +26,16 @@ public class FeedbackImpl extends BaseDao implements FeedbackDao {
         String sql = "delete from feedback where id = ?";
         return baseUpdate(sql, id);
     }
+
+    @Override
+    public List<Feedback> findFeedbackByType(String type) {
+        String sql = "select * from feedback where type = ?";
+        return baseQuery(Feedback.class, sql, type);
+    }
+
+    @Override
+    public List<Feedback> findAllFeedback() {
+        String sql = "select * from feedback";
+        return baseQuery(Feedback.class, sql);
+    }
 }

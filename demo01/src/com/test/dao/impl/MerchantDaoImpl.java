@@ -3,8 +3,6 @@ package com.test.dao.impl;
 import com.test.dao.BaseDao;
 import com.test.dao.MerchantDao;
 import com.test.pojo.Merchant;
-import com.test.pojo.News;
-
 import java.util.List;
 import java.util.Map;
 
@@ -66,4 +64,6 @@ public class MerchantDaoImpl extends BaseDao implements MerchantDao {
         List<Merchant> merchant = baseQuery(Merchant.class,sql,id);
         return merchant.isEmpty() ? null : merchant.get(0);
     }
+
+
 }

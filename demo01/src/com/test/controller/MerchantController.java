@@ -4,7 +4,6 @@ package com.test.controller;
 import com.test.common.Result;
 import com.test.common.ResultCodeEnum;
 import com.test.pojo.Merchant;
-import com.test.pojo.News;
 import com.test.pojo.TokenInfo;
 import com.test.pojo.User;
 import com.test.service.MerchantService;
@@ -63,6 +62,7 @@ public class MerchantController extends BaseController{
         }
         WebUtil.writeJson(resp,result);
     }
+
 
     protected void findMerchantBySid(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Integer id = Integer.parseInt(req.getParameter("sid"));
@@ -160,10 +160,11 @@ public class MerchantController extends BaseController{
     }
 
     /**
-     *多条件查询merchant，可传入name，type
+     *多条件查询merchant，可传入username，name，type
      */
     protected void findMerchant(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("username", req.getParameter("username"));
         queryParams.put("name", req.getParameter("name"));
         queryParams.put("type", req.getParameter("type"));
         List<Merchant> merchantList = merchantService.findMerchant(queryParams);

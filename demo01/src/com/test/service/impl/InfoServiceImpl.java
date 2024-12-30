@@ -129,6 +129,16 @@ public class InfoServiceImpl implements InfoService {
     }
 
     @Override
+    public List<Feedback> findFeedbackByType(String type) {
+        return feedbackDao.findFeedbackByType(type);
+    }
+
+    @Override
+    public List<Feedback> findAllFeedback() {
+        return feedbackDao.findAllFeedback();
+    }
+
+    @Override
     public Cases findCasesById(Integer id) {
         return casesDao.findCasesById(id);
     }

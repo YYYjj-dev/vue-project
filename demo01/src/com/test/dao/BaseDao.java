@@ -161,7 +161,11 @@ public class BaseDao {
 
             // 根据不同类型拼接SQL
             if (value instanceof String && !((String) value).isEmpty()) {
-                sql.append(" AND ").append(field).append(" LIKE '%").append(value).append("%'");
+                if(value.equals("username")){
+                    sql.append(" AND ").append(field).append(" = ").append(value);
+                }else {
+                    sql.append(" AND ").append(field).append(" LIKE '%").append(value).append("%'");
+                }
             } else if (value instanceof Integer && ((Integer) value).describeConstable().isPresent()) {
                 sql.append(" AND ").append(field).append(" = ").append(value);
             }

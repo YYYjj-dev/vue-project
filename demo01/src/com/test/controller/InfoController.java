@@ -461,6 +461,26 @@ public class InfoController extends BaseController{
         WebUtil.writeJson(resp,result);
     }
 
+
+    protected void findFeedbackByType(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String type = req.getParameter("type");
+        List<Feedback> feedbackList = infoService.findFeedbackByType(type);
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if (feedbackList != null) {
+            result = Result.ok(feedbackList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
+    protected void findAllFeedback(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<Feedback> feedbackList = infoService.findAllFeedback();
+        Result result = Result.build(null,ResultCodeEnum.NOT_FOUND);
+        if (feedbackList != null) {
+            result = Result.ok(feedbackList);
+        }
+        WebUtil.writeJson(resp,result);
+    }
+
     protected void deleteFeedback(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         int rows = infoService.deleteFeedback(id);

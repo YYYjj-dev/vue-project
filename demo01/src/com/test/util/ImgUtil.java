@@ -1,5 +1,6 @@
 package com.test.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.pojo.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +24,15 @@ public class ImgUtil {
     private static DiskFileItemFactory.Builder builder = new DiskFileItemFactory.Builder();
     private static DiskFileItemFactory diskFileItemFactory = builder.get();
     private static JakartaServletFileUpload servletFileUpload = new JakartaServletFileUpload(diskFileItemFactory);
+
+    private static ObjectMapper objectMapper;
+    // 初始化objectMapper
+    static{
+        objectMapper=new ObjectMapper();
+        // 设置JSON和Object转换时的时间日期格式
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+    }
+    // 从请求中获取JSON串并转换为Object
 
     private static Charset charset = Charset.forName("UTF-8");
 
@@ -197,34 +208,40 @@ public class ImgUtil {
 
     public static User updateUser(HttpServletRequest req) throws ServletException, IOException {
         User user = new User();
-        try {
-            List<FileItem> list = servletFileUpload.parseRequest(req);
-            for (FileItem fileItem : list) {
-                if (fileItem.isFormField()) {
-                    if (!(fileItem.getString()).equals("")){
-                        if ("id".equals(fileItem.getFieldName())) {
-                            if (!(fileItem.getString()).equals("")) {
-                                user.setId(Integer.parseInt(fileItem.getString()));
+        if (servletFileUpload.isMultipartContent(req)) {
+            try {
+                List<FileItem> list = servletFileUpload.parseRequest(req);
+                for (FileItem fileItem : list) {
+                    if (fileItem.isFormField()) {
+                        if (!(fileItem.getString()).equals("")) {
+                            if ("id".equals(fileItem.getFieldName())) {
+                                if (!(fileItem.getString()).equals("")) {
+                                    user.setId(Integer.parseInt(fileItem.getString()));
+                                }
+                            } else if ("username".equals(fileItem.getFieldName())) {
+                                user.setUsername(fileItem.getString(charset));
+                            } else if ("password".equals(fileItem.getFieldName())) {
+                                user.setPassword(fileItem.getString(charset));
+                            } else if ("gender".equals(fileItem.getFieldName())) {
+                                user.setGender(fileItem.getString(charset));
+                            } else if ("img".equals(fileItem.getFieldName())) {
+                                user.setImg(fileItem.getString(charset));
+                            } else if ("type".equals(fileItem.getFieldName())) {
+                                user.setType(fileItem.getString(charset));
                             }
-                        }else if("username".equals(fileItem.getFieldName())) {
-                            user.setUsername(fileItem.getString(charset));
-                        }else if("password".equals(fileItem.getFieldName())) {
-                            user.setPassword(fileItem.getString(charset));
-                        }else if("gender".equals(fileItem.getFieldName())) {
-                            user.setGender(fileItem.getString(charset));
-                        }else if("img".equals(fileItem.getFieldName())) {
-                            user.setImg(fileItem.getString(charset));
-                        }else if("type".equals(fileItem.getFieldName())) {
-                            user.setType(fileItem.getString(charset));
                         }
+                    } else {
+                        String name = saveImage(fileItem, req);
+                        user.setImg(name);
                     }
-                }else {
-                    String name = saveImage(fileItem, req);
-                    user.setImg(name);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }else {
+            user = WebUtil.readJson(req,User.class);
+            user.setImg("DEFAULT");
+            user.setGender("未知");
         }
         return user;
     }

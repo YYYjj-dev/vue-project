@@ -88,4 +88,8 @@ public interface InfoService {
     int addNewsComment(Comment comment);
 
     int addCasesComment(Comment comment);
+
+    List<Feedback> findFeedbackByType(String type);
+
+    List<Feedback> findAllFeedback();
 }

@@ -184,6 +184,16 @@ const router = createRouter({
                     path: 'products',
                     name: 'products_manage',
                     component: () => import('../views/admin/ProductsManage.vue')
+                },
+                {
+                    path: 'merchants',
+                    name: 'merchants_manage',
+                    component: () => import('../views/admin/MerchantManage.vue')
+                },
+                {
+                    path: 'feedback',
+                    name: 'feedback_manage',
+                    component: () => import('../views/admin/FeedbackManage.vue')
                 }
             ]
         },

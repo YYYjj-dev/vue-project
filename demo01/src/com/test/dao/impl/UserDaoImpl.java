@@ -11,8 +11,8 @@ import java.util.Map;
 public class UserDaoImpl extends BaseDao implements UserDao {
 
     public int addUser(User user) {
-        String sql = "insert into user values(DEFAULT,?,?,?,'未知','DEFAULT')";
-        return baseUpdate(sql,user.getType(),user.getUsername(),user.getPassword());
+        String sql = "insert into user values(DEFAULT,?,?,?,?,?)";
+        return baseUpdate(sql,user.getType(),user.getUsername(),user.getPassword(),user.getGender(),user.getImg());
     }
 
     public User getUserByUsername(String username) {

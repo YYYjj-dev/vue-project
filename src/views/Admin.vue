@@ -18,11 +18,25 @@
         <router-link to="/admin/additives" class="menu-item" active-class="active">
           <span>添加剂管理</span>
         </router-link>
-        <router-link to="/admin/users" class="menu-item" active-class="active">
-          <span>用户管理</span>
-        </router-link>
+        <div class="menu-group">
+          <div class="menu-item" @click="toggleUserMenu">
+            <span>用户管理</span>
+            <span class="arrow" :class="{ 'arrow-down': showUserMenu }">▼</span>
+          </div>
+          <div class="submenu" v-show="showUserMenu">
+            <router-link to="/admin/users" class="menu-item" active-class="active">
+              <span>用户列表</span>
+            </router-link>
+            <router-link to="/admin/feedback" class="menu-item" active-class="active">
+              <span>用户反馈</span>
+            </router-link>
+          </div>
+        </div>
         <router-link to="/admin/products" class="menu-item" active-class="active">
           <span>商品管理</span>
+        </router-link>
+        <router-link to="/admin/merchants" class="menu-item" active-class="active">
+          <span>商家管理</span>
         </router-link>
       </div>
     </div>
@@ -55,9 +69,15 @@
 
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
+import { ref } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
+const showUserMenu = ref(false)
+
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
 
 const getCurrentPageTitle = () => {
   const pathMap = {
@@ -66,13 +86,14 @@ const getCurrentPageTitle = () => {
     '/admin/cases': '应用案例管理',
     '/admin/additives': '添加剂管理',
     '/admin/users': '用户管理',
-    '/admin/products': '商品管理'
+    '/admin/feedback': '用户反馈',
+    '/admin/products': '商品管理',
+    '/admin/merchants': '商家管理'
   }
   return pathMap[route.path] || '管理后台'
 }
 
 const handleLogout = () => {
-  // 实现登出逻辑
   router.push('/login')
 }
 </script>
@@ -238,5 +259,25 @@ const handleLogout = () => {
 
 .menu::-webkit-scrollbar-track {
   background-color: transparent;
+}
+
+.menu-group {
+  position: relative;
+}
+
+.submenu {
+  padding-left: 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.arrow {
+  font-size: 12px;
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.arrow-down {
+  transform: rotate(180deg);
 }
 </style> 
