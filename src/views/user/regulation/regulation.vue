@@ -13,8 +13,26 @@
 
       <!-- 法律法规内容 -->
       <div class="laws-content">
-        <div class="law-item" v-for="(law, index) in laws" :key="index" @click="goToLawInfo(law.id)">
+        <div class="law-item" v-for="law in currentPageLaws" :key="law.id" @click="goToLawInfo(law.id)">
           <h2>{{ law.title }}</h2>
+        </div>
+
+        <!-- 添加分页器 -->
+        <div class="pagination">
+          <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
+            上一页
+          </button>
+
+          <div class="page-numbers">
+            <button v-for="page in totalPages" :key="page" :class="['page-number', { active: currentPage === page }]"
+              @click="changePage(page)">
+              {{ page }}
+            </button>
+          </div>
+
+          <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
+            下一页
+          </button>
         </div>
       </div>
     </div>
@@ -46,6 +64,32 @@ async function showNews() {
   let { data } = await request.get('info/findAllRegular')
   laws.value = data.data
   console.log(laws.value)
+}
+
+// 添加分页相关的响应式数据
+const pageSize = ref(10) // 每页显示的数量
+const currentPage = ref(1) // 当前页码
+
+// 计算总页数
+const totalPages = computed(() => {
+  return Math.ceil(laws.value.length / pageSize.value)
+})
+
+// 计算当前页显示的法规
+const currentPageLaws = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return laws.value.slice(start, end)
+})
+
+// 切换页码
+const changePage = (page) => {
+  currentPage.value = page
+  // 回到顶部
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
 }
 
 </script>
@@ -139,22 +183,87 @@ async function showNews() {
   line-height: 1.6;
 }
 
+/* 分页器样式 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.page-btn {
+  padding: 8px 16px;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.page-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 8px;
+}
+
+.page-number {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.page-number:hover {
+  background: #f0f0f0;
+}
+
+.page-number.active {
+  background: #4CAF50;
+  color: white;
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
+  .pagination {
+    gap: 10px;
+  }
 
-  .page-btn,
-  .page-num {
+  .page-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .page-number {
     width: 32px;
     height: 32px;
-    font-size: 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-numbers {
+    display: none;
   }
 
   .pagination {
-    gap: 4px;
-  }
-
-  .page-numbers {
-    gap: 4px;
+    margin-top: 20px;
   }
 }
 </style>

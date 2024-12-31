@@ -35,32 +35,46 @@
                 <!-- 写评论 -->
                 <div class="write-comment">
                     <div class="comment-input">
-                        <textarea v-model="newComment" placeholder="写下你的评论..."></textarea>
-                        <button class="submit-btn">发布评论</button>
+                        <textarea v-model="newComment" :placeholder="isLoggedIn ? '写下你的评论...' : '请先登录后再发表评论...'"
+                            :disabled="!isLoggedIn" @keyup.ctrl.enter="submitComment"></textarea>
+                        <button class="submit-btn" @click="submitComment" :disabled="!isLoggedIn">
+                            发布评论
+                        </button>
                     </div>
                 </div>
 
                 <!-- 评论列表 -->
                 <div class="comments-list">
-                    <div class="comment-item" v-for="(comment, index) in comments" :key="index">
-                        <div class="comment-user">
-                            <div class="user-avatar"></div>
-                            <div class="user-info">
-                                <span class="username">用户{{ comment.userId }}</span>
+                    <div v-if="loading" class="loading-state">
+                        加载中...
+                    </div>
+                    <template v-else>
+                        <div v-if="comments.length === 0" class="no-comments">
+                            暂无评论，来发表第一条评论吧！
+                        </div>
+                        <div v-else v-for="comment in comments" :key="comment.id" class="comment-item">
+                            <div class="comment-user">
+                                <div class="user-avatar">
+                                    <template v-if="comment.img">
+                                        <img :src="baseUrl + comment.img" :alt="comment.username"
+                                            @error="e => e.target.parentElement.innerHTML = comment.username?.charAt(0).toUpperCase()" />
+                                    </template>
+                                    <template v-else>
+                                        {{ comment.username?.charAt(0).toUpperCase() }}
+                                    </template>
+                                </div>
+                                <div class="user-info">
+                                    <span class="username">{{ comment.username }}</span>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                {{ comment.content }}
+                            </div>
+                            <div class="comment-footer">
                                 <span class="comment-time">{{ comment.date }}</span>
                             </div>
                         </div>
-                        <div class="comment-content">
-                            {{ comment.content }}
-                        </div>
-                        <div class="comment-actions">
-
-                            <button class="action-link">
-                                <i class="icon-reply"></i>
-                                <span>回复</span>
-                            </button>
-                        </div>
-                    </div>
+                    </template>
                 </div>
             </div>
 
@@ -82,25 +96,44 @@
 </template>
 
 <script setup name='news_info' components="NavBar">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import NavBar from '../../../components/NavBar.vue'
 import { useRoute, useRouter } from 'vue-router'
 import request from '../../../utils/request'
 import Footer from '../../../components/Footer.vue'
+import { defineUser } from '../../../store/userStore'
 
 const route = useRoute()
 const router = useRouter()
+const baseUrl = 'http://localhost:8080/image/'
 const newsData = ref(null)
 const relatedNews = ref([])
-const loading = ref(true)
+const loading = ref(false)
+const comments = ref([])
+const newComment = ref('')
 
-let nid = route.params.id
-let comments = ref([
-    { content: '这篇文章写得很好，内容很有价值！' },
-    { content: '分析得很透彻，给了我很多启发。' },
-    { content: '希望能看到更多类似的深度文章。' },
-    { content: '观点很新颖，值得深入思考。' }
-])
+// 定义评论类型常量
+const COMMENT_TYPE = {
+    NEWS: "news",      // 新闻评论
+    CASE: "case",      // 案例评论
+    SHANGPIN: "shangpin" // 商品评论
+}
+
+// 添加用户store
+const userStore = defineUser()
+
+// 修改登录状态检查
+const isLoggedIn = ref(false)
+
+// 检查登录状态的函数
+const checkLoginStatus = () => {
+    isLoggedIn.value = !!userStore.token
+}
+
+// 监听用户token变化
+watch(() => userStore.token, (newToken) => {
+    isLoggedIn.value = !!newToken
+})
 
 // 获取新闻详情
 const getNewsDetail = async () => {
@@ -150,8 +183,114 @@ const goToNews = (id) => {
     })
 }
 
+// 添加获取用户信息的方法
+const getUserInfo = async (userId) => {
+    try {
+        const response = await request.get('/user/findUser', {
+            params: { id: userId }
+        })
+        if (response.data && response.data.code === 200) {
+            return response.data.data
+        }
+        return null
+    } catch (error) {
+        console.error('获取用户信息失败:', error)
+        return null
+    }
+}
+
+// 获取评论数据
+const fetchComments = async () => {
+    try {
+        const response = await request.get('/info/showComment', {
+            params: {
+                commentId: route.params.id,
+                commentType: "news"
+            }
+        })
+
+        console.log('评论接口返回数据:', response.data)
+
+        if (response.data && response.data.code === 200) {
+            // 直接使用后台返回的数据，包含日期
+            comments.value = Array.isArray(response.data.data) ? response.data.data : []
+            console.log('处理后的评论数据:', comments.value)
+        } else {
+            console.warn('获取评论失败:', response.data)
+            comments.value = []
+        }
+    } catch (error) {
+        console.error('获取评论失败:', error)
+        comments.value = []
+    }
+}
+
+// 添加获取当前日期的函数
+const getCurrentDate = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// 修改发布评论的方法
+const submitComment = async () => {
+    if (!userStore.token) {
+        alert('请先登录后再评论')
+        return
+    }
+
+    if (!newComment.value.trim()) {
+        alert('请输入评论内容')
+        return
+    }
+
+    try {
+        const commentData = {
+            userId: userStore.id,
+            newsId: route.params.id,
+            content: newComment.value.trim(),
+            date: getCurrentDate(),
+        }
+
+        const tokenInfo = {
+            token: userStore.token,
+            commentInfo: commentData
+        }
+
+        const response = await request.post('/info/addComment', tokenInfo)
+        
+        if (response.data && response.data.code === 200) {
+            await fetchComments()  // 重新获取评论列表
+            newComment.value = ''  // 清空输入框
+        } else {
+            console.error('评论失败:', response.data)
+            alert(response.data.message || '发布评论失败')
+        }
+    } catch (error) {
+        console.error('发布评论失败:', error)
+        alert('发布评论失败，请稍后重试')
+    }
+}
+
+// 初始化数据
+const initData = async () => {
+    try {
+        loading.value = true
+        await getNewsDetail()
+        await fetchComments()
+    } catch (error) {
+        console.error('初始化数据失败:', error)
+    } finally {
+        loading.value = false
+    }
+}
+
+// 在组件挂载时检查登录状态
 onMounted(() => {
-    getNewsDetail()
+    checkLoginStatus()
+    initData()
 })
 
 //newsData []
@@ -164,6 +303,15 @@ const formatContent = (content) => {
     ).filter(paragraph =>
         paragraph.length > 0
     ).join('\n\n');
+}
+
+// 添加头像错误处理函数
+const handleAvatarError = (e) => {
+    const parent = e.target.parentElement
+    if (parent) {
+        e.target.style.display = 'none'
+        parent.innerHTML = e.target.alt?.charAt(0).toUpperCase() || '?'
+    }
 }
 
 </script>
@@ -364,27 +512,52 @@ const formatContent = (content) => {
     height: 40px;
     border-radius: 50%;
     background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-weight: 500;
+    overflow: hidden;
+    text-transform: uppercase;
+    /* 确保字母大写 */
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* 添加这行 */
 }
 
 .user-info {
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
 .username {
     font-weight: 500;
     color: #333;
-}
-
-.comment-time {
-    font-size: 0.8rem;
-    color: #999;
+    font-size: 14px;
 }
 
 .comment-content {
     margin: 12px 0;
     line-height: 1.6;
     color: #333;
+}
+
+.comment-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #999;
 }
 
 .comment-actions {
@@ -492,5 +665,66 @@ const formatContent = (content) => {
     .articles-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* 添加无评论状态的样式 */
+.no-comments {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-size: 14px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 修改评论相关样式 */
+.comment-item {
+    padding: 24px;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-content {
+    margin: 12px 0;
+    line-height: 1.6;
+    color: #333;
+}
+
+.comment-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #999;
+}
+
+/* 移除不需要的样式 */
+.comment-meta {
+    display: none;
+}
+
+/* 添加禁用状态样式 */
+.comment-input textarea:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.submit-btn:disabled:hover {
+    background-color: #ccc;
 }
 </style>

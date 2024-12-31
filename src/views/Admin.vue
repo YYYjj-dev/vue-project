@@ -3,7 +3,14 @@
     <!-- 侧边栏 -->
     <div class="sidebar">
       <div class="logo">
-        <h2>后台管理系统</h2>
+        <h2>净食之窗后台管理系统</h2>
+        <div class="home-icon" @click="goToAdmin">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
       </div>
       <div class="menu">
         <router-link to="/admin/safety" class="menu-item" active-class="active">
@@ -56,6 +63,9 @@
           <button class="logout-btn" @click="handleLogout">
             退出登录
           </button>
+          <button class="home-btn" @click="goToHome">
+            返回首页
+          </button>
         </div>
       </div>
 
@@ -96,6 +106,14 @@ const getCurrentPageTitle = () => {
 const handleLogout = () => {
   router.push('/login')
 }
+
+const goToHome = () => {
+  router.push('/')
+}
+
+const goToAdmin = () => {
+  router.push('/admin')
+}
 </script>
 
 <style scoped>
@@ -106,14 +124,14 @@ const handleLogout = () => {
 }
 
 .sidebar {
-  width: 260px;
-  background: linear-gradient(180deg, #001529 0%, #002140 100%);
+  width: 300px;
+  background: #f5f5f5;
   color: white;
   position: fixed;
   height: 100vh;
   left: 0;
   top: 0;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -125,16 +143,37 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #e8e8e8;
+  border-bottom: 1px solid #dcdcdc;
+  position: relative;
 }
 
 .logo h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: 1px;
-  color: #fff;
+  color: #333;
+  padding: 0 40px;
+}
+
+.home-icon {
+  position: absolute;
+  right: 20px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.home-icon:hover {
+  color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.1);
+  transform: scale(1.1);
 }
 
 .menu {
@@ -146,25 +185,29 @@ const handleLogout = () => {
 .menu-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 12px 24px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #333;
   text-decoration: none;
   transition: all 0.3s ease;
   margin: 4px 16px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 16px;
+  border: 2px solid transparent;
 }
 
 .menu-item:hover {
-  color: white;
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateX(4px);
+  color: #4CAF50;
+  border-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  transform: translateX(2px);
 }
 
 .menu-item.active {
   color: white;
-  background: #1890ff;
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.35);
+  background: #4CAF50;
+  border-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.35);
 }
 
 .icon {
@@ -175,7 +218,7 @@ const handleLogout = () => {
 
 .main-content {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 300px;
   min-height: 100vh;
   background-color: #f0f2f5;
 }
@@ -224,10 +267,10 @@ const handleLogout = () => {
 
 .logout-btn {
   padding: 6px 16px;
-  background-color: #ff4d4f;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  background-color: white;
+  color: #ff4d4f;
+  border: 2px solid #ff4d4f;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 14px;
@@ -237,6 +280,7 @@ const handleLogout = () => {
 }
 
 .logout-btn:hover {
+  color: white;
   background-color: #ff7875;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(255, 77, 79, 0.35);
@@ -253,7 +297,7 @@ const handleLogout = () => {
 }
 
 .menu::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: #ccc;
   border-radius: 3px;
 }
 
@@ -267,17 +311,44 @@ const handleLogout = () => {
 
 .submenu {
   padding-left: 20px;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.03);
+  border-left: 2px solid #e0e0e0;
+}
+
+.submenu .menu-item {
+  font-size: 15px;
+  padding: 10px 20px;
 }
 
 .arrow {
   font-size: 12px;
-  margin-left: 8px;
+  margin-left: 12px;
   transition: transform 0.3s ease;
 }
 
 .arrow-down {
   transform: rotate(180deg);
 }
-</style> 
+
+.home-btn {
+  padding: 6px 16px;
+  background-color: white;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+}
+
+.home-btn:hover {
+  background-color: #4CAF50;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.35);
+}
+</style>

@@ -138,12 +138,12 @@ export default {
       currentGroupProducts: [],
       currentIndex: 0,
       images: [
-        '/src/img/img4.jpg',
-        '/src/img/img7.jpg',
-        '/src/img/img6.jpg',
-        '/src/img/img2.jpg',
-        '/src/img/img3.jpg',
-        '/src/img/img5.jpg',
+        '/src/img/img14.jpg',
+        '/src/img/img15.jpg',
+        '/src/img/img18.jpg',
+        '/src/img/img17.jpg',
+        '/src/img/img16.jpg',
+        '/src/img/img19.jpg',
       ],
       autoPlayInterval: null,
       isPaused: false,
@@ -225,7 +225,7 @@ export default {
         })
 
         if (productsResponse.data.code === 200) {
-          this.currentGroupProducts = productsResponse.data.data.map(item => ({
+          this.currentGroupProducts = productsResponse.data.data.slice(0, 4).map(item => ({
             id: item.id,
             title: item.name,
             description: item.description,

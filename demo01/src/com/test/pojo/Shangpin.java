@@ -14,7 +14,6 @@ public class Shangpin {
   private String score;
   private Integer num;
   private String imgpath;
-
   private String merchantName;
 
   public String getMerchantName() {

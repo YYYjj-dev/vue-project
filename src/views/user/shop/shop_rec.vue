@@ -75,7 +75,9 @@
                             <div class="hot-product-info">
                                 <div class="title">{{ item.title }}</div>
                                 <div class="price">￥{{ item.price }}</div>
-                                <div class="score">销量: {{ item.num }}</div>
+                                <div class="score">
+                                    {{ typeof item.score === 'number' ? `销量: ${item.score}` : '暂无评分' }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -86,6 +88,7 @@
             </div>
         </div>
     </div>
+    <Footer />
 </template>
 
 <script>
@@ -94,33 +97,36 @@ import Carousel from '../../../components/Carousel.vue'
 import { useRouter } from 'vue-router'
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import request from '../../../utils/request'
+import Footer from '../../../components/Footer.vue'
 
 export default {
     name: 'shop_rec',
     components: {
         NavBar,
-        Carousel
+        Carousel,
+        Footer
     },
     setup() {
         const router = useRouter()
         const baseUrl = 'http://localhost:8080/image/'
         const currentIndex = ref(0)
         const images = ref([
-            '/src/img/img4.jpg',
-            '/src/img/img7.jpg',
-            '/src/img/img6.jpg',
-            '/src/img/img2.jpg',
-            '/src/img/img3.jpg',
-            '/src/img/img5.jpg',
+            '/src/img/tea4.jpg',
+            '/src/img/xilanhua.jpg',
+            '/src/img/oranges.jpg',
+            '/src/img/juice.jpg',
+            '/src/img/huotui2.jpg',
+            '/src/img/ningmengsuan.jpg',
         ])
         const autoPlayInterval = ref(null)
         const isPaused = ref(false)
         const slides = ref([])
         const categories = ref([
+            { name: '饮料', type: '饮料' },
             { name: '果蔬', type: '果蔬' },
             { name: '肉类', type: '肉类' },
-            { name: '饮料', type: '饮料' },
-            { name: '其他', type: '其他' }
+            { name: '其他', type: '其他' },
+
         ])
         const currentCategory = ref(0)
         const hotProducts = ref([])
@@ -131,9 +137,17 @@ export default {
         // 根据分类获取商品数据
         const getProductsByCategory = async (type) => {
             try {
+                // 对中文参数进行编码
+                console.log('发送的type值:', type)
+
+
                 const response = await request.get('/shangpin/findShangpinByType', {
-                    params: { type }
+                    params: { type },
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                    }
                 })
+
                 if (response.data && response.data.code === 200) {
                     return response.data.data.map(p => ({
                         id: p.id,
@@ -141,9 +155,11 @@ export default {
                         price: p.price,
                         image: baseUrl + p.imgpath,
                         description: p.description,
-                        score: p.score,
                         num: p.num,
-                        standard: p.standard
+                        score: p.score,
+                        standard: p.standard,
+                        group: p.group,
+                        type: p.type
                     }))
                 }
                 return []
@@ -157,6 +173,7 @@ export default {
         const changeCategory = async (index) => {
             currentCategory.value = index
             const type = categories.value[index].type
+            console.log('选择的分类:', type)  // 添加日志
             try {
                 const products = await getProductsByCategory(type)
                 currentPageProducts.value = products
@@ -179,7 +196,7 @@ export default {
                             title: p.name,
                             image: baseUrl + p.imgpath,
                             price: p.price,
-                            score: p.score,
+                            score: p.num ?? '暂无评分',  // 添加默认值处理
                             num: p.num
                         }))
                 }
@@ -260,7 +277,7 @@ export default {
 
         // 跳转到商品详情
         const goToDetail = (id) => {
-            router.push(`/shop_rec_info/${id}`)
+            router.push({ path: '/shop_rec_info/' + id });
         }
 
         // 图片加载失败时的处理
@@ -423,14 +440,59 @@ export default {
     justify-content: center;
     gap: 30px;
     margin: 20px 0 30px;
+    padding: 15px;
 }
 
 .sub-button {
-    padding: 6px 30px;
-    border: 1px solid #ddd;
-    border-radius: 15px;
-    background: white;
+    padding: 10px 30px;
+    border: 2px solid transparent;
+    border-radius: 25px;
+    background-color: white;
+    color: #666;
+    font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sub-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.sub-button:hover::before {
+    width: 200%;
+    height: 200%;
+}
+
+.sub-button:hover {
+    color: #4CAF50;
+    border-color: #4CAF50;
+    transform: translateY(-2px);
+    background-color: white;
+}
+
+.sub-button.active {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.sub-button.active:hover {
+    background: #45a049;
+    transform: translateY(-2px);
 }
 
 .content-container {
@@ -603,12 +665,6 @@ export default {
     color: #666;
 }
 
-.sub-button.active {
-    background: #4CAF50;
-    color: white;
-    border-color: #4CAF50;
-}
-
 .refresh-container {
     display: flex;
     justify-content: flex-end;
@@ -648,6 +704,21 @@ export default {
     .price {
         font-size: 16px;
     }
+
+    .sub-categories {
+        gap: 15px;
+        padding: 12px;
+        margin: 15px 0 25px;
+        overflow-x: auto;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sub-button {
+        padding: 8px 20px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
 }
 
 @media (max-width: 480px) {
@@ -666,6 +737,16 @@ export default {
 
     .price {
         font-size: 15px;
+    }
+
+    .sub-categories {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .sub-button {
+        padding: 6px 16px;
+        font-size: 13px;
     }
 }
 </style>

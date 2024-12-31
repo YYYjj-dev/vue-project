@@ -156,7 +156,8 @@ public class OrderController extends BaseController {
      *根据商家用户username返回所接收的订单列表,传入token
      */
     protected void findOrderByMUsername(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String token = req.getParameter("token");
+        TokenInfo tokenInfo = WebUtil.readTokenJson(req);
+        String token = tokenInfo.getToken();
         if(token == null)
         {
             token = WebUtil.readJson(req,String.class);

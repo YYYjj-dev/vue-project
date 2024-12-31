@@ -26,24 +26,47 @@
                 </div>
                 <div v-else class="seller-card" v-for="seller in merchants" :key="seller.id">
                     <div class="seller-header">
-                        <div class="seller-logo">
-                            <template v-if="seller.logo">
-                                <img :src="seller.logo" :alt="seller.name">
-                            </template>
-                            <template v-else>
-                                {{ seller.name.charAt(0) }}
-                            </template>
-                        </div>
-                        <div class="seller-info">
-                            <div class="seller-name">{{ seller.name }}</div>
-                            <div class="seller-desc">{{ seller.description }}</div>
+                        <div class="seller-main-info">
+                            <div class="seller-logo">
+                                <template v-if="seller.logo">
+                                    <img :src="seller.logo" :alt="seller.name">
+                                </template>
+                                <template v-else>
+                                    {{ seller.name.charAt(0) }}
+                                </template>
+                            </div>
+                            <div class="seller-info">
+                                <div class="seller-name">{{ seller.name }}</div>
+                                <div class="seller-desc">{{ seller.description }}</div>
+                                <div class="seller-tags">
+                                    <span class="seller-type">{{ seller.type }}</span>
+                                </div>
+                            </div>
                         </div>
                         <button class="enter-store" @click="goToStore(seller)">进店</button>
+                    </div>
+
+                    <!-- 商品轮播图 -->
+                    <div class="product-showcase" v-if="seller.products?.length > 0">
+                        <div class="carousel-wrapper">
+                            <button class="carousel-btn prev" @click="prevSlide(seller.id)">❮</button>
+                            <div class="carousel-track" :style="getCarouselStyle(seller.id)">
+                                <div v-for="product in seller.products" :key="product.id" class="carousel-item">
+                                    <div class="product-image">
+                                        <img :src="baseUrl + product.imgpath" :alt="product.name"
+                                            @error="handleImageError">
+                                    </div>
+
+                                </div>
+                            </div>
+                            <button class="carousel-btn next" @click="nextSlide(seller.id)">❯</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <Footer />
 </template>
 
 <script>
@@ -51,11 +74,12 @@ import NavBar from '../../../components/NavBar.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '../../../utils/request'
-
+import Footer from '../../../components/Footer.vue'
 export default {
     name: 'shop_sel',
     components: {
-        NavBar
+        NavBar,
+        Footer
     },
     setup() {
         const router = useRouter()
@@ -63,6 +87,7 @@ export default {
         const currentCategory = ref(1)
         const isLoading = ref(false)
         const merchants = ref([])
+        const carouselPositions = ref({})  // 存储每个商家的轮播位置
 
         // 分类数据
         const categories = [
@@ -72,36 +97,81 @@ export default {
             { id: 4, name: '其他', type: '其他' }
         ]
 
-        // 获取商家数据
+        // 获取商家商品数据
+        const fetchMerchantProducts = async (merchantId) => {
+            try {
+                const response = await request.get('/shangpin/findShangpinByMid', {
+                    params: { mid: merchantId }
+                })
+                console.log('商品数据响应:', response) // 添加日志
+                if (response.data?.code === 200) {
+                    return response.data.data || []
+                }
+                return []
+            } catch (error) {
+                console.error('获取商家商品失败:', error)
+                return []
+            }
+        }
+
+        // 修改获取商家数据的方法
         const getMerchantsByType = async (type) => {
             try {
                 isLoading.value = true
-                console.log('发送请求的type值:', type)
-
                 const response = await request.get('/merchant/findMerchantByType', {
                     params: { type: type }
                 })
-                console.log('商家数据响应:', response)
+                console.log('商家数据响应:', response) // 添加日志
 
-                if (response.data && response.data.code === 200) {
-                    merchants.value = response.data.data.map(merchant => ({
-                        id: merchant.id,
-                        username: merchant.username,
-                        name: merchant.name,
+                if (response.data?.code === 200) {
+                    const merchantsData = response.data.data || []
+                    // 获取每个商家的商品数据
+                    for (const merchant of merchantsData) {
+                        const products = await fetchMerchantProducts(merchant.id)
+                        console.log(`商家 ${merchant.id} 的商品:`, products) // 添加日志
+                        merchant.products = products
+                        carouselPositions.value[merchant.id] = 0
+                    }
+
+                    merchants.value = merchantsData.map(merchant => ({
+                        ...merchant,
+                        name: merchant.name || '未命名商家',
                         description: merchant.description || '暂无描述',
-                        logo: baseUrl + merchant.logo,
-                        type: merchant.type
+                        logo: merchant.logo ? baseUrl + merchant.logo : null,
+                        type: merchant.type || '未知类型',
+                        products: merchant.products || []
                     }))
-                    console.log('处理后的商家数据:', merchants.value)
-                } else {
-                    merchants.value = []
-                    console.log('获取商家数据失败:', response.data)
                 }
             } catch (error) {
                 console.error('获取商家数据错误:', error)
                 merchants.value = []
             } finally {
                 isLoading.value = false
+            }
+        }
+
+        // 轮播控制方法
+        const prevSlide = (merchantId) => {
+            const products = merchants.value.find(m => m.id === merchantId)?.products || []
+            if (products.length <= 4) return  // 如果商品数量小于等于4，不需要滚动
+
+            const maxPosition = Math.max(0, products.length - 4)
+            carouselPositions.value[merchantId] = Math.max(0, (carouselPositions.value[merchantId] || 0) - 1)
+        }
+
+        const nextSlide = (merchantId) => {
+            const products = merchants.value.find(m => m.id === merchantId)?.products || []
+            if (products.length <= 4) return  // 如果商品数量小于等于4，不需要滚动
+
+            const maxPosition = Math.max(0, products.length - 4)
+            carouselPositions.value[merchantId] = Math.min(maxPosition, (carouselPositions.value[merchantId] || 0) + 1)
+        }
+
+        const getCarouselStyle = (merchantId) => {
+            const position = carouselPositions.value[merchantId] || 0
+            const slideWidth = (100 / 4) + 5  // 每个项目宽度（25%）加上间距
+            return {
+                transform: `translateX(-${position * slideWidth}%)`
             }
         }
 
@@ -117,9 +187,14 @@ export default {
 
         // 进入商家店铺
         const goToStore = (seller) => {
+            console.log('跳转到店铺:', seller)
             router.push({
-                name: 'shop_sel_info1',
-                params: { username: seller.username }
+                path: `/shop_sel_info1/${seller.id}`,
+                query: {
+                    name: seller.name
+                }
+            }).catch(err => {
+                console.error('路由跳转错误:', err)
             })
         }
 
@@ -131,6 +206,12 @@ export default {
             }
         })
 
+        // 添加图片错误处理
+        const handleImageError = (e) => {
+            e.target.src = '默认图片路径' // 设置一个默认图片
+            console.log('图片加载失败')
+        }
+
         return {
             categories,
             currentCategory,
@@ -138,7 +219,11 @@ export default {
             changeCategory,
             goToStore,
             isLoading,
-            baseUrl
+            baseUrl,
+            prevSlide,
+            nextSlide,
+            getCarouselStyle,
+            handleImageError
         }
     }
 }
@@ -225,111 +310,213 @@ export default {
 
 .seller-card {
     background: white;
-    border-radius: 12px;
-    padding: 25px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .seller-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .seller-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.seller-main-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .seller-logo {
-    width: 90px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
     background: linear-gradient(145deg, #f0f0f0, #ffffff);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border-radius: 12px;
     overflow: hidden;
-    font-size: 28px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    /* 添加 flex 布局 */
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
     color: #4CAF50;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .seller-logo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.seller-logo:hover img {
-    transform: scale(1.05);
 }
 
 .seller-info {
-    flex: 1;
-    padding: 0 15px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .seller-name {
     font-size: 20px;
     font-weight: 600;
     color: #333;
-    margin-bottom: 5px;
 }
 
 .seller-desc {
     font-size: 14px;
     color: #666;
-    line-height: 1.6;
-    margin-bottom: 8px;
+    line-height: 1.4;
 }
 
-.seller-type {
-    display: inline-block;
+.seller-tags {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.seller-type,
+.seller-status {
     padding: 4px 12px;
-    background: #f0f7f0;
-    color: #4CAF50;
-    border-radius: 15px;
-    font-size: 13px;
+    border-radius: 20px;
+    font-size: 12px;
     font-weight: 500;
 }
 
+.seller-type {
+    background: #e6f7ff;
+    color: #1890ff;
+}
+
+.seller-status {
+    background: #f6ffed;
+    color: #52c41a;
+}
+
 .enter-store {
-    padding: 10px 25px;
+    padding: 10px 24px;
     background: #4CAF50;
     color: white;
     border: none;
     border-radius: 8px;
-    cursor: pointer;
     font-size: 15px;
     font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
 }
 
-.enter-store:hover {
-    background: #43a047;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+/* 商品展示区样式 */
+.product-showcase {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
 }
 
-.seller-carousel {
+.showcase-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.carousel-wrapper {
+    position: relative;
     width: 100%;
     height: 200px;
-    background: #f0f0f0;
+    /* 调整高度 */
+    background: #f8f9fa;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 20px 0;
+    /* 添加上下内边距 */
+}
+
+.carousel-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.3s ease;
+    gap: 20px;
+    /* 增加图片间距 */
+    padding: 0 20px;
+}
+
+.carousel-item {
+    flex: 0 0 calc(25% - 15px);
+    height: 100%;
     border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease;
+}
+
+.carousel-item:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-info {
+    padding: 8px;
+}
+
+.product-name {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-price {
+    font-size: 14px;
+    color: #f56c6c;
+    font-weight: 500;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 18px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.carousel-placeholder {
-    color: #666;
+.carousel-btn:hover {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-btn.prev {
+    left: 10px;
+}
+
+.carousel-btn.next {
+    right: 10px;
 }
 
 /* 添加加载状态和无结果状态的样式 */
@@ -343,5 +530,10 @@ export default {
     border-radius: 12px;
     margin: 20px 0;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 修改图片悬停效果 */
+.carousel-item:hover .product-image img {
+    transform: scale(1.1);
 }
 </style>

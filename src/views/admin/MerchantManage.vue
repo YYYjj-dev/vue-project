@@ -353,4 +353,26 @@ onMounted(async () => {
   border-radius: 4px;
   object-fit: cover;
 }
+
+.add-btn {
+  padding: 6px 16px;
+  background-color: white;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+}
+
+.add-btn:hover {
+  background-color: #4CAF50;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.35);
+}
 </style> 

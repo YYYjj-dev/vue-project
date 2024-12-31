@@ -2,8 +2,8 @@
     <NavBar />
     <div class="regulation-info">
         <!-- 标题区域 -->
-        <div class="title" >
-            <h1>{{law.data.title}}</h1>
+        <div class="title">
+            <h1>{{ law.data.title }}</h1>
         </div>
 
         <!-- 主要内容区域 -->
@@ -11,7 +11,9 @@
             <div class="content-wrapper">
                 <div class="content-section">
                     <div class="content-text">
-                       {{ law.data.content }}
+                        <p v-for="(paragraph, index) in contentParagraphs" :key="index">
+                            {{ paragraph }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -25,28 +27,32 @@
 
 <script setup name='regulation_info' comments="NavBar">
 import NavBar from '../../../components/NavBar.vue'
-import { useRouter,useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import request from '../../../utils/request'
-import {ref,reactive,onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import Footer from '../../../components/Footer.vue'
-    const router = useRouter()
-    const route = useRoute()
-    let law=ref({title:'',content:'',data:''})
-    let lid=route.params.id
+const router = useRouter()
+const route = useRoute()
+let law = ref({ title: '', content: '', data: '' })
+let lid = route.params.id
 
-    onMounted(()=>{
-            showLaws(lid)
-        })
-    
+onMounted(() => {
+    showLaws(lid)
+})
 
-    async function showLaws(id){
-    let {data} = await request.get(`info/news/findRegularById?id=${id}`)
-    law.value=data
-    }
-    function goBack() {
-        this.router.push('/regulation');
-    }
-    
+
+async function showLaws(id) {
+    let { data } = await request.get(`info/news/findRegularById?id=${id}`)
+    law.value = data
+}
+function goBack() {
+    this.router.push('/regulation');
+}
+
+const contentParagraphs = computed(() => {
+    if (!law.value?.data?.content) return []
+    return law.value.data.content.split('\n').filter(p => p.trim())
+})
 </script>
 
 <style scoped>
@@ -112,6 +118,17 @@ import Footer from '../../../components/Footer.vue'
     text-align: justify;
 }
 
+.content-text p {
+    margin-bottom: 1.5em;
+    text-indent: 2em;
+    /* 段落缩进 */
+}
+
+.content-text p:last-child {
+    margin-bottom: 0;
+    /* 最后一个段落不需要底部间距 */
+}
+
 /* 错误信息样式 */
 .error-message {
     text-align: center;
@@ -140,6 +157,11 @@ import Footer from '../../../components/Footer.vue'
 
     .content-text {
         font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .content-text p {
+        margin-bottom: 1.2em;
     }
 }
 </style>

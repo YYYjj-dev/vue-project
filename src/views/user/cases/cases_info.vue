@@ -29,38 +29,58 @@
             </div>
 
             <!-- 评论区域 -->
-            <div class="comments-section">
-                <h2 class="section-title">
-                    评论区
-                    <span class="comment-count">{{ comments.length }} 条评论</span>
-                </h2>
+            <div class="comment-section">
+                <div class="comment-header">
+                    <div class="section-title">
+                        <h2>评论区</h2>
+                        <span class="comment-count">{{ comments.length }} 条评论</span>
+                    </div>
+                </div>
 
                 <!-- 写评论 -->
                 <div class="write-comment">
                     <div class="comment-input">
-                        <textarea v-model="newComment" placeholder="写下你的看法..."></textarea>
-                        <button class="submit-btn">发布评论</button>
+                        <textarea v-model="newComment" :placeholder="isLoggedIn ? '写下你的评论...' : '请先登录后再发表评论...'"
+                            :disabled="!isLoggedIn" @keyup.ctrl.enter="submitComment">
+                        </textarea>
+                        <button class="submit-btn" @click="submitComment" :disabled="!isLoggedIn">
+                            发布评论
+                        </button>
                     </div>
                 </div>
 
                 <!-- 评论列表 -->
                 <div class="comments-list">
-                    <div class="comment-item" v-for="comment in comments" :key="comment.id">
-                        <div class="comment-user">
-                            <div class="user-avatar"></div>
-                            <div class="user-info">
-                                <span class="username">用户{{ comment.userId }}</span>
+                    <div v-if="loading" class="loading-state">
+                        加载中...
+                    </div>
+                    <template v-else>
+                        <div v-if="comments.length === 0" class="no-comments">
+                            暂无评论，来发表第一条评论吧！
+                        </div>
+                        <div v-else v-for="comment in comments" :key="comment.id" class="comment-item">
+                            <div class="comment-user">
+                                <div class="user-avatar">
+                                    <template v-if="comment.img">
+                                        <img :src="baseUrl + comment.img" :alt="comment.username"
+                                            @error="e => e.target.parentElement.innerHTML = comment.username?.charAt(0).toUpperCase()" />
+                                    </template>
+                                    <template v-else>
+                                        {{ comment.username?.charAt(0).toUpperCase() }}
+                                    </template>
+                                </div>
+                                <div class="user-info">
+                                    <span class="username">{{ comment.username }}</span>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                {{ comment.content }}
+                            </div>
+                            <div class="comment-footer">
                                 <span class="comment-time">{{ comment.date }}</span>
                             </div>
                         </div>
-                        <div class="comment-content">{{ comment.content }}</div>
-                        <div class="comment-actions">
-                            <button class="action-link">
-                                <i class="icon-reply"></i>
-                                <span>回复</span>
-                            </button>
-                        </div>
-                    </div>
+                    </template>
                 </div>
             </div>
 
@@ -71,7 +91,7 @@
                     <div class="product-card" v-for="product in relatedProducts" :key="product.id"
                         @click="goToProduct(product.id)">
                         <div class="product-image">
-                            <img :src="baseUrl + product.img" :alt="product.name">
+                            <img :src="baseUrl + product.imgpath" :alt="product.name">
                             <div class="hover-overlay">
                                 <span>查看详情</span>
                             </div>
@@ -89,17 +109,44 @@
             </div>
         </div>
     </div>
+    <Footer />
 </template>
 
 <script setup>
 import NavBar from '../../../components/NavBar.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import request from '../../../utils/request'
+import { defineUser } from '../../../store/userStore'
+import Footer from '../../../components/Footer.vue'
 
 const router = useRouter()
 const route = useRoute()
 const baseUrl = 'http://localhost:8080/image/'
+
+// 添加用户store
+const userStore = defineUser()
+
+// 添加登录状态检查
+const isLoggedIn = ref(false)
+const loading = ref(false)
+
+// 定义评论类型常量
+const COMMENT_TYPE = {
+    NEWS: "news",      // 新闻评论
+    CASE: "case",      // 案例评论
+    SHANGPIN: "shangpin" // 商品评论
+}
+
+// 检查登录状态的函数
+const checkLoginStatus = () => {
+    isLoggedIn.value = !!userStore.token
+}
+
+// 监听用户token变化
+watch(() => userStore.token, (newToken) => {
+    isLoggedIn.value = !!newToken
+})
 
 // 定义响应式数据
 const caseInfo = ref({
@@ -130,7 +177,7 @@ const getCaseInfo = async () => {
                 return
             }
             // 获取评论数据
-            await getComments(route.params.id)
+            await fetchComments()
             // 获取相关商品数据
             await getRelatedProducts(data.data.grouptype)
             console.log('案例分组类型:', data.data.grouptype)
@@ -141,19 +188,27 @@ const getCaseInfo = async () => {
 }
 
 // 获取评论数据
-const getComments = async (caseId) => {
+const fetchComments = async () => {
     try {
-        const { data } = await request.get(`info/showComment`, {
+        const response = await request.get('/info/showComment', {
             params: {
-                commentId: caseId,
-                commentType: 2 // 假设2代表案例评论类型
+                commentId: route.params.id,
+                commentType: "case"
             }
         })
-        if (data.code === 200) {
-            comments.value = data.data || []
+
+        console.log('评论接口返回数据:', response.data)
+
+        if (response.data && response.data.code === 200) {
+            comments.value = Array.isArray(response.data.data) ? response.data.data : []
+            console.log('处理后的评论数据:', comments.value)
+        } else {
+            console.warn('获取评论失败:', response.data)
+            comments.value = []
         }
     } catch (error) {
         console.error('获取评论失败:', error)
+        comments.value = []
     }
 }
 
@@ -219,20 +274,77 @@ const goToProduct = (id) => {
     router.push(`/shop_rec_info/${id}`)
 }
 
-// 添加格式化内容的方法
-const formatContent = (content) => {
-    if (!content) return '';
-    // 将连续的换行符替换为单个换行符，并按段落分割
-    return content.replace(/\n\s*\n/g, '\n').split('\n').map(paragraph =>
-        paragraph.trim()
-    ).filter(paragraph =>
-        paragraph.length > 0
-    ).join('\n\n');
+// 添加获取当前日期的函数
+const getCurrentDate = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
-// 页面加载时获取数据
+// 修改提交评论的方法
+const submitComment = async () => {
+    if (!userStore.token) {
+        alert('请先登录后再评论')
+        return
+    }
+
+    if (!newComment.value.trim()) {
+        alert('请输入评论内容')
+        return
+    }
+
+    try {
+        const commentData = {
+            userId: userStore.id,
+            caseId: route.params.id,
+            content: newComment.value.trim(),
+            date: getCurrentDate()
+        }
+
+        const tokenInfo = {
+            token: userStore.token,
+            commentInfo: commentData
+        }
+
+        const response = await request.post('/info/addComment', tokenInfo)
+
+        if (response.data && response.data.code === 200) {
+            await fetchComments()  // 重新获取评论列表
+            newComment.value = ''  // 清空输入框
+        } else {
+            alert(response.data.message || '发布评论失败')
+        }
+    } catch (error) {
+        console.error('发布评论失败:', error)
+        alert('发布评论失败，请稍后重试')
+    }
+}
+
+// 初始化数据
+const initData = async () => {
+    try {
+        loading.value = true
+        await getCaseInfo()
+        await fetchComments()
+    } catch (error) {
+        console.error('初始化数据失败:', error)
+    } finally {
+        loading.value = false
+    }
+}
+
+// 格式化内容的方法
+const formatContent = (content) => {
+    if (!content) return ''
+    return content.split('\n').filter(Boolean).join('\n\n')
+}
+
+// 在组件挂载时初始化
 onMounted(() => {
-    getCaseInfo()
+    checkLoginStatus()  // 检查登录状态
+    initData()         // 初始化数据
 })
 </script>
 
@@ -548,16 +660,21 @@ onMounted(() => {
 .case-image {
     width: 100%;
     max-height: 400px;
-    margin-bottom: 30px;
+    margin: 0 auto 30px;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
 }
 
 .case-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     display: block;
     transition: transform 0.3s ease;
 }
@@ -614,6 +731,196 @@ onMounted(() => {
     .case-image {
         max-height: 200px;
         margin-bottom: 15px;
+    }
+}
+
+/* 评论区域样式 */
+.comment-section {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 60px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.comment-header {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-title h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.comment-count {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* 写评论区域 */
+.write-comment {
+    margin-bottom: 40px;
+}
+
+.comment-input {
+    position: relative;
+}
+
+.comment-input textarea {
+    width: 100%;
+    height: 120px;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    resize: none;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.comment-input textarea:focus {
+    outline: none;
+    border-color: #42b983;
+}
+
+.submit-btn {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    padding: 8px 24px;
+    background: #42b983;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background: #3aa876;
+}
+
+/* 评论列表 */
+.comment-item {
+    padding: 24px;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-weight: 500;
+    overflow: hidden;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.username {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.comment-content {
+    margin: 12px 0;
+    line-height: 1.6;
+    color: #333;
+}
+
+.comment-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #999;
+}
+
+/* 加载和无评论状态 */
+.loading-state,
+.no-comments {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-size: 14px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* 禁用状态样式 */
+.comment-input textarea:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.submit-btn:disabled:hover {
+    background-color: #ccc;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .comment-section {
+        padding: 20px;
+    }
+
+    .section-title h2 {
+        font-size: 1.2rem;
+    }
+
+    .comment-input textarea {
+        height: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .comment-section {
+        padding: 15px;
+    }
+
+    .comment-item {
+        padding: 15px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
     }
 }
 </style>

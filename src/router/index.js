@@ -99,7 +99,7 @@ const router = createRouter({
             props: true  // 使用路由参数作为 props 传递到组件
         },
         {
-            path: '/shop_sel_info1/:username',
+            path: '/shop_sel_info1/:id',
             name: 'shop_sel_info1',
             component: () => import('../views/user/shop/shop_sel_info1.vue'),
             props: true
@@ -186,14 +186,14 @@ const router = createRouter({
                     component: () => import('../views/admin/ProductsManage.vue')
                 },
                 {
-                    path: 'merchants',
-                    name: 'merchants_manage',
-                    component: () => import('../views/admin/MerchantManage.vue')
-                },
-                {
                     path: 'feedback',
                     name: 'feedback_manage',
                     component: () => import('../views/admin/FeedbackManage.vue')
+                },
+                {
+                    path: 'merchants',
+                    name: 'merchant_manage',
+                    component: () => import('../views/admin/MerchantManage.vue')
                 }
             ]
         },
@@ -206,6 +206,11 @@ const router = createRouter({
             path: '/profile',
             name: 'Profile',
             component: () => import('../views/Profile.vue')
+        },
+        {
+            path: '/merchant',
+            name: 'Merchant',
+            component: () => import('../views/Merchant.vue')
         }
         // ... 其他路由
     ],

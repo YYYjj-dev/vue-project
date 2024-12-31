@@ -25,10 +25,12 @@ import { useRouter } from 'vue-router'
 import request from '../utils/request'
 import { defineUser } from '../store/userStore'
 
+
+const baseUrl = 'http://localhost:8080/image/'
 const router = useRouter()
 let loginUser = reactive({
     username: '',
-    password: '',
+    password: ''
 })
 let userStore = defineUser()
 
@@ -40,12 +42,15 @@ async function Login() {
         })
 
         if (response.data.code === 200) {
-            // 使用store的action来设置用户信息
-            console.log(response.data)
-            userStore.setUserInfo(response.data.data.username, response.data.data.token ,response.data.data.type)
+            // 使用store的action来设置用户信息，包括type
+            userStore.setUserInfo(
+                response.data.data.username,
+                response.data.data.token,
+                response.data.data.type,  // 存储用户类型
+                response.data.data.img
+            )
             router.push('/')
         } else {
-            // 处理登录失败
             console.error('登录失败:', response.data.message)
         }
     } catch (error) {
@@ -64,8 +69,23 @@ const goToRegister = () => {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f5f5f5;
+    background-image: url('/src/img/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     padding: 20px;
+    position: relative;
+}
+
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
 }
 
 .login-box {
@@ -76,6 +96,8 @@ const goToRegister = () => {
     width: 100%;
     max-width: 400px;
     margin: auto;
+    position: relative;
+    z-index: 1;
 }
 
 .form-container {

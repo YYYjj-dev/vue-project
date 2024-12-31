@@ -40,8 +40,8 @@
         </transition>
       </div>
     </div>
-    <div>
-      <button class="login-btn" @click="goToAdmin">管理员登录</button>
+    <div v-if="showAdminButton">
+      <button class="login-btn" @click="goToAdmin">后台管理</button>
     </div>
 
     <div class="nav-right">
@@ -62,7 +62,12 @@
       <!-- 登录状态 -->
       <div v-else class="user-profile" @mouseover="showUserMenu = true" @mouseleave="showUserMenu = false">
         <div class="avatar">
-          {{ userStore.username.charAt(0).toUpperCase() }}
+          <template v-if="userStore.img">
+            <img :src="baseUrl + userStore.img" :alt="userStore.username" @error="handleAvatarError" />
+          </template>
+          <template v-else>
+            {{ userStore.username.charAt(0).toUpperCase() }}
+          </template>
         </div>
         <span class="username">{{ userStore.username }}</span>
 
@@ -71,7 +76,7 @@
           <div v-show="showUserMenu" class="user-menu">
             <div class="menu-item" @click="goToProfile">
               <i class="profile-icon"></i>
-              个人中心
+              {{ userStore.type === 'merchant' ? '商家中心' : '个人中心' }}
             </div>
             <div class="menu-item" @click="logout">
               <i class="logout-icon"></i>
@@ -85,10 +90,9 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { defineUser } from '../store/userStore'
-
 
 export default {
   name: 'NavBar',
@@ -106,6 +110,12 @@ export default {
     const cartItemCount = ref(0)
     const seachInfo = ref()
     const showUserMenu = ref(false)
+    const baseUrl = 'http://localhost:8080/image/'
+
+    const handleAvatarError = (e) => {
+      e.target.style.display = 'none'
+      e.target.parentElement.innerHTML = userStore.username.charAt(0).toUpperCase()
+    }
 
     const goToLogin = () => {
       router.push('/login')
@@ -119,14 +129,24 @@ export default {
       console.log(seachInfo.value)
     }
 
+    const showAdminButton = computed(() => {
+      return userStore.type === 'admin'
+    })
+
     const goToAdmin = () => {
+      if (userStore.type !== 'admin') {
+        console.warn('无权限访问后台管理')
+        return
+      }
       router.push('/admin')
     }
 
     const goToProfile = () => {
-      router.push({
-        name: 'Profile'
-      })
+      if (userStore.type === 'merchant') {
+        router.push('/merchant')
+      } else {
+        router.push('/profile')
+      }
       showUserMenu.value = false
     }
 
@@ -148,7 +168,10 @@ export default {
       userStore,
       showUserMenu,
       goToProfile,
-      logout
+      logout,
+      baseUrl,
+      handleAvatarError,
+      showAdminButton
     }
   }
 }
@@ -243,6 +266,13 @@ export default {
   transform: rotate(180deg);
 }
 
+/* 修改下拉菜单容器样式 */
+.nav-item-wrapper.dropdown {
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+/* 修改下拉菜单样式 */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -255,17 +285,54 @@ export default {
   padding: 0.5rem 0;
   margin-top: 0.5rem;
   z-index: 1000;
-  transform-origin: top;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
 }
 
+/* 添加一个透明的连接区域 */
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: transparent;
+}
+
+/* 显示菜单 */
+.nav-item-wrapper.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 菜单项样式 */
 .dropdown-item {
   display: block;
   padding: 0.8rem 1.2rem;
   color: #333;
   text-decoration: none;
-  transition: all 0.3s ease;
   text-align: center;
   white-space: nowrap;
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+/* 显示菜单项 */
+.nav-item-wrapper.dropdown:hover .dropdown-item {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* 菜单项延迟动画 */
+.dropdown-item:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+.dropdown-item:nth-child(2) {
+  transition-delay: 0.2s;
 }
 
 .dropdown-item:hover {
@@ -273,39 +340,14 @@ export default {
   color: #42b983;
 }
 
-/* 下拉菜单动画 */
+/* 移除之前的动画相关代码 */
 .dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.3s ease;
-  transform-origin: top;
-}
-
+.dropdown-leave-active,
 .dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) scaleY(0);
-}
-
+.dropdown-leave-to,
 .dropdown-enter-to,
 .dropdown-leave-from {
-  opacity: 1;
-  transform: translateX(-50%) scaleY(1);
-}
-
-/* 下拉菜单项动画 */
-.dropdown-item {
-  transition: all 0.3s ease;
-  transition-delay: calc(var(--index) * 0.05s);
-}
-
-.dropdown-enter-active .dropdown-item {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.dropdown-enter-to .dropdown-item {
-  opacity: 1;
-  transform: translateY(0);
+  display: none;
 }
 
 /* 右侧区域样式 */
@@ -504,11 +546,18 @@ export default {
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-.user-profile:hover .avatar {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.user-profile:hover .avatar img {
+  transform: scale(1.1);
 }
 
 .username {
@@ -522,6 +571,7 @@ export default {
   color: #4CAF50;
 }
 
+/* 用户菜单样式 */
 .user-menu {
   position: absolute;
   top: calc(100% + 5px);
@@ -531,10 +581,25 @@ export default {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   padding: 8px 0;
   min-width: 160px;
-  transform-origin: top right;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
   z-index: 1000;
 }
 
+/* 添加透明连接区域 */
+.user-menu::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  /* 增加连接区域的高度 */
+  left: 0;
+  right: 0;
+  height: 15px;
+  background: transparent;
+}
+
+/* 菜单项样式 */
 .menu-item {
   padding: 12px 20px;
   display: flex;
@@ -542,9 +607,38 @@ export default {
   gap: 12px;
   color: #333;
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  transform: translateY(-10px);
+  opacity: 0;
+  cursor: pointer;
+  /* 添加鼠标指针样式 */
+}
+
+/* 显示菜单项 */
+.user-profile:hover .user-menu,
+.user-menu:hover {
+  /* 添加菜单本身的悬停状态 */
+  opacity: 1;
+  visibility: visible;
+}
+
+.user-profile:hover .user-menu .menu-item,
+.user-menu:hover .menu-item {
+  /* 同样添加菜单悬停状态 */
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* 菜单项延迟动画 */
+.user-profile:hover .user-menu .menu-item:nth-child(1),
+.user-menu:hover .menu-item:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+.user-profile:hover .user-menu .menu-item:nth-child(2),
+.user-menu:hover .menu-item:nth-child(2) {
+  transition-delay: 0.2s;
 }
 
 .menu-item:hover {
@@ -553,47 +647,19 @@ export default {
   padding-left: 25px;
 }
 
+/* 添加分隔线 */
+.menu-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 图标样式 */
+.menu-item i {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
 .menu-item:hover i {
   opacity: 1;
-}
-
-.menu-item::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 20px;
-  right: 20px;
-  height: 1px;
-  background: #f0f0f0;
-}
-
-.menu-item:last-child::after {
-  display: none;
-}
-
-/* 优化下拉菜单动画 */
-.dropdown-enter-active {
-  animation: dropdown-in 0.3s ease-out;
-}
-
-.dropdown-leave-active {
-  animation: dropdown-in 0.3s ease-in reverse;
-}
-
-@keyframes dropdown-in {
-  0% {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.9);
-  }
-
-  50% {
-    transform: translateY(5px) scale(1.02);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 .profile-icon,
@@ -622,5 +688,18 @@ export default {
 .dropdown-leave-to {
   opacity: 0;
   transform: scaleY(0);
+}
+
+/* 为每个菜单项添加索引 */
+.dropdown-item:nth-child(1) {
+  --index: 1;
+}
+
+.dropdown-item:nth-child(2) {
+  --index: 2;
+}
+
+.dropdown-item:nth-child(3) {
+  --index: 3;
 }
 </style>

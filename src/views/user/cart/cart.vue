@@ -1,17 +1,22 @@
 <template>
     <div class="cart-page">
         <NavBar />
-        
+
         <div class="cart-container">
             <div class="cart-header">
                 <h1>我的购物车</h1>
                 <span class="item-count">共 {{ totalItems }} 件商品</span>
             </div>
 
+            <!-- 加载状态 -->
+            <div v-if="isLoading" class="loading-state">
+                加载中...
+            </div>
+
             <!-- 购物车为空时显示 -->
-            <div v-if="cartItems.length === 0" class="empty-cart">
+            <div v-else-if="cartItems.length === 0" class="empty-cart">
                 <div class="empty-cart-icon"></div>
-                <p>购物车还是空的哦~</p>
+                <p>购物车中没有未支付的商品~</p>
                 <router-link to="/shop_rec" class="go-shopping-btn">
                     去逛逛
                 </router-link>
@@ -21,56 +26,33 @@
             <div v-else class="cart-content">
                 <div class="cart-items">
                     <div v-for="item in cartItems" :key="item.id" class="cart-item">
-                        <!-- 商品选择框 -->
                         <div class="item-select">
-                            <input 
-                                type="checkbox" 
-                                :checked="item.selected"
-                                @change="toggleSelect(item.id)"
-                            >
+                            <input type="checkbox" :checked="item.selected" @change="toggleSelect(item.id)">
                         </div>
-                        
-                        <!-- 商品图片 -->
+
                         <div class="item-image">
                             <img :src="item.image" :alt="item.name">
                         </div>
-                        
-                        <!-- 商品信息 -->
+
                         <div class="item-info">
                             <h3 class="item-name">{{ item.name }}</h3>
                             <p class="item-spec">{{ item.specification }}</p>
+                            <p class="item-date">下单时间：{{ item.date }}</p>
+                            <p class="item-status">状态：{{ item.status }}</p>
                         </div>
-                        
-                        <!-- 商品单价 -->
+
                         <div class="item-price">
                             ¥{{ item.price.toFixed(2) }}
                         </div>
-                        
-                        <!-- 数量调整 -->
+
                         <div class="item-quantity">
-                            <button 
-                                class="quantity-btn" 
-                                @click="decreaseQuantity(item.id)"
-                                :disabled="item.quantity <= 1"
-                            >-</button>
-                            <input 
-                                type="number" 
-                                v-model.number="item.quantity"
-                                min="1"
-                                @change="updateQuantity(item.id, item.quantity)"
-                            >
-                            <button 
-                                class="quantity-btn"
-                                @click="increaseQuantity(item.id)"
-                            >+</button>
+                            数量：{{ item.quantity }}
                         </div>
-                        
-                        <!-- 商品总价 -->
+
                         <div class="item-total">
                             ¥{{ (item.price * item.quantity).toFixed(2) }}
                         </div>
-                        
-                        <!-- 删除按钮 -->
+
                         <div class="item-delete">
                             <button @click="removeItem(item.id)" class="delete-btn">
                                 删除
@@ -82,14 +64,10 @@
                 <!-- 购物车底部 -->
                 <div class="cart-footer">
                     <div class="select-all">
-                        <input 
-                            type="checkbox" 
-                            :checked="allSelected"
-                            @change="toggleSelectAll"
-                        >
+                        <input type="checkbox" :checked="allSelected" @change="toggleSelectAll">
                         <span>全选</span>
                     </div>
-                    
+
                     <div class="cart-summary">
                         <div class="summary-item">
                             <span>已选商品 {{ selectedCount }} 件</span>
@@ -108,128 +86,162 @@
     </div>
 </template>
 
-<script>
-import { ref, computed } from 'vue'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import NavBar from '../../../components/NavBar.vue'
+import request from '../../../utils/request'
+import { defineUser } from '../../../store/userStore'
 
-export default {
-    name: 'Cart',
-    components: {
-        NavBar
-    },
-    setup() {
-        // 购物车数据
-        const cartItems = ref([
-            {
-                id: 1,
-                name: '示例商品1',
-                specification: '规格：500g',
-                price: 29.9,
-                quantity: 1,
-                selected: true,
-                image: 'https://via.placeholder.com/100'
-            },
-            // 可以添加更多示例商品
-        ])
+const userStore = defineUser()
+const cartItems = ref([])
+const isLoading = ref(true)
+const baseUrl = 'http://localhost:8080/image/'
 
-        // 计算总商品数
-        const totalItems = computed(() => {
-            return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
+// 获取订单信息
+const fetchOrders = async () => {
+    try {
+        isLoading.value = true
+        const response = await request.post('/order/findOrderByUid', {
+            token: userStore.token
         })
 
-        // 计算选中商品数量
-        const selectedCount = computed(() => {
-            return cartItems.value.filter(item => item.selected).length
-        })
+        if (response.data?.code === 200 && Array.isArray(response.data.data)) {
+            // 只获取未支付的订单
+            const orders = response.data.data.filter(order => order.status === '未支付')
 
-        // 计算总价
-        const totalPrice = computed(() => {
-            return cartItems.value
-                .filter(item => item.selected)
-                .reduce((sum, item) => sum + item.price * item.quantity, 0)
-        })
+            // 获取每个订单对应的商品信息
+            const orderPromises = orders.map(async (order) => {
+                try {
+                    const productResponse = await request.get(`/shangpin/findShangpinById?id=${order.shangpinId}`)
 
-        // 是否全选
-        const allSelected = computed(() => {
-            return cartItems.value.length > 0 && cartItems.value.every(item => item.selected)
-        })
-
-        // 切换商品选中状态
-        const toggleSelect = (id) => {
-            const item = cartItems.value.find(item => item.id === id)
-            if (item) {
-                item.selected = !item.selected
-            }
-        }
-
-        // 切换全选状态
-        const toggleSelectAll = () => {
-            const newState = !allSelected.value
-            cartItems.value.forEach(item => {
-                item.selected = newState
+                    if (productResponse.data?.data) {
+                        const productInfo = productResponse.data.data
+                        return {
+                            id: order.id,
+                            shangpinId: order.shangpinId,
+                            name: productInfo.name,
+                            price: productInfo.price,
+                            image: baseUrl + productInfo.imgpath,
+                            specification: productInfo.standard,
+                            quantity: order.quantity,
+                            selected: false,
+                            date: order.date,
+                            status: order.status
+                        }
+                    }
+                } catch (error) {
+                    console.error('获取商品信息失败:', error)
+                    return null
+                }
             })
-        }
 
-        // 增加商品数量
-        const increaseQuantity = (id) => {
-            const item = cartItems.value.find(item => item.id === id)
-            if (item) {
-                item.quantity++
-            }
+            // 等待所有商品信息获取完成
+            const results = await Promise.all(orderPromises)
+            cartItems.value = results.filter(item => item !== null)
         }
-
-        // 减少商品数量
-        const decreaseQuantity = (id) => {
-            const item = cartItems.value.find(item => item.id === id)
-            if (item && item.quantity > 1) {
-                item.quantity--
-            }
-        }
-
-        // 更新商品数量
-        const updateQuantity = (id, quantity) => {
-            const item = cartItems.value.find(item => item.id === id)
-            if (item) {
-                item.quantity = Math.max(1, quantity)
-            }
-        }
-
-        // 删除商品
-        const removeItem = (id) => {
-            const index = cartItems.value.findIndex(item => item.id === id)
-            if (index !== -1) {
-                cartItems.value.splice(index, 1)
-            }
-        }
-
-        // 结算
-        const checkout = () => {
-            // 这里添加结算逻辑
-            alert('跳转到结算页面')
-        }
-
-        return {
-            cartItems,
-            totalItems,
-            selectedCount,
-            totalPrice,
-            allSelected,
-            toggleSelect,
-            toggleSelectAll,
-            increaseQuantity,
-            decreaseQuantity,
-            updateQuantity,
-            removeItem,
-            checkout
-        }
+    } catch (error) {
+        console.error('获取订单失败:', error)
+    } finally {
+        isLoading.value = false
     }
 }
+
+// 计算属性
+const totalItems = computed(() => {
+    return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
+})
+
+const selectedCount = computed(() => {
+    return cartItems.value.filter(item => item.selected).length
+})
+
+const totalPrice = computed(() => {
+    return cartItems.value
+        .filter(item => item.selected)
+        .reduce((sum, item) => sum + item.price * item.quantity, 0)
+})
+
+const allSelected = computed(() => {
+    return cartItems.value.length > 0 && cartItems.value.every(item => item.selected)
+})
+
+// 方法
+const toggleSelect = (id) => {
+    const item = cartItems.value.find(item => item.id === id)
+    if (item) {
+        item.selected = !item.selected
+    }
+}
+
+const toggleSelectAll = () => {
+    const newState = !allSelected.value
+    cartItems.value.forEach(item => {
+        item.selected = newState
+    })
+}
+
+const removeItem = async (orderId) => {
+    if (!confirm('确定要删除这个订单吗？')) {
+        return
+    }
+
+    try {
+        const response = await request.post('/order/deleteOrder', {
+            token: userStore.token,
+            id: orderId
+        })
+
+        if (response.data?.code === 200) {
+            await fetchOrders()
+        } else {
+            alert(response.data?.message || '删除失败')
+        }
+    } catch (error) {
+        console.error('删除订单失败:', error)
+        alert('删除失败，请稍后重试')
+    }
+}
+
+const checkout = async () => {
+    const selectedItems = cartItems.value.filter(item => item.selected)
+    if (selectedItems.length === 0) {
+        alert('请选择要结算的商品')
+        return
+    }
+
+    try {
+        const requestData = {
+            token: userStore.token,
+            oidList: selectedItems.map(item => item.id)
+        }
+
+        const response = await request.post('/order/payOrder', requestData)
+
+        if (response.data?.code === 200) {
+            alert('支付成功')
+            // 重新获取购物车数据
+            await fetchOrders()
+        } else {
+            alert(response.data?.message || '支付失败')
+        }
+    } catch (error) {
+        console.error('支付失败:', error)
+        alert('支付失败，请稍后重试')
+    }
+}
+
+// 初始化
+onMounted(() => {
+    if (userStore.token) {
+        fetchOrders()
+    }
+})
 </script>
 
 <style scoped>
 .cart-page {
     min-height: 100vh;
-    background-color: #f8f7f2;
+    background-color: #f8f9fa;
 }
 
 .cart-container {
@@ -382,16 +394,18 @@ export default {
 }
 
 .delete-btn {
-    padding: 0.5rem 1rem;
-    border: none;
+    padding: 6px 12px;
     background: none;
-    color: #666;
+    border: 1px solid #ff4d4f;
+    color: #ff4d4f;
+    border-radius: 4px;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .delete-btn:hover {
-    color: #e74c3c;
+    background: #ff4d4f;
+    color: white;
 }
 
 .cart-footer {
@@ -483,4 +497,11 @@ export default {
         width: 100%;
     }
 }
-</style> 
+
+/* 添加状态样式 */
+.item-status {
+    font-size: 14px;
+    color: #ff6b6b;
+    margin-top: 4px;
+}
+</style>

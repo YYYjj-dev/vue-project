@@ -1,23 +1,23 @@
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL:'http://localhost:8080/'
+    baseURL: 'http://localhost:8080/'
 })
 
 instance.interceptors.request.use(
-    config=>{
+    config => {
         return config
     },
-    error=>{
+    error => {
         return Promise.reject(error)
     }
 )
 instance.interceptors.response.use(
-    response=>{
-      
+    response => {
+
         return response
     },
-    error=>{
+    error => {
         return Promise.reject(error)
     }
 )

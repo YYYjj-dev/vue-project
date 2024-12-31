@@ -204,7 +204,7 @@ async function getCases() {
   try {
     const { data } = await request.get('info/findAllCases')
     if (data.code === 200) {
-      casesData.value = data.data.map(item => ({
+      casesData.value = data.data.slice(0, 4).map(item => ({
         id: item.id,
         title: item.title,
         content: item.content,
